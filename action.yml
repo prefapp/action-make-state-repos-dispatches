@@ -8,6 +8,26 @@ inputs:
     description: 'Path to the make_dispatches.yaml file of your repo'
     required: true
     default: '.github/make_dispatches.yaml'
+  token:
+    description: Github token
+    required: false
+    default: ${{ github.token }}
+  dispatch_type:
+    description: Dispatch types (releases, snapshots, *)
+    required: false
+    default: "*"
+  flavors:
+    description: Flavors to dispatch separated by comma
+    required: false
+    default: default
+  state_repo:
+    description: List of state repos to dispatch separated by comma (use "*" to target all flavors)
+    required: false
+    default: "*"
+  default_registry:
+    description: Default registry to use
+    required: false
+    
 
 # Define your outputs here.
 outputs:

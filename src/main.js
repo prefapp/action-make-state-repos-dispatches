@@ -1,5 +1,6 @@
 const core = require('@actions/core')
-const { wait } = require('./wait')
+const github = require('@actions/github')
+const YAML = require('js-yaml')
 
 /**
  * The main function for the action.
@@ -7,22 +8,155 @@ const { wait } = require('./wait')
  */
 async function run() {
   try {
-    const ms = core.getInput('milliseconds', { required: true })
+    const dispatchesFilePath = core.getInput('dispatches_file', {
+      required: true
+    })
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const octokit = github.getOctokit(
+      core.getInput('token', {
+        required: true
+      })
+    )
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const ctx = {
+      owner: github.context.payload.repository.owner.login,
+      repo: github.context.payload.repository.name
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    const encodedYaml = await octokit.rest.repos.getContent({
+      owner: ctx.owner,
+      repo: ctx.repo,
+      path: dispatchesFilePath
+    })
+
+    const yamlContent = Buffer.from(encodedYaml.content, 'base64').toString(
+      'utf-8'
+    )
+
+    const dispatchesFileContent = YAML.load(yamlContent)
+    const typesList =
+      core.getInput('type') === '*'
+        ? ['releases', 'snapshots']
+        : [core.getInput('type')]
+
+    const selectedFlavors = core.getInput('flavors')
+    const flavorsList =
+      selectedFlavors === '*' ? '*' : selectedFlavors.split(',')
+
+    const stateReposList =
+      core.getInput('state_repo') === '*'
+        ? '*'
+        : core.getInput('state_repo').split(',')
+
+    const dispatchMatrix = []
+
+    for (const dispatch of dispatchesFileContent['dispatches']) {
+      if (typesList.includes(dispatch.type)) {
+        for (const flavor of dispatch.flavors) {
+          if (flavorsList.includes(flavor)) {
+            for (const stateRepo of dispatch.state_repos) {
+              for (const serviceName of stateRepo.service_names) {
+                const imageName = calculateImageName(
+                  stateRepo.version,
+                  octokit,
+                  ctx,
+                  flavor
+                )
+                const registry =
+                  stateRepo.registry || core.getInput('default_registry')
+                const fullImagePath = `${registry}:${imageName}`
+
+                await octokit.rest.repos.createDispatchEvent({
+                  owner: ctx.owner,
+                  repo: stateRepo.repo,
+                  event_type: 'dispatch-image',
+                  client_payload: {
+                    tenant: stateRepo.tenant,
+                    app: stateRepo.application,
+                    env: stateRepo.env,
+                    service_name: serviceName,
+                    image: fullImagePath,
+                    reviewers: [],
+                    base_folder: stateRepo.base_path || ''
+                  }
+                })
+              }
+            }
+          }
+        }
+      }
+    }
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
   }
+}
+
+function calculateImageName(action_type, octokit, ctx, flavor) {
+  let image
+  switch (action_type) {
+    case 'last_prerelease':
+      image = __last_prerelease(octokit, ctx)
+      break
+    case 'last_release':
+      image = __last_release(octokit, ctx)
+      break
+    default:
+      if (action_type.match(/^branch_/)) {
+        image = __last_branch_commit(action_type, octokit, ctx)
+      } else {
+        image = action_type
+      }
+  }
+
+  if (flavor) {
+    return `${image}_${flavor}`
+  } else {
+    return image
+  }
+}
+
+function __last_release(octokit, ctx) {
+  return octokit.rest.repos
+    .getLatestRelease({
+      owner: ctx.owner,
+      repo: ctx.repo
+    }).then((r) => {
+      return r.data.tag_name
+    }).catch((err) => {
+      throw `calculating last release: ${err}`
+    })
+}
+
+function __last_prerelease(octokit, ctx) {
+  return octokit.rest.repos
+    .listReleases({
+      owner: ctx.owner,
+      repo: ctx.repo
+    }).then((rr) => {
+      return rr.data.filter(r => r.prerelease)[0]
+    }).then((r) => {
+      if (r) return r.tag_name
+      return null
+    }).catch((err) => {
+      throw `calculating last pre-release: ${err}`
+    })
+}
+
+function __last_branch_commit(branch, octokit, ctx) {
+  return octokit.rest.repos
+    .getBranch({
+      owner: ctx.owner,
+      repo: ctx.repo,
+      branch: branch.replace(/^branch_/, '')
+    }).then((b) => {
+      //
+      // we only use the first 8 chars of the commit's SHA for tagging
+      //
+      return b.data.commit.sha.substring(0, 7)
+    }).catch((err) => {
+      throw `calculating last commit on branch ${branch}: ${err}`
+    })
 }
 
 module.exports = {

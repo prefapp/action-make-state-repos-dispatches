@@ -1,13 +1,13 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Make state repos' dispatches"
+description: 'Dispatch image changes on multiple state repos'
+author: 'Prefapp'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  dispatches_file:
+    description: 'Path to the make_dispatches.yaml file of your repo'
     required: true
-    default: '1000'
+    default: '.github/make_dispatches.yaml'
 
 # Define your outputs here.
 outputs:

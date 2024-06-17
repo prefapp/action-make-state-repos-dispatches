@@ -34568,13 +34568,15 @@ async function run() {
               repo: stateRepo.repo,
               event_type: 'dispatch-image',
               client_payload: {
-                tenant: stateRepo.tenant,
-                app: stateRepo.application,
-                env: stateRepo.env,
-                service_name: serviceName,
-                image: fullImagePath,
-                reviewers: [],
-                base_folder: stateRepo.base_path || ''
+                images: [{
+                  tenant: stateRepo.tenant,
+                  app: stateRepo.application,
+                  env: stateRepo.env,
+                  service_name: serviceName,
+                  image: fullImagePath,
+                  reviewers: [],
+                  base_folder: stateRepo.base_path || ''
+                }]
               }
             })
           }

@@ -80,7 +80,7 @@ async function run() {
         }
         for (const stateRepo of dispatch.state_repos) {
           for (const serviceName of stateRepo.service_names) {
-            const imageName = calculateImageName(
+            const imageName = await calculateImageName(
               stateRepo.version,
               octokit,
               ctx,
@@ -114,18 +114,18 @@ async function run() {
   }
 }
 
-function calculateImageName(action_type, octokit, ctx, flavor) {
+async function calculateImageName(action_type, octokit, ctx, flavor) {
   let image
   switch (action_type) {
     case 'last_prerelease':
-      image = __last_prerelease(octokit, ctx)
+      image = await __last_prerelease(octokit, ctx)
       break
     case 'last_release':
-      image = __last_release(octokit, ctx)
+      image = await __last_release(octokit, ctx)
       break
     default:
       if (action_type.match(/^branch_/)) {
-        image = __last_branch_commit(action_type, octokit, ctx)
+        image = await __last_branch_commit(action_type, octokit, ctx)
       } else {
         image = action_type
       }

@@ -19,7 +19,7 @@ async function run() {
 
     const defaultRegistry = core.getInput('default_registry')
     const token = core.getInput('token', { required: true })
-    const type = core.getInput('type', { required: true })
+    const dispatch_type = core.getInput('dispatch_type', { required: true })
     const stateRepo = core.getInput('state_repo', { required: true })
 
     // Authenticate with GitHub
@@ -51,9 +51,9 @@ async function run() {
     )
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const typesList = type === '*'
+    const dispatcheTypesList = dispatch_type === '*'
       ? ['releases', 'snapshots']
-      : [type]
+      : [dispatch_type]
 
     const selectedFlavors = core.getInput('flavors')
     const flavorsList =
@@ -66,7 +66,7 @@ async function run() {
     const dispatchMatrix = []
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (typesList.includes(dispatch.type)) {
+      if (dispatcheTypesList.includes(dispatch.type)) {
         for (const flavor of dispatch.flavors) {
           if (flavorsList.includes(flavor)) {
             for (const stateRepo of dispatch.state_repos) {

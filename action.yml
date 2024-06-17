@@ -15,19 +15,20 @@ inputs:
   dispatch_type:
     description: Dispatch types (releases, snapshots, *)
     required: false
-    default: "*"
+    default: '*'
   flavors:
     description: Flavors to dispatch separated by comma
     required: false
     default: default
   state_repo:
-    description: List of state repos to dispatch separated by comma (use "*" to target all flavors)
+    description:
+      List of state repos to dispatch separated by comma (use "*" to target all
+      flavors)
     required: false
-    default: "*"
+    default: '*'
   default_registry:
     description: Default registry to use
     required: false
-    
 
 # Define your outputs here.
 outputs:

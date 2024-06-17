@@ -34559,6 +34559,12 @@ async function run() {
               flavor
             )
             const registry = stateRepo.registry || defaultRegistry
+
+            console.log('Registry debug')
+            console.log(`stateRepo.registry: ${stateRepo.registry}`)
+            console.log(`defaultRegistry: ${defaultRegistry}`)
+            console.log(`registry: ${registry}`)
+
             const fullImagePath = `${registry}:${imageName}`
 
             debug(

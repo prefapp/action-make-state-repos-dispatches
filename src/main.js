@@ -38,11 +38,11 @@ async function run() {
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
 
-    const encodedYaml = await octokit.rest.repos.getContent({
+    const encodedYaml = (await octokit.rest.repos.getContent({
       owner: ctx.owner,
       repo: ctx.repo,
       path: dispatchesFilePath
-    }).data
+    })).data
 
     console.log(JSON.stringify(encodedYaml), null, 2)
 

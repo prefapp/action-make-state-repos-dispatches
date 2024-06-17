@@ -34515,7 +34515,7 @@ async function run() {
       owner: ctx.owner,
       repo: ctx.repo,
       path: dispatchesFilePath
-    })
+    }).data
 
     console.log(JSON.stringify(encodedYaml), null, 2)
 

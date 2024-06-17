@@ -34576,7 +34576,8 @@ async function run() {
                   image: fullImagePath,
                   reviewers: [],
                   base_folder: stateRepo.base_path || ''
-                }]
+                }],
+                version: 4,
               }
             })
           }

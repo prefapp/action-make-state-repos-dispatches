@@ -38,19 +38,18 @@ async function run() {
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
 
-    const encodedYaml = (await octokit.rest.repos.getContent({
+    const dispatchFileResponse = await octokit.rest.repos.getContent({
       owner: ctx.owner,
       repo: ctx.repo,
       path: dispatchesFilePath
-    })).data
+    })
 
-    console.log(JSON.stringify(encodedYaml), null, 2)
-
-    if (encodedYaml.content === undefined) throw new Error('No content found in dispatches file, please check the file path or the token permissions.')
+    if (dispatchFileResponse.status !== 200) throw new Error(`Got status code ${dispatchFileResponse.status}, please check the file path exists or the token permissions.`)
+    if (dispatchFileResponse.data.type !== 'file') throw new Error(`The path ${dispatchesFilePath} is not a file.`)
 
     debug('Parsing dispatches file yaml content')
 
-    const yamlContent = Buffer.from(encodedYaml.content, 'base64').toString(
+    const yamlContent = Buffer.from(dispatchFileResponse.data.content, 'base64').toString(
       'utf-8'
     )
 
@@ -70,37 +69,41 @@ async function run() {
     const dispatchMatrix = []
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (dispatcheTypesList.includes(dispatch.type)) {
-        for (const flavor of dispatch.flavors) {
-          if (flavorsList.includes(flavor)) {
-            for (const stateRepo of dispatch.state_repos) {
-              for (const serviceName of stateRepo.service_names) {
-                const imageName = calculateImageName(
-                  stateRepo.version,
-                  octokit,
-                  ctx,
-                  flavor
-                )
-                const registry = stateRepo.registry || defaultRegistry
-                const fullImagePath = `${registry}:${imageName}`
+      if (!dispatcheTypesList.includes(dispatch.type)) {
+        debug('Skipping dispatch', dispatch.type)
+        continue
+      }
+      for (const flavor of dispatch.flavors) {
+        if (!flavorsList.includes(flavor)) {
+          debug('Skipping flavor', flavor)
+          continue
+        }
+        for (const stateRepo of dispatch.state_repos) {
+          for (const serviceName of stateRepo.service_names) {
+            const imageName = calculateImageName(
+              stateRepo.version,
+              octokit,
+              ctx,
+              flavor
+            )
+            const registry = stateRepo.registry || defaultRegistry
+            const fullImagePath = `${registry}:${imageName}`
 
-                debug('Dispatching image', fullImagePath, 'to state repo', stateRepo.repo, 'for service', serviceName)
-                await octokit.rest.repos.createDispatchEvent({
-                  owner: ctx.owner,
-                  repo: stateRepo.repo,
-                  event_type: 'dispatch-image',
-                  client_payload: {
-                    tenant: stateRepo.tenant,
-                    app: stateRepo.application,
-                    env: stateRepo.env,
-                    service_name: serviceName,
-                    image: fullImagePath,
-                    reviewers: [],
-                    base_folder: stateRepo.base_path || ''
-                  }
-                })
+            debug('Dispatching image', fullImagePath, 'to state repo', stateRepo.repo, 'for service', serviceName)
+            await octokit.rest.repos.createDispatchEvent({
+              owner: ctx.owner,
+              repo: stateRepo.repo,
+              event_type: 'dispatch-image',
+              client_payload: {
+                tenant: stateRepo.tenant,
+                app: stateRepo.application,
+                env: stateRepo.env,
+                service_name: serviceName,
+                image: fullImagePath,
+                reviewers: [],
+                base_folder: stateRepo.base_path || ''
               }
-            }
+            })
           }
         }
       }
@@ -135,8 +138,8 @@ function calculateImageName(action_type, octokit, ctx, flavor) {
   }
 }
 
-function __last_release(octokit, ctx) {
-  return octokit.rest.repos
+async function __last_release(octokit, ctx) {
+  return await octokit.rest.repos
     .getLatestRelease({
       owner: ctx.owner,
       repo: ctx.repo
@@ -147,8 +150,8 @@ function __last_release(octokit, ctx) {
     })
 }
 
-function __last_prerelease(octokit, ctx) {
-  return octokit.rest.repos
+async function __last_prerelease(octokit, ctx) {
+  return await octokit.rest.repos
     .listReleases({
       owner: ctx.owner,
       repo: ctx.repo
@@ -162,8 +165,8 @@ function __last_prerelease(octokit, ctx) {
     })
 }
 
-function __last_branch_commit(branch, octokit, ctx) {
-  return octokit.rest.repos
+async function __last_branch_commit(branch, octokit, ctx) {
+  return await octokit.rest.repos
     .getBranch({
       owner: ctx.owner,
       repo: ctx.repo,

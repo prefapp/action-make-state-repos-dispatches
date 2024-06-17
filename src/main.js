@@ -44,6 +44,8 @@ async function run() {
       path: dispatchesFilePath
     })
 
+    console.log(JSON.stringify(encodedYaml), null, 2)
+
     if (encodedYaml.content === undefined) throw new Error('No content found in dispatches file, please check the file path or the token permissions.')
 
     debug('Parsing dispatches file yaml content')

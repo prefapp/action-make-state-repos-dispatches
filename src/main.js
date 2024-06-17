@@ -1,6 +1,7 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
 const YAML = require('js-yaml')
+const debug = require('debug')('make-state-repos-dispatches')
 
 /**
  * The main function for the action.
@@ -8,20 +9,34 @@ const YAML = require('js-yaml')
  */
 async function run() {
   try {
+
+    // Parse action inputs
+    debug('Parsing action inputs')
+
     const dispatchesFilePath = core.getInput('dispatches_file', {
       required: true
     })
 
-    const octokit = github.getOctokit(
-      core.getInput('token', {
-        required: true
-      })
-    )
+    const defaultRegistry = core.getInput('default_registry')
+    const token = core.getInput('token', { required: true })
+    const type = core.getInput('type', { required: true })
+    const stateRepo = core.getInput('state_repo', { required: true })
 
+    // Authenticate with GitHub
+    debug('Authenticating with GitHub')
+    const octokit = github.getOctokit(token);
+
+    // Loading github context
+    debug('Loading github context')
     const ctx = {
       owner: github.context.payload.repository.owner.login,
       repo: github.context.payload.repository.name
     }
+    debug('Loaded github context', ctx)
+
+
+
+    debug('Loading dispatches file content from path', dispatchesFilePath)
 
     const encodedYaml = await octokit.rest.repos.getContent({
       owner: ctx.owner,
@@ -29,24 +44,24 @@ async function run() {
       path: dispatchesFilePath
     })
 
+    debug('Parsing dispatches file yaml content')
+
     const yamlContent = Buffer.from(encodedYaml.content, 'base64').toString(
       'utf-8'
     )
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const typesList =
-      core.getInput('type') === '*'
-        ? ['releases', 'snapshots']
-        : [core.getInput('type')]
+    const typesList = type === '*'
+      ? ['releases', 'snapshots']
+      : [type]
 
     const selectedFlavors = core.getInput('flavors')
     const flavorsList =
       selectedFlavors === '*' ? '*' : selectedFlavors.split(',')
 
-    const stateReposList =
-      core.getInput('state_repo') === '*'
-        ? '*'
-        : core.getInput('state_repo').split(',')
+    const stateReposList = stateRepo === '*'
+      ? '*'
+      : stateRepo.split(',')
 
     const dispatchMatrix = []
 
@@ -62,10 +77,10 @@ async function run() {
                   ctx,
                   flavor
                 )
-                const registry =
-                  stateRepo.registry || core.getInput('default_registry')
+                const registry = stateRepo.registry || defaultRegistry
                 const fullImagePath = `${registry}:${imageName}`
 
+                debug('Dispatching image', fullImagePath, 'to state repo', stateRepo.repo, 'for service', serviceName)
                 await octokit.rest.repos.createDispatchEvent({
                   owner: ctx.owner,
                   repo: stateRepo.repo,

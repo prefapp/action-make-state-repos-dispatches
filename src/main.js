@@ -115,7 +115,10 @@ async function run() {
 }
 
 async function calculateImageName(action_type, octokit, ctx, flavor) {
-  let image
+  let image;
+
+  debug('Calculating image name for action type %s', action_type)
+
   switch (action_type) {
     case 'last_prerelease':
       image = await __last_prerelease(octokit, ctx)

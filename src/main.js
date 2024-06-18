@@ -96,11 +96,12 @@ async function run() {
               ctx,
               flavor
             )
-            const registry = stateRepo.registry || defaultRegistries[dispatch]
+            const registry =
+              stateRepo.registry || defaultRegistries[dispatch.type]
 
             console.log('Registry debug')
             console.log(`stateRepo.registry: ${stateRepo.registry}`)
-            console.log(`defaultRegistry: ${defaultRegistries[dispatch]}`)
+            console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
             console.log(`registry: ${registry}`)
 
             const fullImagePath = `${registry}:${imageName}`
@@ -190,7 +191,13 @@ async function __last_prerelease(octokit, ctx) {
       repo: ctx.repo
     })
 
-    return listReleasesResponse.data.filter(r => r.prerelease)[0]
+    const latestPrerelease = listReleasesResponse.data.filter(
+      r => r.prerelease
+    )[0]
+
+    if (latestPrerelease) return latestPrerelease.tag_name
+
+    return null
   } catch (err) {
     throw new Error(`calculating last pre-release: ${err}`)
   }

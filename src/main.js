@@ -24,6 +24,7 @@ async function run() {
     const dispatch_type = core.getInput('dispatch_type', { required: true })
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
+    const originRepo = core.getInput('origin_repo', { required: true })
 
     // Authenticate with GitHub
     debug('Authenticating with GitHub')
@@ -104,13 +105,15 @@ async function run() {
             )
             const registry =
               stateRepo.registry || defaultRegistries[dispatch.type]
+            const imageRepo = `${registry}/${originRepo}`
 
             console.log('Registry debug')
             console.log(`stateRepo.registry: ${stateRepo.registry}`)
             console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
             console.log(`registry: ${registry}`)
+            console.log(`imageRepo: ${imageRepo}`)
 
-            const fullImagePath = `${registry}:${imageName}`
+            const fullImagePath = `${imageRepo}:${imageName}`
 
             debug(
               'Dispatching image',

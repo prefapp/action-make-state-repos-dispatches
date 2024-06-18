@@ -36,6 +36,10 @@ inputs:
     description: List of reviewers' login username, separated by commas
     required: false
     default: ''
+  originRepo:
+    description: Path (owner/repo_name) of the repo that originally called this action
+    required: true
+    default: ''
 
 runs:
   using: node20

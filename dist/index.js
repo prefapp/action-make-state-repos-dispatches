@@ -34636,7 +34636,7 @@ async function calculateImageName(action_type, octokit, ctx, flavor) {
       image = await __last_release(octokit, ctx)
       break
     default:
-      if (action_type.match(/^branch_/)) {
+      if (action_type.match(/^\$branch_/)) {
         image = await __last_branch_commit(action_type, octokit, ctx)
       } else {
         image = action_type

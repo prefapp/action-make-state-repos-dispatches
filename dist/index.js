@@ -34496,6 +34496,7 @@ async function run() {
     const token = core.getInput('token', { required: true })
     const dispatch_type = core.getInput('dispatch_type', { required: true })
     const destinationRepos = core.getInput('state_repo', { required: true })
+    const reviewersInput = core.getInput('reviewers', { required: true })
 
     // Authenticate with GitHub
     debug('Authenticating with GitHub')
@@ -34541,6 +34542,8 @@ async function run() {
 
     const stateReposList =
       destinationRepos === '*' ? '*' : destinationRepos.split(',')
+
+    const reviewersList = reviewersInput.split(',')
 
     let dispatchMatrix = []
 
@@ -34594,7 +34597,7 @@ async function run() {
               env: stateRepo.env,
               service_name: serviceName,
               image: fullImagePath,
-              reviewers: [github.actor],
+              reviewers: reviewersList,
               base_folder: stateRepo.base_path || ''
             })
           }

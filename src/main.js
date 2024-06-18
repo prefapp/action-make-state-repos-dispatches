@@ -77,12 +77,12 @@ async function run() {
         continue
       }
       for (const flavor of dispatch.flavors) {
-        if (!flavorsList.includes(flavor)) {
+        if (flavorsList !== '*' && !flavorsList.includes(flavor)) {
           debug('Skipping flavor', flavor)
           continue
         }
         for (const stateRepo of dispatch.state_repos) {
-          if (!stateReposList.includes(stateRepo)) {
+          if (stateReposList !== '*' && !stateReposList.includes(stateRepo)) {
             debug('Skipping state repo', stateRepo)
             continue
           }

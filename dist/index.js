@@ -34489,10 +34489,13 @@ async function run() {
       required: true
     })
 
-    const defaultRegistry = core.getInput('default_registry')
+    const defaultRegistries = {
+      releases: core.getInput('default_releases_registry', { required: true }),
+      snapshots: core.getInput('default_snapshots_registry', { required: true })
+    }
     const token = core.getInput('token', { required: true })
     const dispatch_type = core.getInput('dispatch_type', { required: true })
-    const stateRepo = core.getInput('state_repo', { required: true })
+    const destinationRepos = core.getInput('state_repo', { required: true })
 
     // Authenticate with GitHub
     debug('Authenticating with GitHub')
@@ -34529,28 +34532,36 @@ async function run() {
     ).toString('utf-8')
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const dispatcheTypesList =
+    const dispatchesTypesList =
       dispatch_type === '*' ? ['releases', 'snapshots'] : [dispatch_type]
 
     const selectedFlavors = core.getInput('flavors')
     const flavorsList =
       selectedFlavors === '*' ? '*' : selectedFlavors.split(',')
 
-    const stateReposList = stateRepo === '*' ? '*' : stateRepo.split(',')
+    const stateReposList =
+      destinationRepos === '*' ? '*' : destinationRepos.split(',')
 
-    const dispatchMatrix = []
+    let dispatchMatrix = []
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (!dispatcheTypesList.includes(dispatch.type)) {
+      if (!dispatchesTypesList.includes(dispatch.type)) {
         debug('Skipping dispatch', dispatch.type)
         continue
       }
       for (const flavor of dispatch.flavors) {
-        if (!flavorsList.includes(flavor)) {
+        if (flavorsList !== '*' && !flavorsList.includes(flavor)) {
           debug('Skipping flavor', flavor)
           continue
         }
         for (const stateRepo of dispatch.state_repos) {
+          if (stateReposList !== '*' && !stateReposList.includes(stateRepo)) {
+            debug('Skipping state repo', stateRepo)
+            continue
+          }
+
+          dispatchMatrix = []
+
           for (const serviceName of stateRepo.service_names) {
             const imageName = await calculateImageName(
               stateRepo.version,
@@ -34558,11 +34569,11 @@ async function run() {
               ctx,
               flavor
             )
-            const registry = stateRepo.registry || defaultRegistry
+            const registry = stateRepo.registry || defaultRegistries[dispatch]
 
             console.log('Registry debug')
             console.log(`stateRepo.registry: ${stateRepo.registry}`)
-            console.log(`defaultRegistry: ${defaultRegistry}`)
+            console.log(`defaultRegistry: ${defaultRegistries[dispatch]}`)
             console.log(`registry: ${registry}`)
 
             const fullImagePath = `${registry}:${imageName}`
@@ -34575,26 +34586,27 @@ async function run() {
               'for service',
               serviceName
             )
-            await octokit.rest.repos.createDispatchEvent({
-              owner: ctx.owner,
-              repo: stateRepo.repo,
-              event_type: 'dispatch-image',
-              client_payload: {
-                images: [
-                  {
-                    tenant: stateRepo.tenant,
-                    app: stateRepo.application,
-                    env: stateRepo.env,
-                    service_name: serviceName,
-                    image: fullImagePath,
-                    reviewers: [],
-                    base_folder: stateRepo.base_path || ''
-                  }
-                ],
-                version: 4
-              }
+
+            dispatchMatrix.push({
+              tenant: stateRepo.tenant,
+              app: stateRepo.application,
+              env: stateRepo.env,
+              service_name: serviceName,
+              image: fullImagePath,
+              reviewers: [],
+              base_folder: stateRepo.base_path || ''
             })
           }
+
+          await octokit.rest.repos.createDispatchEvent({
+            owner: ctx.owner,
+            repo: stateRepo.repo,
+            event_type: 'dispatch-image',
+            client_payload: {
+              images: dispatchMatrix,
+              version: 4
+            }
+          })
         }
       }
     }
@@ -34632,53 +34644,43 @@ async function calculateImageName(action_type, octokit, ctx, flavor) {
 }
 
 async function __last_release(octokit, ctx) {
-  return await octokit.rest.repos
-    .getLatestRelease({
+  try {
+    const latestReleaseResponse = await octokit.rest.repos.getLatestRelease({
       owner: ctx.owner,
       repo: ctx.repo
     })
-    .then(r => {
-      return r.data.tag_name
-    })
-    .catch(err => {
-      throw `calculating last release: ${err}`
-    })
+
+    return latestReleaseResponse.data.tag_name
+  } catch (err) {
+    throw new Error(`calculating last release: ${err}`)
+  }
 }
 
 async function __last_prerelease(octokit, ctx) {
-  return await octokit.rest.repos
-    .listReleases({
+  try {
+    const listReleasesResponse = await octokit.rest.repos.listReleases({
       owner: ctx.owner,
       repo: ctx.repo
     })
-    .then(rr => {
-      return rr.data.filter(r => r.prerelease)[0]
-    })
-    .then(r => {
-      if (r) return r.tag_name
-      return null
-    })
-    .catch(err => {
-      throw `calculating last pre-release: ${err}`
-    })
+
+    return listReleasesResponse.data.filter(r => r.prerelease)[0]
+  } catch (err) {
+    throw new Error(`calculating last pre-release: ${err}`)
+  }
 }
 
 async function __last_branch_commit(branch, octokit, ctx) {
-  return await octokit.rest.repos
-    .getBranch({
+  try {
+    const getBranchResponse = await octokit.rest.repos.getBranch({
       owner: ctx.owner,
       repo: ctx.repo,
       branch: branch.replace(/^branch_/, '')
     })
-    .then(b => {
-      //
-      // we only use the first 8 chars of the commit's SHA for tagging
-      //
-      return b.data.commit.sha.substring(0, 7)
-    })
-    .catch(err => {
-      throw `calculating last commit on branch ${branch}: ${err}`
-    })
+
+    return getBranchResponse.data.commit.sha.substring(0, 7)
+  } catch (err) {
+    throw new Error(`calculating last commit on branch ${branch}: ${err}`)
+  }
 }
 
 module.exports = {

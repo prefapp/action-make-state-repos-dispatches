@@ -59,7 +59,7 @@ async function run() {
     ).toString('utf-8')
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const dispatcheTypesList =
+    const dispatchesTypesList =
       dispatch_type === '*' ? ['releases', 'snapshots'] : [dispatch_type]
 
     const selectedFlavors = core.getInput('flavors')
@@ -72,7 +72,7 @@ async function run() {
     let dispatchMatrix = []
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (!dispatcheTypesList.includes(dispatch.type)) {
+      if (!dispatchesTypesList.includes(dispatch.type)) {
         debug('Skipping dispatch', dispatch.type)
         continue
       }

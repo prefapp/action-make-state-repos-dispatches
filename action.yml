@@ -32,6 +32,10 @@ inputs:
   default_snapshots_registry:
     description: Default registry to use when dispatching snapshots
     required: false
+  reviewers:
+    description: List of reviewers' login username, separated by commas
+    required: false
+    default: ''
 
 runs:
   using: node20

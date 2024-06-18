@@ -26,14 +26,12 @@ inputs:
       flavors)
     required: false
     default: '*'
-  default_registry:
-    description: Default registry to use
+  default_releases_registry:
+    description: Default registry to use when dispatching releases
     required: false
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+  default_snapshots_registry:
+    description: Default registry to use when dispatching snapshots
+    required: false
 
 runs:
   using: node20

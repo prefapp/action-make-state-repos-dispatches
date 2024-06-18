@@ -34580,6 +34580,7 @@ async function run() {
               stateRepo.registry || defaultRegistries[dispatch.type]
             const imageRepo = `${registry}/${originRepo}`
 
+            console.log(`github.context.repo: ${github.context.repo}`)
             console.log('Registry debug')
             console.log(`stateRepo.registry: ${stateRepo.registry}`)
             console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)

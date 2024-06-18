@@ -82,6 +82,11 @@ async function run() {
           continue
         }
         for (const stateRepo of dispatch.state_repos) {
+          if (!stateReposList.includes(stateRepo)) {
+            debug('Skipping state repo', stateRepo)
+            continue
+          }
+
           dispatchMatrix = []
 
           for (const serviceName of stateRepo.service_names) {

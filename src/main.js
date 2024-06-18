@@ -214,7 +214,7 @@ async function __last_branch_commit(branch, octokit, ctx) {
     const getBranchResponse = await octokit.rest.repos.getBranch({
       owner: ctx.owner,
       repo: ctx.repo,
-      branch: branch.replace(/^branch_/, '')
+      branch: branch.replace(/^\$branch_/, '')
     })
 
     return getBranchResponse.data.commit.sha.substring(0, 7)

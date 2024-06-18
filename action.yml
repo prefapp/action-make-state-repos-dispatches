@@ -37,7 +37,8 @@ inputs:
     required: false
     default: ''
   originRepo:
-    description: Path (owner/repo_name) of the repo that originally called this action
+    description:
+      Path (owner/repo_name) of the repo that originally called this action
     required: true
     default: ''
 

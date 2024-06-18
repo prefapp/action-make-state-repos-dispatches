@@ -34594,7 +34594,7 @@ async function run() {
               env: stateRepo.env,
               service_name: serviceName,
               image: fullImagePath,
-              reviewers: [],
+              reviewers: [github.actor],
               base_folder: stateRepo.base_path || ''
             })
           }

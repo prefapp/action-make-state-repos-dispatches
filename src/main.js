@@ -85,7 +85,10 @@ async function run() {
           continue
         }
         for (const stateRepo of dispatch.state_repos) {
-          if (stateReposList !== '*' && !stateReposList.includes(stateRepo)) {
+          if (
+            stateReposList !== '*' &&
+            !stateReposList.includes(stateRepo.repo)
+          ) {
             debug('Skipping state repo', stateRepo)
             continue
           }

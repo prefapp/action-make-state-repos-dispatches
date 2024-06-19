@@ -1,18 +1,47 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Make state repos' dispatches"
+description: 'Dispatch image changes on multiple state repos'
+author: 'Prefapp'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  dispatches_file:
+    description: 'Path to the make_dispatches.yaml file of your repo'
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+    default: '.github/make_dispatches.yaml'
+  token:
+    description: GitHub token
+    required: false
+    default: ${{ github.token }}
+  dispatch_type:
+    description:
+      Dispatch types to filter in the dispatches file (releases, snapshots, *).
+      Default to all (*)
+    required: false
+    default: '*'
+  flavors:
+    description:
+      Filter dispatches by flavor, can be multiple values separated by commas.
+    required: false
+    default: default
+  state_repo:
+    description:
+      Filter dispatches by state repo, can be multiple values separated by
+      commas (use "*" to target all state repos listed in the corresponding
+      dispatches section)
+    required: false
+    default: '*'
+  default_releases_registry:
+    description: Default registry to use when dispatching releases
+    required: false
+  default_snapshots_registry:
+    description: Default registry to use when dispatching snapshots
+    required: false
+  reviewers:
+    description:
+      List of reviewers' login username, separated by commas, to include in the
+      state repo pull request.
+    required: false
+    default: ''
 
 runs:
   using: node20

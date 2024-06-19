@@ -13,16 +13,21 @@ inputs:
     required: false
     default: ${{ github.token }}
   dispatch_type:
-    description: Dispatch types to filter in the dispatches file (releases, snapshots, *). Default to all (*)
+    description:
+      Dispatch types to filter in the dispatches file (releases, snapshots, *).
+      Default to all (*)
     required: false
     default: '*'
   flavors:
-    description: Filter dispatches by flavor, can be multiple values separated by commas.
+    description:
+      Filter dispatches by flavor, can be multiple values separated by commas.
     required: false
     default: default
   state_repo:
     description:
-      Filter dispatches by state repo, can be multiple values separated by commas (use "*" to target all state repos listed in the corresponding dispatches section)
+      Filter dispatches by state repo, can be multiple values separated by
+      commas (use "*" to target all state repos listed in the corresponding
+      dispatches section)
     required: false
     default: '*'
   default_releases_registry:
@@ -32,7 +37,9 @@ inputs:
     description: Default registry to use when dispatching snapshots
     required: false
   reviewers:
-    description: List of reviewers' login username, separated by commas, to include in the state repo pull request.
+    description:
+      List of reviewers' login username, separated by commas, to include in the
+      state repo pull request.
     required: false
     default: ''
 

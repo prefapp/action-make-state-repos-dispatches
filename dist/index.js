@@ -34575,17 +34575,21 @@ async function run() {
               ctx,
               flavor
             )
+
             const registry =
               stateRepo.registry || defaultRegistries[dispatch.type]
-            const imageRepo = `${registry}/${github.context.repo.owner}/${github.context.repo.repo}`
+            const imageRepository =
+              stateRepo.image_repository ||
+              `${github.context.repo.owner}/${github.context.repo.repo}`
+            const fullImageRepo = `${registry}/${imageRepository}`
 
             console.log('Registry debug')
             console.log(`stateRepo.registry: ${stateRepo.registry}`)
             console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
             console.log(`registry: ${registry}`)
-            console.log(`imageRepo: ${imageRepo}`)
+            console.log(`imageRepo: ${fullImageRepo}`)
 
-            const fullImagePath = `${imageRepo}:${imageName}`
+            const fullImagePath = `${fullImageRepo}:${imageName}`
 
             debug(
               'Dispatching image',

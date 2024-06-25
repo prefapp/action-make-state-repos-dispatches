@@ -28,6 +28,8 @@ async function run() {
 
     const registryBasePaths = YAML.load(registryBasePathsRaw)
 
+    debug('Parsed registry base paths', registryBasePaths)
+
     // Authenticate with GitHub
     debug('Authenticating with GitHub')
     const octokit = github.getOctokit(token)

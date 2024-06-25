@@ -24,13 +24,11 @@ async function run() {
     const dispatch_type = core.getInput('dispatch_type', { required: true })
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
-    const registryBasePathsRaw = core.getInput('registry_base_paths', { required: true })
-
-    console.log('Parsing registry base paths...')
+    const registryBasePathsRaw = core.getInput('registry_base_paths', {
+      required: true
+    })
 
     const registryBasePaths = YAML.load(registryBasePathsRaw)
-
-    debug('Parsed registry base paths', registryBasePaths)
 
     // Authenticate with GitHub
     debug('Authenticating with GitHub')

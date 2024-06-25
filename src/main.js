@@ -26,6 +26,8 @@ async function run() {
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths', { required: true })
 
+    console.log('Parsing registry base paths...')
+
     const registryBasePaths = YAML.load(registryBasePathsRaw)
 
     debug('Parsed registry base paths', registryBasePaths)

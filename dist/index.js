@@ -34625,6 +34625,11 @@ async function run() {
 
             try {
               // Check if the image exists in the registry
+
+              console.log(
+                `Trying to fetch image at https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`
+              )
+
               const resp = await fetch(
                 `https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`,
                 {

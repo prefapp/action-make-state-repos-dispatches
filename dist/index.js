@@ -34497,6 +34497,9 @@ async function run() {
     const dispatch_type = core.getInput('dispatch_type', { required: true })
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
+    const registryBasePathsRaw = core.getInput('registry_base_paths')
+
+    const registryBasePaths = YAML.load(registryBasePathsRaw)
 
     // Authenticate with GitHub
     debug('Authenticating with GitHub')
@@ -34581,7 +34584,17 @@ async function run() {
             const imageRepository =
               stateRepo.image_repository ||
               `${github.context.repo.owner}/${github.context.repo.repo}`
-            const fullImageRepo = `${registry}/${imageRepository}`
+
+            const imageBasePath = `${registryBasePaths?.services?.[dispatch.type]}`
+
+            const fullImageBasePath =
+              imageBasePath &&
+              !stateRepo.registry &&
+              !stateRepo.image_repository
+                ? `${imageBasePath}/`
+                : ''
+
+            const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
 
             console.log('Registry debug')
             console.log(`stateRepo.registry: ${stateRepo.registry}`)

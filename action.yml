@@ -30,6 +30,12 @@ inputs:
       dispatches section)
     required: false
     default: '*'
+  registry_base_paths:
+    description:
+      Yaml file specifying the base path of the registry for each kind of
+      artifact (service, chart...) and artifact type (release or snapshot)
+    required: false
+    default: ''
   default_releases_registry:
     description: Default registry to use when dispatching releases
     required: false

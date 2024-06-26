@@ -112,7 +112,7 @@ async function run() {
               stateRepo.image_repository ||
               `${github.context.repo.owner}/${github.context.repo.repo}`
 
-            const imageBasePath = `${registryBasePaths?.services?.[dispatch.type]}`
+            const imageBasePath = registryBasePaths?.services?.[dispatch.type]
 
             const fullImageBasePath =
               imageBasePath &&

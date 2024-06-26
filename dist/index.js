@@ -34637,7 +34637,7 @@ async function run() {
               )
 
               console.log('Registry response')
-              console.log(await resp.text)
+              console.log(await resp.text())
             } catch (error) {
               console.error(
                 `Error checking image in registry (https://${registry}/v2/${fullImageRepo}/manifests/${imageName}):`,

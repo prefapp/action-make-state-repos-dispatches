@@ -116,7 +116,12 @@ async function run() {
 
             const imageBasePath = `${registryBasePaths.services[dispatch.type]}`
 
-            const fullImageBasePath = imageBasePath ? `${imageBasePath}/` : ''
+            const fullImageBasePath =
+              imageBasePath &&
+              !stateRepo.registry &&
+              !stateRepo.image_repository
+                ? `${imageBasePath}/`
+                : ''
 
             const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
 

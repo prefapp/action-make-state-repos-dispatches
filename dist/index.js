@@ -34644,8 +34644,7 @@ async function run() {
 
             if (!imageExists) {
               console.error(
-                `Error checking image in registry: ${fullImagePath}`,
-                error
+                `Error checking image in registry: ${fullImagePath}`
               )
             } else {
               console.log(`Image found in registry: ${fullImagePath}`)

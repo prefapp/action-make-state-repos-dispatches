@@ -2,6 +2,23 @@ const core = require('@actions/core')
 const github = require('@actions/github')
 const YAML = require('js-yaml')
 const debug = require('debug')('make-state-repos-dispatches')
+const { execSync } = require('child_process')
+
+function checkDockerManifest(image) {
+  try {
+    // Execute the command
+    const output = execSync(`docker manifest inspect ${image}`, {
+      stdio: 'ignore'
+    })
+
+    // If the command succeeds (exit code 0), return true
+    return true
+  } catch (error) {
+    console.log(error)
+    // If the command fails (non-zero exit code), return false
+    return false
+  }
+}
 
 /**
  * The main function for the action.
@@ -150,31 +167,15 @@ async function run() {
               base_folder: stateRepo.base_path || ''
             })
 
-            try {
-              // Check if the image exists in the registry
+            imageExists = checkDockerManifest(fullImagePath)
 
-              console.log(
-                `Trying to fetch image at https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`
-              )
-
-              const resp = await fetch(
-                `https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Accept:
-                      'application/vnd.docker.distribution.manifest.v2+json'
-                  }
-                }
-              )
-
-              console.log('Registry response')
-              console.log(await resp.text())
-            } catch (error) {
+            if (!imageExists) {
               console.error(
-                `Error checking image in registry (https://${registry}/v2/${fullImageRepo}/manifests/${imageName}):`,
+                `Error checking image in registry: ${fullImagePath}`,
                 error
               )
+            } else {
+              console.log(`Image found in registry: ${fullImagePath}`)
             }
           }
 

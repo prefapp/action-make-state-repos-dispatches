@@ -34585,7 +34585,7 @@ async function run() {
               stateRepo.image_repository ||
               `${github.context.repo.owner}/${github.context.repo.repo}`
 
-            const imageBasePath = `${registryBasePaths?.services?.[dispatch.type]}`
+            const imageBasePath = registryBasePaths?.services?.[dispatch.type]
 
             const fullImageBasePath =
               imageBasePath &&
@@ -34622,6 +34622,19 @@ async function run() {
               reviewers: reviewersList,
               base_folder: stateRepo.base_path || ''
             })
+
+            // Check if the image exists in the registry
+            const resp = await fetch(
+              `https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`,
+              {
+                method: 'GET',
+                headers: {
+                  Accept: 'application/vnd.docker.distribution.manifest.v2+json'
+                }
+              }
+            )
+
+            console.log('Registry response')
           }
 
           await octokit.rest.repos.createDispatchEvent({

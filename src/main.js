@@ -150,18 +150,27 @@ async function run() {
               base_folder: stateRepo.base_path || ''
             })
 
-            // Check if the image exists in the registry
-            const resp = await fetch(
-              `https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`,
-              {
-                method: 'GET',
-                headers: {
-                  Accept: 'application/vnd.docker.distribution.manifest.v2+json'
+            try {
+              // Check if the image exists in the registry
+              const resp = await fetch(
+                `https://${registry}/v2/${fullImageRepo}/manifests/${imageName}`,
+                {
+                  method: 'GET',
+                  headers: {
+                    Accept:
+                      'application/vnd.docker.distribution.manifest.v2+json'
+                  }
                 }
-              }
-            )
+              )
 
-            console.log('Registry response')
+              console.log('Registry response')
+              console.log(await resp.text)
+            } catch (error) {
+              console.error(
+                `Error checking image in registry (https://${registry}/v2/${fullImageRepo}/manifests/${imageName}):`,
+                error
+              )
+            }
           }
 
           await octokit.rest.repos.createDispatchEvent({

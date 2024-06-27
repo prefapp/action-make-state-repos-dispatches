@@ -25,14 +25,16 @@ function checkDockerManifest(image) {
  */
 async function run() {
   const summaryTable = [
-    { data: 'Tenant', header: true },
-    { data: 'Application', header: true },
-    { data: 'Env', header: true },
-    { data: 'Service Name', header: true },
-    { data: 'Image', header: true },
-    { data: 'Reviewers', header: true },
-    { data: 'Base Folder', header: true },
-    { data: 'Status', header: true }
+    [
+      { data: 'Tenant', header: true },
+      { data: 'Application', header: true },
+      { data: 'Env', header: true },
+      { data: 'Service Name', header: true },
+      { data: 'Image', header: true },
+      { data: 'Reviewers', header: true },
+      { data: 'Base Folder', header: true },
+      { data: 'Status', header: true }
+    ]
   ]
 
   try {

@@ -25,6 +25,17 @@ function checkDockerManifest(image) {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
+  const summaryTable = [
+    { data: 'Tenant', header: true },
+    { data: 'Application', header: true },
+    { data: 'Env', header: true },
+    { data: 'Service Name', header: true },
+    { data: 'Image', header: true },
+    { data: 'Reviewers', header: true },
+    { data: 'Base Folder', header: true },
+    { data: 'Status', header: true }
+  ]
+
   try {
     // Parse action inputs
     debug('Parsing action inputs')
@@ -95,17 +106,6 @@ async function run() {
     let dispatchMatrix = []
 
     core.summary.addHeading('Dispatches summary').write()
-
-    const summaryTable = [
-      { data: 'Tenant', header: true },
-      { data: 'Application', header: true },
-      { data: 'Env', header: true },
-      { data: 'Service Name', header: true },
-      { data: 'Image', header: true },
-      { data: 'Reviewers', header: true },
-      { data: 'Base Folder', header: true },
-      { data: 'Status', header: true }
-    ]
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
       if (!dispatchesTypesList.includes(dispatch.type)) {

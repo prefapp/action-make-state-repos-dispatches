@@ -94,6 +94,19 @@ async function run() {
 
     let dispatchMatrix = []
 
+    core.summary.addHeading('Dispatches summary').write()
+
+    const summaryTable = [
+      { data: 'Tenant', header: true },
+      { data: 'Application', header: true },
+      { data: 'Env', header: true },
+      { data: 'Service Name', header: true },
+      { data: 'Image', header: true },
+      { data: 'Reviewers', header: true },
+      { data: 'Base Folder', header: true },
+      { data: 'Status', header: true }
+    ]
+
     for (const dispatch of dispatchesFileContent['dispatches']) {
       if (!dispatchesTypesList.includes(dispatch.type)) {
         debug('Skipping dispatch', dispatch.type)
@@ -157,25 +170,33 @@ async function run() {
               serviceName
             )
 
-            dispatchMatrix.push({
-              tenant: stateRepo.tenant,
-              app: stateRepo.application,
-              env: stateRepo.env,
-              service_name: serviceName,
-              image: fullImagePath,
-              reviewers: reviewersList,
-              base_folder: stateRepo.base_path || ''
-            })
-
             imageExists = checkDockerManifest(fullImagePath)
 
-            if (!imageExists) {
-              console.error(
-                `Error checking image in registry: ${fullImagePath}`
-              )
-            } else {
-              console.log(`Image found in registry: ${fullImagePath}`)
-            }
+            const dispatchStatus = imageExists
+              ? '✔ Dispatching'
+              : '❌ Error: Image not found in registry'
+
+            summaryTable.push([
+              stateRepo.tenant,
+              stateRepo.application,
+              stateRepo.env,
+              serviceName,
+              fullImagePath,
+              reviewersList.join(', '),
+              stateRepo.base_path || '',
+              'Dispatched'
+            ])
+
+            dispatchMatrix.push([
+              stateRepo.tenant,
+              stateRepo.application,
+              stateRepo.env,
+              serviceName,
+              fullImagePath,
+              reviewersList,
+              stateRepo.base_path || '',
+              dispatchStatus
+            ])
           }
 
           await octokit.rest.repos.createDispatchEvent({
@@ -193,6 +214,8 @@ async function run() {
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
+  } finally {
+    core.summary.addTable(summaryTable).write()
   }
 }
 

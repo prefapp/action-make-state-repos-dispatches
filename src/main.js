@@ -14,7 +14,6 @@ function checkDockerManifest(image) {
     // If the command succeeds (exit code 0), return true
     return true
   } catch (error) {
-    console.log(error)
     // If the command fails (non-zero exit code), return false
     return false
   }
@@ -215,6 +214,7 @@ async function run() {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
   } finally {
+    console.log(summaryTable)
     core.summary.addTable(summaryTable).write()
   }
 }

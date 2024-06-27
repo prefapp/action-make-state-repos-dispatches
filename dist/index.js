@@ -34689,7 +34689,6 @@ async function run() {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
   } finally {
-    console.log(summaryTable)
     core.summary.addHeading('Dispatches summary').addTable(summaryTable).write()
   }
 }

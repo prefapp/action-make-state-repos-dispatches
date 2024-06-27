@@ -106,8 +106,6 @@ async function run() {
 
     let dispatchMatrix = []
 
-    core.summary.addHeading('Dispatches summary').write()
-
     for (const dispatch of dispatchesFileContent['dispatches']) {
       if (!dispatchesTypesList.includes(dispatch.type)) {
         debug('Skipping dispatch', dispatch.type)
@@ -185,8 +183,10 @@ async function run() {
               fullImagePath,
               reviewersList.join(', '),
               stateRepo.base_path || '',
-              'Dispatched'
+              dispatchStatus
             ])
+
+            if (!imageExists) continue
 
             dispatchMatrix.push([
               stateRepo.tenant,
@@ -217,7 +217,7 @@ async function run() {
     core.setFailed(error.message)
   } finally {
     console.log(summaryTable)
-    core.summary.addTable(summaryTable).write()
+    core.summary.addHeading('Dispatches summary').addTable(summaryTable).write()
   }
 }
 

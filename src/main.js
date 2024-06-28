@@ -177,7 +177,7 @@ async function run() {
               : '❌ Error: Image not found in registry'
 
             summaryTable.push([
-              stateRepo.repo,
+              `[${stateRepo.repo}](https://github.com/${ctx.owner}/${stateRepo.repo}`,
               stateRepo.tenant,
               stateRepo.application,
               stateRepo.env,

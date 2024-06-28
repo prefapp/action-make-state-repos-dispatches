@@ -34644,13 +34644,16 @@ async function run() {
             )
 
             imageExists = checkDockerManifest(fullImagePath)
-
             const dispatchStatus = imageExists
               ? '✔ Dispatching'
               : '❌ Error: Image not found in registry'
 
             summaryTable.push([
-              `[${stateRepo.repo}](https://github.com/${ctx.owner}/${stateRepo.repo}`,
+              core.summary.addLink(
+                stateRepo.repo,
+                `https://github.com/${ctx.owner}/${stateRepo.repo}`
+              ),
+              // `[${stateRepo.repo}](https://github.com/${ctx.owner}/${stateRepo.repo}`,
               stateRepo.tenant,
               stateRepo.application,
               stateRepo.env,

@@ -34499,6 +34499,7 @@ function checkDockerManifest(image) {
 async function run() {
   const summaryTable = [
     [
+      { data: 'State repository', header: true },
       { data: 'Tenant', header: true },
       { data: 'Application', header: true },
       { data: 'Env', header: true },
@@ -34649,6 +34650,7 @@ async function run() {
               : '❌ Error: Image not found in registry'
 
             summaryTable.push([
+              stateRepo.repo,
               stateRepo.tenant,
               stateRepo.application,
               stateRepo.env,

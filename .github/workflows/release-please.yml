@@ -3,6 +3,14 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  checks: read
+  contents: write
+  issues: read
+  pull-requests: write
+  statuses: read
+
 jobs:
   release-please:
     runs-on: ubuntu-latest

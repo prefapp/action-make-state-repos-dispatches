@@ -2,12 +2,42 @@ const core = require('@actions/core')
 const github = require('@actions/github')
 const YAML = require('js-yaml')
 const debug = require('debug')('make-state-repos-dispatches')
+const { execSync } = require('child_process')
+
+function checkDockerManifest(image) {
+  try {
+    // Execute the command
+    const output = execSync(`docker manifest inspect ${image}`, {
+      stdio: 'ignore'
+    })
+
+    // If the command succeeds (exit code 0), return true
+    return true
+  } catch (error) {
+    // If the command fails (non-zero exit code), return false
+    return false
+  }
+}
 
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
+  const summaryTable = [
+    [
+      { data: 'State repository', header: true },
+      { data: 'Tenant', header: true },
+      { data: 'Application', header: true },
+      { data: 'Env', header: true },
+      { data: 'Service Name', header: true },
+      { data: 'Image', header: true },
+      { data: 'Reviewers', header: true },
+      { data: 'Base Folder', header: true },
+      { data: 'Status', header: true }
+    ]
+  ]
+
   try {
     // Parse action inputs
     debug('Parsing action inputs')
@@ -112,7 +142,7 @@ async function run() {
               stateRepo.image_repository ||
               `${github.context.repo.owner}/${github.context.repo.repo}`
 
-            const imageBasePath = `${registryBasePaths?.services?.[dispatch.type]}`
+            const imageBasePath = registryBasePaths?.services?.[dispatch.type]
 
             const fullImageBasePath =
               imageBasePath &&
@@ -140,15 +170,35 @@ async function run() {
               serviceName
             )
 
-            dispatchMatrix.push({
-              tenant: stateRepo.tenant,
-              app: stateRepo.application,
-              env: stateRepo.env,
-              service_name: serviceName,
-              image: fullImagePath,
-              reviewers: reviewersList,
-              base_folder: stateRepo.base_path || ''
-            })
+            const imageExists = checkDockerManifest(fullImagePath)
+            const dispatchStatus = imageExists
+              ? '✔ Dispatching'
+              : '❌ Error: Image not found in registry'
+
+            summaryTable.push([
+              `${ctx.owner}/${stateRepo.repo}`,
+              stateRepo.tenant,
+              stateRepo.application,
+              stateRepo.env,
+              serviceName,
+              fullImagePath,
+              reviewersList.join(', '),
+              stateRepo.base_path || '',
+              dispatchStatus
+            ])
+
+            if (!imageExists) continue
+
+            dispatchMatrix.push([
+              stateRepo.tenant,
+              stateRepo.application,
+              stateRepo.env,
+              serviceName,
+              fullImagePath,
+              reviewersList,
+              stateRepo.base_path || '',
+              dispatchStatus
+            ])
           }
 
           await octokit.rest.repos.createDispatchEvent({
@@ -166,6 +216,8 @@ async function run() {
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
+  } finally {
+    core.summary.addHeading('Dispatches summary').addTable(summaryTable).write()
   }
 }
 

@@ -34643,7 +34643,7 @@ async function run() {
               serviceName
             )
 
-            imageExists = checkDockerManifest(fullImagePath)
+            const imageExists = checkDockerManifest(fullImagePath)
             const dispatchStatus = imageExists
               ? '✔ Dispatching'
               : '❌ Error: Image not found in registry'

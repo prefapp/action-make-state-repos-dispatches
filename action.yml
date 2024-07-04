@@ -48,7 +48,10 @@ inputs:
       state repo pull request.
     required: false
     default: ''
-
+  event_type:
+    description: Event type for the dispatch
+    required: false
+    default: 'dispatch-image'
 runs:
   using: node20
   main: dist/index.js

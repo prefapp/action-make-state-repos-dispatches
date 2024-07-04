@@ -30,6 +30,10 @@ inputs:
       dispatches section)
     required: false
     default: '*'
+  version:
+    description: Version to dispatch
+    required: false
+    default: ''
   registry_base_paths:
     description:
       Yaml file specifying the base path of the registry for each kind of

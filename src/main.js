@@ -56,6 +56,7 @@ async function run() {
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
     const eventType = core.getInput('event_type')
+    const version = core.getInput('version')
 
     const registryBasePaths = YAML.load(registryBasePathsRaw)
 
@@ -134,7 +135,8 @@ async function run() {
               stateRepo.version,
               octokit,
               ctx,
-              flavor
+              flavor,
+              version
             )
 
             const registry =
@@ -227,7 +229,7 @@ async function calculateImageName(action_type, octokit, ctx, flavor, version) {
 
   debug('Calculating image name for action type %s', action_type)
 
-  if (version === undefined) {
+  if (version) {
     image = version
   } else {
     switch (action_type) {

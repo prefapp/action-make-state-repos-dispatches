@@ -34528,7 +34528,6 @@ async function run() {
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
-    const eventType = core.getInput('event_type')
     const version = core.getInput('version')
 
     const registryBasePaths = YAML.load(registryBasePathsRaw)
@@ -34680,7 +34679,7 @@ async function run() {
           await octokit.rest.repos.createDispatchEvent({
             owner: ctx.owner,
             repo: stateRepo.repo,
-            event_type: eventType,
+            event_type: stateRepo.dispatch_event_type || 'dispatch-image',
             client_payload: {
               images: dispatchMatrix,
               version: 4

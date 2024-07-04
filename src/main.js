@@ -161,15 +161,6 @@ async function run() {
 
             const fullImagePath = `${fullImageRepo}:${imageName}`
 
-            debug(
-              'Dispatching image',
-              fullImagePath,
-              'to state repo',
-              stateRepo.repo,
-              'for service',
-              serviceName
-            )
-
             const imageExists = checkDockerManifest(fullImagePath)
             const dispatchStatus = imageExists
               ? '✔ Dispatching'
@@ -189,6 +180,15 @@ async function run() {
 
             if (!imageExists) continue
 
+            debug(
+              'Dispatching image',
+              fullImagePath,
+              'to state repo',
+              stateRepo.repo,
+              'for service',
+              serviceName
+            )
+
             dispatchMatrix.push([
               stateRepo.tenant,
               stateRepo.application,
@@ -200,6 +200,8 @@ async function run() {
               dispatchStatus
             ])
           }
+
+          if (dispatchMatrix.length === 0) continue
 
           await octokit.rest.repos.createDispatchEvent({
             owner: ctx.owner,

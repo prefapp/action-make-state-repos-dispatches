@@ -34669,7 +34669,7 @@ async function run() {
               service_name: serviceName,
               image: fullImagePath,
               reviewers: reviewersList,
-              base_path: stateRepo.base_path || '',
+              base_folder: stateRepo.base_path || '',
               message: dispatchStatus
             })
           }

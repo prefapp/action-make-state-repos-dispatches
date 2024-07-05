@@ -2,16 +2,18 @@
 
 ## [1.2.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.1.1...v1.2.0) (2024-07-05)
 
-
 ### Features
 
-* Add event type input [#14](https://github.com/prefapp/action-make-state-repos-dispatches/issues/14) ([d1e2da1](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d1e2da1c538fee22a4905170ec4a1192aa2356b9))
-
+- Add event type input
+  [#14](https://github.com/prefapp/action-make-state-repos-dispatches/issues/14)
+  ([d1e2da1](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d1e2da1c538fee22a4905170ec4a1192aa2356b9))
 
 ### Bug Fixes
 
-* Payload sent to action-state-repo-update-image ([4c3b48d](https://github.com/prefapp/action-make-state-repos-dispatches/commit/4c3b48dfae77b4af0590ba48f1db62ef46599253))
-* Payload sent to action-state-repo-update-image ([15d5b50](https://github.com/prefapp/action-make-state-repos-dispatches/commit/15d5b50d9a05fbacecb6d3bec6a93d775e963620))
+- Payload sent to action-state-repo-update-image
+  ([4c3b48d](https://github.com/prefapp/action-make-state-repos-dispatches/commit/4c3b48dfae77b4af0590ba48f1db62ef46599253))
+- Payload sent to action-state-repo-update-image
+  ([15d5b50](https://github.com/prefapp/action-make-state-repos-dispatches/commit/15d5b50d9a05fbacecb6d3bec6a93d775e963620))
 
 ## [1.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.1.0...v1.1.1) (2024-07-04)
 

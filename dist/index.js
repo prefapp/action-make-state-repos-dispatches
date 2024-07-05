@@ -34530,7 +34530,7 @@ async function run() {
     const registryBasePathsRaw = core.getInput('registry_base_paths')
     const version = core.getInput('version')
 
-    const registryBasePaths = YAML.load(registryBasePathsRaw)
+    const registryBasePaths = JSON.parse(registryBasePathsRaw)
 
     // Authenticate with GitHub
     debug('Authenticating with GitHub')

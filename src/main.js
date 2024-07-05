@@ -189,16 +189,16 @@ async function run() {
               serviceName
             )
 
-            dispatchMatrix.push([
-              stateRepo.tenant,
-              stateRepo.application,
-              stateRepo.env,
-              serviceName,
-              fullImagePath,
-              reviewersList,
-              stateRepo.base_path || '',
-              dispatchStatus
-            ])
+            dispatchMatrix.push({
+              tenant: stateRepo.tenant,
+              app: stateRepo.application,
+              env: stateRepo.env,
+              service_name: serviceName,
+              image: fullImagePath,
+              reviewers: reviewersList,
+              base_path: stateRepo.base_path || '',
+              message: dispatchStatus
+            })
           }
 
           if (dispatchMatrix.length === 0) continue

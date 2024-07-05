@@ -2,10 +2,11 @@
 
 ## [1.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.1.0...v1.1.1) (2024-07-04)
 
-
 ### Bug Fixes
 
-* Add check to avoid empty dispatches [#12](https://github.com/prefapp/action-make-state-repos-dispatches/issues/12) ([dc8e28a](https://github.com/prefapp/action-make-state-repos-dispatches/commit/dc8e28a4276bec97e31ffb0d86df2ce7b468416a))
+- Add check to avoid empty dispatches
+  [#12](https://github.com/prefapp/action-make-state-repos-dispatches/issues/12)
+  ([dc8e28a](https://github.com/prefapp/action-make-state-repos-dispatches/commit/dc8e28a4276bec97e31ffb0d86df2ce7b468416a))
 
 ## [1.1.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.0.0...v1.1.0) (2024-07-03)
 

@@ -55,6 +55,7 @@ async function run() {
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
+    const version = core.getInput('version')
 
     const registryBasePaths = YAML.load(registryBasePathsRaw)
 
@@ -133,7 +134,8 @@ async function run() {
               stateRepo.version,
               octokit,
               ctx,
-              flavor
+              flavor,
+              version
             )
 
             const registry =
@@ -178,15 +180,13 @@ async function run() {
               dispatchStatus
             ])
 
-            if (!imageExists) continue
+            if (!imageExists) {
+              core.error(`Image ${fullImagePath} not found in registry`)
+              continue
+            }
 
-            debug(
-              'Dispatching image',
-              fullImagePath,
-              'to state repo',
-              stateRepo.repo,
-              'for service',
-              serviceName
+            core.notice(
+              `Dispatching image ${fullImagePath} to state repo ${stateRepo.repo} for service ${serviceName}`
             )
 
             dispatchMatrix.push({
@@ -206,7 +206,7 @@ async function run() {
           await octokit.rest.repos.createDispatchEvent({
             owner: ctx.owner,
             repo: stateRepo.repo,
-            event_type: 'dispatch-image',
+            event_type: stateRepo.dispatch_event_type || 'dispatch-image',
             client_payload: {
               images: dispatchMatrix,
               version: 4
@@ -223,31 +223,33 @@ async function run() {
   }
 }
 
-async function calculateImageName(action_type, octokit, ctx, flavor) {
+async function calculateImageName(action_type, octokit, ctx, flavor, version) {
   let image
 
   debug('Calculating image name for action type %s', action_type)
 
-  switch (action_type) {
-    case '$latest_prerelease':
-      image = await __last_prerelease(octokit, ctx)
-      break
-    case '$latest_release':
-      image = await __last_release(octokit, ctx)
-      break
-    default:
-      if (action_type.match(/^\$branch_/)) {
-        image = await __last_branch_commit(action_type, octokit, ctx)
-      } else {
-        image = action_type
-      }
+  if (version) {
+    image = version
+  } else {
+    switch (action_type) {
+      case '$latest_prerelease':
+        image = await __last_prerelease(octokit, ctx)
+        break
+      case '$latest_release':
+        image = await __last_release(octokit, ctx)
+        break
+      default:
+        if (action_type.match(/^\$branch_/)) {
+          image = await __last_branch_commit(action_type, octokit, ctx)
+        } else {
+          image = action_type
+        }
+    }
   }
 
-  if (flavor) {
-    return `${image}_${flavor}`
-  } else {
-    return image
-  }
+  // If no flavor is provided, throw error
+  if (!flavor) throw new Error('Flavor is required')
+  return `${image}_${flavor}`
 }
 
 async function __last_release(octokit, ctx) {

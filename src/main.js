@@ -59,7 +59,6 @@ async function run() {
     const env = core.getInput('overwrite_env')
     const tenant = core.getInput('overwrite_tenant')
 
-
     const registryBasePaths = JSON.parse(registryBasePathsRaw)
 
     // Authenticate with GitHub
@@ -134,7 +133,7 @@ async function run() {
 
           for (const serviceName of stateRepo.service_names) {
             const imageName = await calculateImageName(
-              stateRepo.version,
+              version || stateRepo.version,
               octokit,
               ctx,
               flavor,
@@ -173,7 +172,7 @@ async function run() {
 
             summaryTable.push([
               `${ctx.owner}/${stateRepo.repo}`,
-              stateRepo.tenant,
+              tenant || stateRepo.tenant,
               stateRepo.application,
               stateRepo.env,
               serviceName,
@@ -193,7 +192,7 @@ async function run() {
             )
 
             dispatchMatrix.push({
-              tenant: stateRepo.tenant,
+              tenant: tenant || stateRepo.tenant,
               app: stateRepo.application,
               env: stateRepo.env,
               service_name: serviceName,

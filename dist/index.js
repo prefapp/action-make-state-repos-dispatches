@@ -34524,11 +34524,13 @@ async function run() {
       snapshots: core.getInput('default_snapshots_registry', { required: true })
     }
     const token = core.getInput('token', { required: true })
-    const dispatch_type = core.getInput('dispatch_type', { required: true })
+    const image_type = core.getInput('image_type', { required: true })
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
-    const version = core.getInput('version')
+    const version = core.getInput('overwrite_version')
+    const env = core.getInput('overwrite_env')
+    const tenant = core.getInput('overwrite_tenant')
 
     const registryBasePaths = JSON.parse(registryBasePathsRaw)
 
@@ -34567,8 +34569,8 @@ async function run() {
     ).toString('utf-8')
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const dispatchesTypesList =
-      dispatch_type === '*' ? ['releases', 'snapshots'] : [dispatch_type]
+    const imageTypesList =
+      image_type === '*' ? ['releases', 'snapshots'] : [image_type]
 
     const selectedFlavors = core.getInput('flavors')
     const flavorsList =
@@ -34582,7 +34584,7 @@ async function run() {
     let dispatchMatrix = []
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (!dispatchesTypesList.includes(dispatch.type)) {
+      if (!imageTypesList.includes(dispatch.type)) {
         debug('Skipping dispatch', dispatch.type)
         continue
       }
@@ -34604,7 +34606,7 @@ async function run() {
 
           for (const serviceName of stateRepo.service_names) {
             const imageName = await calculateImageName(
-              stateRepo.version,
+              version || stateRepo.version,
               octokit,
               ctx,
               flavor,
@@ -34643,7 +34645,7 @@ async function run() {
 
             summaryTable.push([
               `${ctx.owner}/${stateRepo.repo}`,
-              stateRepo.tenant,
+              tenant || stateRepo.tenant,
               stateRepo.application,
               stateRepo.env,
               serviceName,
@@ -34663,7 +34665,7 @@ async function run() {
             )
 
             dispatchMatrix.push({
-              tenant: stateRepo.tenant,
+              tenant: tenant || stateRepo.tenant,
               app: stateRepo.application,
               env: stateRepo.env,
               service_name: serviceName,

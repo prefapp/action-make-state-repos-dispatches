@@ -31,15 +31,21 @@ inputs:
     required: false
     default: '*'
   overwrite_version:
-    description: Use the version specified to make the dispatch instead of using the defined in the dispatches file (can be a short-sha or a release tag)
+    description:
+      Use the version specified to make the dispatch instead of using the
+      defined in the dispatches file (can be a short-sha or a release tag)
     required: false
     default: ''
   overwrite_tenant:
-    description: Overwrite tenant coordinate to make the dispatch instead of using the defined in the dispatches file, related to the flavor to deploy.
+    description:
+      Overwrite tenant coordinate to make the dispatch instead of using the
+      defined in the dispatches file, related to the flavor to deploy.
     required: false
     default: ''
   overwrite_env:
-    description: Overwrite env to make the dispatch instead of using the defined in the dispatches file, related to the flavor to deploy.
+    description:
+      Overwrite env to make the dispatch instead of using the defined in the
+      dispatches file, related to the flavor to deploy.
     required: false
     default: ''
 

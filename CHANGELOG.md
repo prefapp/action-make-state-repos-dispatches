@@ -2,15 +2,15 @@
 
 ## [1.3.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.2.0...v1.3.0) (2024-07-05)
 
-
 ### Features
 
-* Compile action ([9efadd8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/9efadd8ee456aedff31773a4e1f0204306b245db))
-
+- Compile action
+  ([9efadd8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/9efadd8ee456aedff31773a4e1f0204306b245db))
 
 ### Bug Fixes
 
-* Updated base paths variable from YAML to JSON ([7c9498f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7c9498f5816e86245fd2a7300e536a8b106029bc))
+- Updated base paths variable from YAML to JSON
+  ([7c9498f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7c9498f5816e86245fd2a7300e536a8b106029bc))
 
 ## [1.2.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.1.1...v1.2.0) (2024-07-05)
 

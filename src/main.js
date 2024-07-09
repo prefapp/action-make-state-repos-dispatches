@@ -51,11 +51,15 @@ async function run() {
       snapshots: core.getInput('default_snapshots_registry', { required: true })
     }
     const token = core.getInput('token', { required: true })
-    const dispatch_type = core.getInput('dispatch_type', { required: true })
+    const image_type = core.getInput('image_type', { required: true })
     const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
-    const version = core.getInput('version')
+    const version = core.getInput('overwrite_version')
+    const envOverride = core.getInput('overwrite_env')
+    const tenantOverride = core.getInput('overwrite_tenant')
+    const envFilter = core.getInput('filter_by_env')
+    const tenantFilter = core.getInput('filter_by_tenant')
 
     const registryBasePaths = JSON.parse(registryBasePathsRaw)
 
@@ -94,22 +98,26 @@ async function run() {
     ).toString('utf-8')
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const dispatchesTypesList =
-      dispatch_type === '*' ? ['releases', 'snapshots'] : [dispatch_type]
+    const imageTypesList =
+      image_type === '*' ? ['releases', 'snapshots'] : [image_type]
 
     const selectedFlavors = core.getInput('flavors')
     const flavorsList =
-      selectedFlavors === '*' ? '*' : selectedFlavors.split(',')
+      selectedFlavors === '*' ? '*' : getListFromInput(selectedFlavors)
 
     const stateReposList =
-      destinationRepos === '*' ? '*' : destinationRepos.split(',')
+      destinationRepos === '*' ? '*' : getListFromInput(destinationRepos)
 
-    const reviewersList = reviewersInput.split(',')
+    const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
+    const tenantFilterList =
+      tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
+
+    const reviewersList = getListFromInput(reviewersInput)
 
     let dispatchMatrix = []
 
     for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (!dispatchesTypesList.includes(dispatch.type)) {
+      if (!imageTypesList.includes(dispatch.type)) {
         debug('Skipping dispatch', dispatch.type)
         continue
       }
@@ -120,8 +128,11 @@ async function run() {
         }
         for (const stateRepo of dispatch.state_repos) {
           if (
-            stateReposList !== '*' &&
-            !stateReposList.includes(stateRepo.repo)
+            (stateReposList !== '*' &&
+              !stateReposList.includes(stateRepo.repo)) ||
+            (envFilterList !== '*' && !envFilterList.includes(stateRepo.env)) ||
+            (tenantFilterList !== '*' &&
+              !tenantFilterList.includes(stateRepo.tenant))
           ) {
             debug('Skipping state repo', stateRepo)
             continue
@@ -131,11 +142,10 @@ async function run() {
 
           for (const serviceName of stateRepo.service_names) {
             const imageName = await calculateImageName(
-              stateRepo.version,
+              version || stateRepo.version,
               octokit,
               ctx,
-              flavor,
-              version
+              flavor
             )
 
             const registry =
@@ -170,9 +180,9 @@ async function run() {
 
             summaryTable.push([
               `${ctx.owner}/${stateRepo.repo}`,
-              stateRepo.tenant,
+              tenantOverride || stateRepo.tenant,
               stateRepo.application,
-              stateRepo.env,
+              envOverride || stateRepo.env,
               serviceName,
               fullImagePath,
               reviewersList.join(', '),
@@ -190,9 +200,9 @@ async function run() {
             )
 
             dispatchMatrix.push({
-              tenant: stateRepo.tenant,
+              tenant: tenantOverride || stateRepo.tenant,
               app: stateRepo.application,
-              env: stateRepo.env,
+              env: envOverride || stateRepo.env,
               service_name: serviceName,
               image: fullImagePath,
               reviewers: reviewersList,
@@ -223,33 +233,33 @@ async function run() {
   }
 }
 
-async function calculateImageName(action_type, octokit, ctx, flavor, version) {
+async function calculateImageName(version, octokit, ctx, flavor) {
   let image
 
-  debug('Calculating image name for action type %s', action_type)
+  debug('Calculating image name for action type %s', version)
 
-  if (version) {
-    image = version
-  } else {
-    switch (action_type) {
-      case '$latest_prerelease':
-        image = await __last_prerelease(octokit, ctx)
-        break
-      case '$latest_release':
-        image = await __last_release(octokit, ctx)
-        break
-      default:
-        if (action_type.match(/^\$branch_/)) {
-          image = await __last_branch_commit(action_type, octokit, ctx)
-        } else {
-          image = action_type
-        }
-    }
+  switch (version) {
+    case '$latest_prerelease':
+      image = await __last_prerelease(octokit, ctx)
+      break
+    case '$latest_release':
+      image = await __last_release(octokit, ctx)
+      break
+    default:
+      if (version.match(/^\$branch_/)) {
+        image = await __last_branch_commit(version, octokit, ctx)
+      } else {
+        image = version
+      }
   }
 
   // If no flavor is provided, throw error
   if (!flavor) throw new Error('Flavor is required')
   return `${image}_${flavor}`
+}
+
+function getListFromInput(input) {
+  return input.replace(' ', '').split(',')
 }
 
 async function __last_release(octokit, ctx) {

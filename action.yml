@@ -12,9 +12,9 @@ inputs:
     description: GitHub token
     required: false
     default: ${{ github.token }}
-  dispatch_type:
+  image_type:
     description:
-      Dispatch types to filter in the dispatches file (releases, snapshots, *).
+      Image types to filter in the dispatches file (releases, snapshots, *).
       Default to all (*)
     required: false
     default: '*'
@@ -30,13 +30,39 @@ inputs:
       dispatches section)
     required: false
     default: '*'
-  version:
-    description: Version to dispatch
+  filter_by_env:
+    description:
+      Dispatch only to state repos whose environment is included in this filter,
+      if specified. Can be a comma separated list of environments or * (all)
+    required: true
+    default: '*'
+  filter_by_tenant:
+    description:
+      Dispatch only to state repos whose tenant is included in this filter, if
+      specified. Can be a comma separated list of tenants or * (all)
+    required: true
+    default: '*'
+  overwrite_version:
+    description:
+      Dispatch using this version instead of the one defined in the dispatches
+      file (can be a short-sha or a release tag)
+    required: false
+    default: ''
+  overwrite_tenant:
+    description:
+      Dispatch using this tenant instead of using the one defined in the
+      dispatches file, related to the flavor to deploy.
+    required: false
+    default: ''
+  overwrite_env:
+    description:
+      Dispatch using this environment instead of using the one defined in the
+      dispatches file, related to the flavor to deploy.
     required: false
     default: ''
   registry_base_paths:
     description:
-      Yaml file specifying the base path of the registry for each kind of
+      JSON file specifying the base path of the registry for each kind of
       artifact (service, chart...) and artifact type (release or snapshot)
     required: false
     default: ''
@@ -52,6 +78,7 @@ inputs:
       state repo pull request.
     required: false
     default: ''
+
 runs:
   using: node20
   main: dist/index.js

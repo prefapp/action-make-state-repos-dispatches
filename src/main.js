@@ -51,15 +51,11 @@ async function run() {
       snapshots: core.getInput('default_snapshots_registry', { required: true })
     }
     const token = core.getInput('token', { required: true })
-    const image_type = core.getInput('image_type', { required: true })
-    const destinationRepos = core.getInput('state_repo', { required: true })
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
     const version = core.getInput('overwrite_version')
     const envOverride = core.getInput('overwrite_env')
     const tenantOverride = core.getInput('overwrite_tenant')
-    const envFilter = core.getInput('filter_by_env')
-    const tenantFilter = core.getInput('filter_by_tenant')
 
     const registryBasePaths = JSON.parse(registryBasePathsRaw)
 
@@ -98,133 +94,12 @@ async function run() {
     ).toString('utf-8')
 
     const dispatchesFileContent = YAML.load(yamlContent)
-    const imageTypesList =
-      image_type === '*' ? ['releases', 'snapshots'] : [image_type]
-
-    const selectedFlavors = core.getInput('flavors')
-    const flavorsList =
-      selectedFlavors === '*' ? '*' : getListFromInput(selectedFlavors)
-
-    const stateReposList =
-      destinationRepos === '*' ? '*' : getListFromInput(destinationRepos)
-
-    const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
-    const tenantFilterList =
-      tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
     const reviewersList = getListFromInput(reviewersInput)
 
     let dispatchMatrix = []
 
-    for (const dispatch of dispatchesFileContent['dispatches']) {
-      if (!imageTypesList.includes(dispatch.type)) {
-        debug('Skipping dispatch', dispatch.type)
-        continue
-      }
-      for (const flavor of dispatch.flavors) {
-        if (flavorsList !== '*' && !flavorsList.includes(flavor)) {
-          debug('Skipping flavor', flavor)
-          continue
-        }
-        for (const stateRepo of dispatch.state_repos) {
-          if (
-            (stateReposList !== '*' &&
-              !stateReposList.includes(stateRepo.repo)) ||
-            (envFilterList !== '*' && !envFilterList.includes(stateRepo.env)) ||
-            (tenantFilterList !== '*' &&
-              !tenantFilterList.includes(stateRepo.tenant))
-          ) {
-            debug('Skipping state repo', stateRepo)
-            continue
-          }
-
-          dispatchMatrix = []
-
-          for (const serviceName of stateRepo.service_names) {
-            const imageName = await calculateImageName(
-              version || stateRepo.version,
-              octokit,
-              ctx,
-              flavor
-            )
-
-            const registry =
-              stateRepo.registry || defaultRegistries[dispatch.type]
-            const imageRepository =
-              stateRepo.image_repository ||
-              `${github.context.repo.owner}/${github.context.repo.repo}`
-
-            const imageBasePath = registryBasePaths?.services?.[dispatch.type]
-
-            const fullImageBasePath =
-              imageBasePath &&
-              !stateRepo.registry &&
-              !stateRepo.image_repository
-                ? `${imageBasePath}/`
-                : ''
-
-            const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
-
-            console.log('Registry debug')
-            console.log(`stateRepo.registry: ${stateRepo.registry}`)
-            console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
-            console.log(`registry: ${registry}`)
-            console.log(`imageRepo: ${fullImageRepo}`)
-
-            const fullImagePath = `${fullImageRepo}:${imageName}`
-
-            const imageExists = checkDockerManifest(fullImagePath)
-            const dispatchStatus = imageExists
-              ? '✔ Dispatching'
-              : '❌ Error: Image not found in registry'
-
-            summaryTable.push([
-              `${ctx.owner}/${stateRepo.repo}`,
-              tenantOverride || stateRepo.tenant,
-              stateRepo.application,
-              envOverride || stateRepo.env,
-              serviceName,
-              fullImagePath,
-              reviewersList.join(', '),
-              stateRepo.base_path || '',
-              dispatchStatus
-            ])
-
-            if (!imageExists) {
-              core.error(`Image ${fullImagePath} not found in registry`)
-              continue
-            }
-
-            core.notice(
-              `Dispatching image ${fullImagePath} to state repo ${stateRepo.repo} for service ${serviceName}`
-            )
-
-            dispatchMatrix.push({
-              tenant: tenantOverride || stateRepo.tenant,
-              app: stateRepo.application,
-              env: envOverride || stateRepo.env,
-              service_name: serviceName,
-              image: fullImagePath,
-              reviewers: reviewersList,
-              base_folder: stateRepo.base_path || '',
-              message: dispatchStatus
-            })
-          }
-
-          if (dispatchMatrix.length === 0) continue
-
-          await octokit.rest.repos.createDispatchEvent({
-            owner: ctx.owner,
-            repo: stateRepo.repo,
-            event_type: stateRepo.dispatch_event_type || 'dispatch-image',
-            client_payload: {
-              images: dispatchMatrix,
-              version: 4
-            }
-          })
-        }
-      }
-    }
+    
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
@@ -232,6 +107,147 @@ async function run() {
     core.summary.addHeading('Dispatches summary').addTable(summaryTable).write()
   }
 }
+
+async function iterateDispatches(dispatches) {
+  const image_type = core.getInput('image_type', { required: true })
+  const imageTypesList =
+    image_type === '*' ? ['releases', 'snapshots'] : [image_type]
+
+  for (const dispatch of dispatches) {
+    if (!imageTypesList.includes(dispatch.type)) {
+      debug('Skipping dispatch', dispatch.type)
+    } else {
+      await iterateDispatchFlavors(dispatch)
+    }
+  }
+}
+
+async function iterateDispatchFlavors(dispatch) {
+  const selectedFlavors = core.getInput('flavors')
+  const flavorsList =
+    selectedFlavors === '*' ? '*' : getListFromInput(selectedFlavors)
+
+  for (const flavor of dispatch.flavors) {
+    if (flavorsList !== '*' && !flavorsList.includes(flavor)) {
+      debug('Skipping flavor', flavor)
+    } else {
+      await iterateDispatchStateRepos(dispatch, flavor)
+    }
+  }
+}
+
+async function iterateDispatchStateRepos(dispatch, flavor) {
+  const destinationRepos = core.getInput('state_repo', { required: true })
+  const envFilter = core.getInput('filter_by_env')
+  const tenantFilter = core.getInput('filter_by_tenant')
+
+  const stateReposList =
+    destinationRepos === '*' ? '*' : getListFromInput(destinationRepos)
+  const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
+  const tenantFilterList =
+    tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
+
+  for (const stateRepo of dispatch.state_repos) {
+    if (
+      (stateReposList !== '*' && !stateReposList.includes(stateRepo.repo)) ||
+      (envFilterList !== '*' && !envFilterList.includes(stateRepo.env)) ||
+      (tenantFilterList !== '*' && !tenantFilterList.includes(stateRepo.tenant))
+    ) {
+      debug('Skipping state repo', stateRepo)
+    } else {
+      const dispatchMatrix = await iterateStateRepoServices(stateRepo, flavor)
+
+      if (dispatchMatrix.length === 0) continue
+
+      await octokit.rest.repos.createDispatchEvent({
+        owner: ctx.owner,
+        repo: stateRepo.repo,
+        event_type: stateRepo.dispatch_event_type || 'dispatch-image',
+        client_payload: {
+          images: dispatchMatrix,
+          version: 4
+        }
+      })
+    }
+  }
+}
+
+async function iterateStateRepoServices(stateRepo, flavor) {
+  const dispatchMatrix = []
+
+  for (const serviceName of stateRepo.service_names) {
+    const imageName = await calculateImageName(
+      version || stateRepo.version,
+      octokit,
+      ctx,
+      flavor
+    )
+
+    const registry = stateRepo.registry || defaultRegistries[dispatch.type]
+    const imageRepository =
+      stateRepo.image_repository ||
+      `${github.context.repo.owner}/${github.context.repo.repo}`
+
+    const imageBasePath = registryBasePaths?.services?.[dispatch.type]
+
+    const fullImageBasePath =
+      imageBasePath &&
+      !stateRepo.registry &&
+      !stateRepo.image_repository
+        ? `${imageBasePath}/`
+        : ''
+
+    const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
+
+    console.log('Registry debug')
+    console.log(`stateRepo.registry: ${stateRepo.registry}`)
+    console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
+    console.log(`registry: ${registry}`)
+    console.log(`imageRepo: ${fullImageRepo}`)
+
+    const fullImagePath = `${fullImageRepo}:${imageName}`
+
+    const imageExists = checkDockerManifest(fullImagePath)
+    const dispatchStatus = imageExists
+      ? '✔ Dispatching'
+      : '❌ Error: Image not found in registry'
+
+    summaryTable.push([
+      `${ctx.owner}/${stateRepo.repo}`,
+      tenantOverride || stateRepo.tenant,
+      stateRepo.application,
+      envOverride || stateRepo.env,
+      serviceName,
+      fullImagePath,
+      reviewersList.join(', '),
+      stateRepo.base_path || '',
+      dispatchStatus
+    ])
+
+    if (!imageExists) {
+      core.error(`Image ${fullImagePath} not found in registry`)
+      continue
+    }
+
+    core.notice(
+      `Dispatching image ${fullImagePath} to state repo ${stateRepo.repo} for service ${serviceName}`
+    )
+
+    dispatchMatrix.push({
+      tenant: tenantOverride || stateRepo.tenant,
+      app: stateRepo.application,
+      env: envOverride || stateRepo.env,
+      service_name: serviceName,
+      image: fullImagePath,
+      reviewers: reviewersList,
+      base_folder: stateRepo.base_path || '',
+      message: dispatchStatus
+    })
+  }
+
+  return dispatchMatrix
+}
+
 
 async function calculateImageName(version, octokit, ctx, flavor) {
   let image

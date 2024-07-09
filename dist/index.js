@@ -34529,8 +34529,10 @@ async function run() {
     const reviewersInput = core.getInput('reviewers', { required: true })
     const registryBasePathsRaw = core.getInput('registry_base_paths')
     const version = core.getInput('overwrite_version')
-    const env = core.getInput('overwrite_env')
-    const tenant = core.getInput('overwrite_tenant')
+    const envOverride = core.getInput('overwrite_env')
+    const tenantOverride = core.getInput('overwrite_tenant')
+    const envFilter = core.getInput('filter_env')
+    const tenantFilter = core.getInput('filter_tenant')
 
     const registryBasePaths = JSON.parse(registryBasePathsRaw)
 
@@ -34579,6 +34581,10 @@ async function run() {
     const stateReposList =
       destinationRepos === '*' ? '*' : destinationRepos.split(',')
 
+    const envFilterList = envFilter === '*' ? '*' : envFilter.split(',')
+    const tenantFilterList =
+      tenantFilter === '*' ? '*' : tenantFilter.split(',')
+
     const reviewersList = reviewersInput.split(',')
 
     let dispatchMatrix = []
@@ -34595,8 +34601,11 @@ async function run() {
         }
         for (const stateRepo of dispatch.state_repos) {
           if (
-            stateReposList !== '*' &&
-            !stateReposList.includes(stateRepo.repo)
+            (stateReposList !== '*' &&
+              !stateReposList.includes(stateRepo.repo)) ||
+            (envFilterList !== '*' && !envFilterList.includes(stateRepo.env)) ||
+            (tenantFilterList !== '*' &&
+              !tenantFilterList.includes(stateRepo.tenant))
           ) {
             debug('Skipping state repo', stateRepo)
             continue
@@ -34644,9 +34653,9 @@ async function run() {
 
             summaryTable.push([
               `${ctx.owner}/${stateRepo.repo}`,
-              tenant || stateRepo.tenant,
+              tenantOverride || stateRepo.tenant,
               stateRepo.application,
-              env || stateRepo.env,
+              envOverride || stateRepo.env,
               serviceName,
               fullImagePath,
               reviewersList.join(', '),
@@ -34664,9 +34673,9 @@ async function run() {
             )
 
             dispatchMatrix.push({
-              tenant: tenant || stateRepo.tenant,
+              tenant: tenantOverride || stateRepo.tenant,
               app: stateRepo.application,
-              env: env || stateRepo.env,
+              env: envOverride || stateRepo.env,
               service_name: serviceName,
               image: fullImagePath,
               reviewers: reviewersList,

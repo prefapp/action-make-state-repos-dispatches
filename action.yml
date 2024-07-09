@@ -30,13 +30,13 @@ inputs:
       dispatches section)
     required: false
     default: '*'
-  filter_env:
+  filter_by_env:
     description:
       Dispatch only to state repos whose environment is included in this filter,
       if specified. Can be a comma separated list of environments or * (all)
     required: true
     default: '*'
-  filter_tenant:
+  filter_by_tenant:
     description:
       Dispatch only to state repos whose tenant is included in this filter, if
       specified. Can be a comma separated list of tenants or * (all)

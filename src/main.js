@@ -58,8 +58,8 @@ async function run() {
     const version = core.getInput('overwrite_version')
     const envOverride = core.getInput('overwrite_env')
     const tenantOverride = core.getInput('overwrite_tenant')
-    const envFilter = core.getInput('filter_env')
-    const tenantFilter = core.getInput('filter_tenant')
+    const envFilter = core.getInput('filter_by_env')
+    const tenantFilter = core.getInput('filter_by_tenant')
 
     const registryBasePaths = JSON.parse(registryBasePathsRaw)
 

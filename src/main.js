@@ -103,16 +103,16 @@ async function run() {
 
     const selectedFlavors = core.getInput('flavors')
     const flavorsList =
-      selectedFlavors === '*' ? '*' : selectedFlavors.split(',')
+      selectedFlavors === '*' ? '*' : getListFromInput(selectedFlavors)
 
     const stateReposList =
-      destinationRepos === '*' ? '*' : destinationRepos.split(',')
+      destinationRepos === '*' ? '*' : getListFromInput(destinationRepos)
 
-    const envFilterList = envFilter === '*' ? '*' : envFilter.split(',')
+    const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
     const tenantFilterList =
-      tenantFilter === '*' ? '*' : tenantFilter.split(',')
+      tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
-    const reviewersList = reviewersInput.split(',')
+    const reviewersList = getListFromInput(reviewersInput)
 
     let dispatchMatrix = []
 
@@ -256,6 +256,10 @@ async function calculateImageName(version, octokit, ctx, flavor) {
   // If no flavor is provided, throw error
   if (!flavor) throw new Error('Flavor is required')
   return `${image}_${flavor}`
+}
+
+function getListFromInput(input) {
+  return input.replace(' ', '').split(',')
 }
 
 async function __last_release(octokit, ctx) {

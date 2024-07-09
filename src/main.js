@@ -174,7 +174,7 @@ async function run() {
               `${ctx.owner}/${stateRepo.repo}`,
               tenant || stateRepo.tenant,
               stateRepo.application,
-              stateRepo.env,
+              env || stateRepo.env,
               serviceName,
               fullImagePath,
               reviewersList.join(', '),
@@ -194,7 +194,7 @@ async function run() {
             dispatchMatrix.push({
               tenant: tenant || stateRepo.tenant,
               app: stateRepo.application,
-              env: stateRepo.env,
+              env: env || stateRepo.env,
               service_name: serviceName,
               image: fullImagePath,
               reviewers: reviewersList,

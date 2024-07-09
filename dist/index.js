@@ -34609,8 +34609,7 @@ async function run() {
               version || stateRepo.version,
               octokit,
               ctx,
-              flavor,
-              version
+              flavor
             )
 
             const registry =
@@ -34647,7 +34646,7 @@ async function run() {
               `${ctx.owner}/${stateRepo.repo}`,
               tenant || stateRepo.tenant,
               stateRepo.application,
-              stateRepo.env,
+              env || stateRepo.env,
               serviceName,
               fullImagePath,
               reviewersList.join(', '),
@@ -34667,7 +34666,7 @@ async function run() {
             dispatchMatrix.push({
               tenant: tenant || stateRepo.tenant,
               app: stateRepo.application,
-              env: stateRepo.env,
+              env: env || stateRepo.env,
               service_name: serviceName,
               image: fullImagePath,
               reviewers: reviewersList,
@@ -34698,28 +34697,24 @@ async function run() {
   }
 }
 
-async function calculateImageName(action_type, octokit, ctx, flavor, version) {
+async function calculateImageName(version, octokit, ctx, flavor) {
   let image
 
-  debug('Calculating image name for action type %s', action_type)
+  debug('Calculating image name for action type %s', version)
 
-  if (version) {
-    image = version
-  } else {
-    switch (action_type) {
-      case '$latest_prerelease':
-        image = await __last_prerelease(octokit, ctx)
-        break
-      case '$latest_release':
-        image = await __last_release(octokit, ctx)
-        break
-      default:
-        if (action_type.match(/^\$branch_/)) {
-          image = await __last_branch_commit(action_type, octokit, ctx)
-        } else {
-          image = action_type
-        }
-    }
+  switch (version) {
+    case '$latest_prerelease':
+      image = await __last_prerelease(octokit, ctx)
+      break
+    case '$latest_release':
+      image = await __last_release(octokit, ctx)
+      break
+    default:
+      if (version.match(/^\$branch_/)) {
+        image = await __last_branch_commit(version, octokit, ctx)
+      } else {
+        image = version
+      }
   }
 
   // If no flavor is provided, throw error

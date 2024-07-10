@@ -1,5 +1,3 @@
-const YAML = require('js-yaml')
-const debug = require('debug')('make-state-repos-dispatches')
 const githubUtils = require('../utils/github')
 const dispatcher = require('./dispatcher')
 

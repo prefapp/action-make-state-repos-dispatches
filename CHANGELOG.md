@@ -1,8 +1,15 @@
 # Changelog
 
+## [1.4.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.3.0...v1.4.0) (2024-07-09)
+
+### Features
+
+* rename inputs ([6332e98](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6332e98cdebc1efc9bafeb5075d5b33cda651451))
+
 ## [1.3.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.2.0...v1.3.0) (2024-07-05)
 
 ### Features
+
 
 - Compile action
   ([9efadd8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/9efadd8ee456aedff31773a4e1f0204306b245db))

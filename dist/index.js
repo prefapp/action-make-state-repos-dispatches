@@ -34469,7 +34469,7 @@ function wrappy (fn, cb) {
 /***/ }),
 
 /***/ 8921:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 const YAML = __nccwpck_require__(1917)
@@ -34516,8 +34516,8 @@ async function makeDispatches(gitController) {
 
     const ctx = gitController.getPayloadContext()
 
-    debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFilePath = gitController.getInput('dispatches_file', true)
+    debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
       gitController.getFileContent(dispatchesFilePath)
 
@@ -34528,7 +34528,7 @@ async function makeDispatches(gitController) {
 
     const dispatchesFileData = YAML.load(yamlContent)
 
-    iterateDispatches(dispatchesFileData, gitController)
+    iterateDispatches(dispatchesFileData['dispatches'], gitController)
   } catch (error) {
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
@@ -34686,6 +34686,10 @@ async function iterateStateRepoServices(
   }
 
   return dispatchMatrix
+}
+
+module.exports = {
+  makeDispatches
 }
 
 

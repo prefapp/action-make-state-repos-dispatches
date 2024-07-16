@@ -46,7 +46,7 @@ async function makeDispatches(gitController) {
     const dispatchesFilePath = gitController.getInput('dispatches_file', true)
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
-      gitController.getFileContent(dispatchesFilePath)
+      await gitController.getFileContent(dispatchesFilePath)
 
     debug('Parsing dispatches file yaml content')
     const yamlContent = Buffer.from(dispatchesFileContent, 'base64').toString(

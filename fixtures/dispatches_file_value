@@ -1,0 +1,11 @@
+dispatches:
+  - type: snapshots
+    flavors:
+      - default
+    state_repos:
+      - repo: test
+        tenant: prefapp
+        application: test-repo-rundagger
+        env: dev
+        service_names: ['controller']
+        version: $branch_dev

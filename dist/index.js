@@ -34731,7 +34731,7 @@ const _payloadCtx = {
 const _token = core.getInput('token', true)
 const _octokit = github.getOctokit(_token)
 
-function getGithubInput(inputName, isRequired = false) {
+function getInput(inputName, isRequired = false) {
   return core.getInput(inputName, { required: isRequired })
 }
 
@@ -34823,7 +34823,7 @@ function handleFailure(msg) {
 }
 
 module.exports = {
-  getGithubInput,
+  getInput,
   getPayloadContext,
   getRepoContext,
   getOctokit,

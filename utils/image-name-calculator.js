@@ -60,3 +60,7 @@ async function __last_branch_commit(branch, gitController) {
     throw new Error(`calculating last commit on branch ${branch}: ${err}`)
   }
 }
+
+module.exports = {
+  calculateImageName
+}

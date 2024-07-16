@@ -34717,7 +34717,7 @@ module.exports = {
 /***/ }),
 
 /***/ 3881:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__(2186)
 const github = __nccwpck_require__(5438)
@@ -34822,11 +34822,27 @@ function handleFailure(msg) {
   core.setFailed(msg)
 }
 
+module.exports = {
+  getGithubInput,
+  getPayloadContext,
+  getRepoContext,
+  getOctokit,
+  getLatestRelease,
+  getLatestPrerelease,
+  getLastBranchCommit,
+  getFileContent,
+  dispatch,
+  handleNotice,
+  handleSummary,
+  handleError,
+  handleFailure
+}
+
 
 /***/ }),
 
 /***/ 4101:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 
@@ -34889,6 +34905,10 @@ async function __last_branch_commit(branch, gitController) {
   } catch (err) {
     throw new Error(`calculating last commit on branch ${branch}: ${err}`)
   }
+}
+
+module.exports = {
+  calculateImageName
 }
 
 

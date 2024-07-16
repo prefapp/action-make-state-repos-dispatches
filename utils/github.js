@@ -100,3 +100,19 @@ function handleError(msg) {
 function handleFailure(msg) {
   core.setFailed(msg)
 }
+
+module.exports = {
+  getGithubInput,
+  getPayloadContext,
+  getRepoContext,
+  getOctokit,
+  getLatestRelease,
+  getLatestPrerelease,
+  getLastBranchCommit,
+  getFileContent,
+  dispatch,
+  handleNotice,
+  handleSummary,
+  handleError,
+  handleFailure
+}

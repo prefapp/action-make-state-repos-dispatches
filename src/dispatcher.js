@@ -55,7 +55,7 @@ async function makeDispatches(gitController) {
 
     const dispatchesFileData = YAML.load(yamlContent)
 
-    iterateDispatches(dispatchesFileData['dispatches'], gitController)
+    await iterateDispatches(dispatchesFileData['dispatches'], gitController)
   } catch (error) {
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)

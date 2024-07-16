@@ -43,8 +43,8 @@ async function makeDispatches(gitController) {
 
     const ctx = gitController.getPayloadContext()
 
-    debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFilePath = gitController.getInput('dispatches_file', true)
+    debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
       gitController.getFileContent(dispatchesFilePath)
 
@@ -55,7 +55,7 @@ async function makeDispatches(gitController) {
 
     const dispatchesFileData = YAML.load(yamlContent)
 
-    iterateDispatches(dispatchesFileData, gitController)
+    iterateDispatches(dispatchesFileData['dispatches'], gitController)
   } catch (error) {
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
@@ -213,4 +213,8 @@ async function iterateStateRepoServices(
   }
 
   return dispatchMatrix
+}
+
+module.exports = {
+  makeDispatches
 }

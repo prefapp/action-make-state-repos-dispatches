@@ -34593,7 +34593,7 @@ async function iterateDispatchStateRepos(dispatch, flavor, gitController) {
 
       if (dispatchMatrix.length === 0) continue
 
-      await gitController.createDispatchEvent(stateRepo, dispatchMatrix)
+      await gitController.dispatch(stateRepo, dispatchMatrix)
     }
   }
 }

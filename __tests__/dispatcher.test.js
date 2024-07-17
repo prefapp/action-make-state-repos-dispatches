@@ -49,15 +49,82 @@ describe('The dispatcher', () => {
     const dispatches = YAML.load(
       fs.readFileSync('fixtures/dispatches_file_value', 'utf-8')
     )
-    const result = await dispatcher.createDispatchData(
+    const result = dispatcher.createDispatchData(
       dispatches['dispatches'],
-      async (stateRepo, flavor, dispatchType) => {
-        return setTimeout(() => {
-          return `${stateRepo.version}-${flavor}-${dispatchType}`
-        }, 1000)
-      },
       [],
-      ''
+      '',
+      [
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor1',
+          image_repo: 'my-org/my-repo',
+          image_tag: 'v1.1.0-pre',
+          image_type: 'snapshots',
+          registries: ['registry1'],
+          repository: 'service/my-org/my-repo',
+          version: 'version1'
+        },
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor4',
+          image_repo: 'org/repo',
+          image_tag: 'v444',
+          image_type: 'snapshots',
+          registries: ['registry4', 'registry5', 'registry0'],
+          repository: 'service/org/repo',
+          version: 'version4'
+        },
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor2',
+          image_repo: 'my-other-org/my-other-repo',
+          image_tag: 'v2.3-dev',
+          image_type: 'snapshots',
+          registries: ['registry2', 'registry3'],
+          repository: 'service/my-other-org/my-other-repo',
+          version: 'version23'
+        },
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor3',
+          image_repo: 'my-other-org/my-other-repo',
+          image_tag: 'v2.3-dev',
+          image_type: 'snapshots',
+          registries: ['registry2', 'registry3'],
+          repository: 'service/my-other-org/my-other-repo',
+          version: 'version23'
+        },
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor1',
+          image_repo: 'my-org/my-repo',
+          image_tag: 'v1.1.0-pro',
+          image_type: 'releases',
+          registries: ['registry1'],
+          repository: 'service/my-org/my-repo',
+          version: 'version-releases1'
+        },
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor2',
+          image_repo: 'my-other-org/my-other-repo',
+          image_tag: 'v2.3-pro',
+          image_type: 'releases',
+          registries: ['registry2', 'registry3'],
+          repository: 'service/my-other-org/my-other-repo',
+          version: 'version23'
+        },
+        {
+          build_args: [{ BACKEND_URL: 'https://example.com' }],
+          flavor: 'flavor3',
+          image_repo: 'my-other-org/my-other-repo',
+          image_tag: 'v2.3-pro',
+          image_type: 'releases',
+          registries: ['registry2', 'registry3'],
+          repository: 'service/my-other-org/my-other-repo',
+          version: 'version23'
+        }
+      ]
     )
     console.dir(result, { depth: null })
   })

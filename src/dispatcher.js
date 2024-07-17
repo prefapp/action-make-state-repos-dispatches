@@ -60,25 +60,8 @@ async function makeDispatches(gitController) {
       releases: gitController.getInput('default_releases_registry', true),
       snapshots: gitController.getInput('default_snapshots_registry', true)
     }
-    const calculateFullImageName = async (stateRepo, flavor, dispatchType) => {
-      const imageName = await imageNameCalculator.calculateImageName(
-        version || stateRepo.version,
-        gitController,
-        flavor
-      )
-
-      const registry = stateRepo.registry || defaultRegistries[dispatchType]
-      const imageRepository =
-        stateRepo.image_repository || `${repoCtx.owner}/${repoCtx.repo}`
-
-      const imageBasePath = registryBasePaths?.services?.[dispatchType]
-
-      const fullImageBasePath =
-        imageBasePath && !stateRepo.registry && !stateRepo.image_repository
-          ? `${imageBasePath}/`
-          : ''
-
-      const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
+    const calculateFullImageName = (imageName, registry, imageRepository) => {
+      const fullImageRepo = `${registry}/${imageRepository}`
 
       return `${fullImageRepo}:${imageName}`
     }
@@ -88,7 +71,15 @@ async function makeDispatches(gitController) {
     const reviewersInput = gitController.getInput('reviewers', true)
     const reviewersList = getListFromInput(reviewersInput)
 
-    await iterateDispatches(dispatchesFileData['dispatches'], gitController)
+    const dispatchData = createDispatchData(
+      dispatchesFileData['dispatches'],
+      reviewersList,
+      '',
+      '',
+      version,
+      tenantOverride,
+      envOverride
+    )
   } catch (error) {
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
@@ -97,28 +88,38 @@ async function makeDispatches(gitController) {
   }
 }
 
-async function createDispatchData(
+function createDispatchData(
   dispatches,
-  calculateFullImagePath,
   reviewersList,
   dispatchStatus,
+  buildSummary,
+  versionOverride = '',
   tenantOverride = '',
   envOverride = ''
 ) {
   return dispatches.flatMap(({ type, flavors, state_repos }) =>
-    flavors.flatMap(async flavor =>
-      state_repos.flatMap(async ({ service_names, ...state_repo }) =>
-        service_names.map(async service_name => ({
-          tenant: tenantOverride || state_repo.tenant,
-          app: state_repo.application,
-          env: envOverride || state_repo.env,
-          service_name,
-          image: await calculateFullImagePath(state_repo, flavor, type),
-          reviewers: reviewersList,
-          base_folder: state_repo.base_path || '',
-          message: dispatchStatus
-        }))
-      )
+    flavors.flatMap(flavor =>
+      state_repos.flatMap(({ service_names, ...state_repo }) => {
+        const version = versionOverride || state_repo.version
+        const imageData = buildSummary.filter(
+          entry =>
+            entry.flavor === flavor &&
+            entry.version === version &&
+            entry.image_type === type
+        )[0]
+        return service_names.flatMap(service_name =>
+          imageData.registries.map(registry => ({
+            tenant: tenantOverride || state_repo.tenant,
+            app: state_repo.application,
+            env: envOverride || state_repo.env,
+            service_name,
+            image: `${registry}/${imageData.repository}:${imageData.image_name}`,
+            reviewers: reviewersList,
+            base_folder: state_repo.base_path || '',
+            message: dispatchStatus
+          }))
+        )
+      })
     )
   )
 }

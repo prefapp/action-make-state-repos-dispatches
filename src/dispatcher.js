@@ -41,8 +41,6 @@ async function makeDispatches(gitController) {
     // Parse action inputs
     debug('Parsing action inputs')
 
-    const ctx = gitController.getPayloadContext()
-
     const dispatchesFilePath = gitController.getInput('dispatches_file', true)
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
@@ -52,8 +50,43 @@ async function makeDispatches(gitController) {
     const yamlContent = Buffer.from(dispatchesFileContent, 'base64').toString(
       'utf-8'
     )
-
     const dispatchesFileData = YAML.load(yamlContent)
+
+    const version = gitController.getInput('overwrite_version')
+    const repoCtx = gitController.getRepoContext()
+    const registryBasePathsRaw = gitController.getInput('registry_base_paths')
+    const registryBasePaths = JSON.parse(registryBasePathsRaw)
+    const defaultRegistries = {
+      releases: gitController.getInput('default_releases_registry', true),
+      snapshots: gitController.getInput('default_snapshots_registry', true)
+    }
+    const calculateFullImageName = async (stateRepo, flavor, dispatchType) => {
+      const imageName = await imageNameCalculator.calculateImageName(
+        version || stateRepo.version,
+        gitController,
+        flavor
+      )
+
+      const registry = stateRepo.registry || defaultRegistries[dispatchType]
+      const imageRepository =
+        stateRepo.image_repository || `${repoCtx.owner}/${repoCtx.repo}`
+
+      const imageBasePath = registryBasePaths?.services?.[dispatchType]
+
+      const fullImageBasePath =
+        imageBasePath && !stateRepo.registry && !stateRepo.image_repository
+          ? `${imageBasePath}/`
+          : ''
+
+      const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
+
+      return `${fullImageRepo}:${imageName}`
+    }
+
+    const envOverride = gitController.getInput('overwrite_env')
+    const tenantOverride = gitController.getInput('overwrite_tenant')
+    const reviewersInput = gitController.getInput('reviewers', true)
+    const reviewersList = getListFromInput(reviewersInput)
 
     await iterateDispatches(dispatchesFileData['dispatches'], gitController)
   } catch (error) {
@@ -62,6 +95,32 @@ async function makeDispatches(gitController) {
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
+}
+
+async function createDispatchData(
+  dispatches,
+  calculateFullImagePath,
+  reviewersList,
+  dispatchStatus,
+  tenantOverride = '',
+  envOverride = ''
+) {
+  return dispatches.flatMap(({ type, flavors, state_repos }) =>
+    flavors.flatMap(async flavor =>
+      state_repos.flatMap(async ({ service_names, ...state_repo }) =>
+        service_names.map(async service_name => ({
+          tenant: tenantOverride || state_repo.tenant,
+          app: state_repo.application,
+          env: envOverride || state_repo.env,
+          service_name,
+          image: await calculateFullImagePath(state_repo, flavor, type),
+          reviewers: reviewersList,
+          base_folder: state_repo.base_path || '',
+          message: dispatchStatus
+        }))
+      )
+    )
+  )
 }
 
 async function iterateDispatches(dispatches, gitController) {
@@ -132,47 +191,19 @@ async function iterateStateRepoServices(
   gitController
 ) {
   const dispatchMatrix = []
-  const version = gitController.getInput('overwrite_version')
   const envOverride = gitController.getInput('overwrite_env')
   const tenantOverride = gitController.getInput('overwrite_tenant')
-  const registryBasePathsRaw = gitController.getInput('registry_base_paths')
-  const registryBasePaths = JSON.parse(registryBasePathsRaw)
-  const defaultRegistries = {
-    releases: gitController.getInput('default_releases_registry', true),
-    snapshots: gitController.getInput('default_snapshots_registry', true)
-  }
   const reviewersInput = gitController.getInput('reviewers', true)
   const reviewersList = getListFromInput(reviewersInput)
-  const repoCtx = gitController.getRepoContext()
   const payloadCtx = gitController.getPayloadContext()
 
   for (const serviceName of stateRepo.service_names) {
-    const imageName = await imageNameCalculator.calculateImageName(
-      version || stateRepo.version,
-      gitController,
-      flavor
-    )
-
-    const registry = stateRepo.registry || defaultRegistries[dispatch.type]
-    const imageRepository =
-      stateRepo.image_repository || `${repoCtx.owner}/${repoCtx.repo}`
-
-    const imageBasePath = registryBasePaths?.services?.[dispatch.type]
-
-    const fullImageBasePath =
-      imageBasePath && !stateRepo.registry && !stateRepo.image_repository
-        ? `${imageBasePath}/`
-        : ''
-
-    const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
 
     console.log('Registry debug')
     console.log(`stateRepo.registry: ${stateRepo.registry}`)
     console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
     console.log(`registry: ${registry}`)
     console.log(`imageRepo: ${fullImageRepo}`)
-
-    const fullImagePath = `${fullImageRepo}:${imageName}`
 
     const imageExists = checkDockerManifest(fullImagePath)
     const dispatchStatus = imageExists
@@ -216,5 +247,6 @@ async function iterateStateRepoServices(
 }
 
 module.exports = {
-  makeDispatches
+  makeDispatches,
+  createDispatchData
 }

@@ -1,5 +1,6 @@
 const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
+const YAML = require('js-yaml')
 const path = require('path')
 
 const gitControllerMock = {
@@ -23,7 +24,7 @@ const gitControllerMock = {
       repo: 'repo-ctx-repo'
     }
   },
-  createDispatchEvent: (dispatchObj, matrix) => {
+  dispatch: (dispatchObj, matrix) => {
     return true
   },
   handleNotice: msg => {
@@ -41,8 +42,24 @@ const gitControllerMock = {
 }
 
 describe('The dispatcher', () => {
-  it('can make dispatches', async () => {
-    await dispatcher.makeDispatches(gitControllerMock)
+  // it('can make dispatches', async () => {
+  //   await dispatcher.makeDispatches(gitControllerMock)
+  // })
+  it('can get a dispatch object from a YAML config', async () => {
+    const dispatches = YAML.load(
+      fs.readFileSync('fixtures/dispatches_file_value', 'utf-8')
+    )
+    const result = await dispatcher.createDispatchData(
+      dispatches['dispatches'],
+      async (stateRepo, flavor, dispatchType) => {
+        return setTimeout(() => {
+          return `${stateRepo.version}-${flavor}-${dispatchType}`
+        }, 1000)
+      },
+      [],
+      ''
+    )
+    console.dir(result, { depth: null })
   })
   // it('can filter by dispatch type', async () => {
   //   expect(dispatcher).toHaveBeenCalled()

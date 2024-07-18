@@ -34472,29 +34472,266 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
-const YAML = __nccwpck_require__(1917)
-const { execSync } = __nccwpck_require__(2081)
 const imageNameCalculator = __nccwpck_require__(4101)
-
-const summaryTable = [
-  [
-    { data: 'State repository', header: true },
-    { data: 'Tenant', header: true },
-    { data: 'Application', header: true },
-    { data: 'Env', header: true },
-    { data: 'Service Name', header: true },
-    { data: 'Image', header: true },
-    { data: 'Reviewers', header: true },
-    { data: 'Base Folder', header: true },
-    { data: 'Status', header: true }
-  ]
-]
+const textHelper = __nccwpck_require__(5276)
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
 
-function checkDockerManifest(image) {
+async function makeDispatches(gitController, imageHelper) {
+  const summaryTable = [
+    [
+      { data: 'State repository', header: true },
+      { data: 'Tenant', header: true },
+      { data: 'Application', header: true },
+      { data: 'Env', header: true },
+      { data: 'Service Name', header: true },
+      { data: 'Image', header: true },
+      { data: 'Reviewers', header: true },
+      { data: 'Base Folder', header: true },
+      { data: 'Status', header: true }
+    ]
+  ]
+
+  try {
+    // Parse action inputs
+    debug('Parsing action inputs')
+
+    const {
+      dispatchesFilePath,
+      imageType,
+      stateRepoFilter,
+      defaultReleasesRegistry,
+      defaultSnapshotsRegistry,
+      buildSummary,
+      flavorFilter,
+      envFilter,
+      tenantFilter,
+      overwriteVersion,
+      overwriteEnv,
+      overwriteTenant,
+      reviewers,
+      registryBasePaths
+    } = gitController.getAllInputs()
+    const payloadCtx = gitController.getPayloadContext()
+
+    debug('Loading dispatches file content from path', dispatchesFilePath)
+    const dispatchesFileContent =
+      await gitController.getFileContent(dispatchesFilePath)
+    const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
+
+    let buildSummaryData = null
+    if (buildSummary) {
+      buildSummaryData = textHelper.parseFile(buildSummary)
+    } else {
+      buildSummaryData = getLatestBuildSummary()
+    }
+
+    const defaultRegistries = {
+      releases: defaultReleasesRegistry,
+      snapshots: defaultSnapshotsRegistry
+    }
+
+    const reviewersList = getListFromInput(reviewers)
+    const imageTypesList =
+      imageType === '*' ? ['releases', 'snapshots'] : [imageType]
+    const stateReposList =
+      stateRepoFilter === '*' ? '*' : getListFromInput(stateRepoFilter)
+    const flavorsList =
+      flavorFilter === '*' ? '*' : getListFromInput(flavorFilter)
+    const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
+    const tenantFilterList =
+      tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
+
+    const dispatchList = createDispatchList(
+      dispatchesData['dispatches'],
+      buildSummaryData,
+      reviewersList,
+      overwriteVersion,
+      overwriteEnv,
+      overwriteTenant
+    )
+
+    const groupedDispatches = {}
+    for (const data of dispatchList) {
+      if (
+        isDispatchValid(
+          data,
+          imageTypesList,
+          flavorsList,
+          stateReposList,
+          envFilterList,
+          tenantFilterList
+        )
+      ) {
+        const stateRepoName = data.state_repo.repo
+
+        const imageExists = imageHelper.checkManifest(data.image)
+        const dispatchStatus = imageExists
+          ? '✔ Dispatching'
+          : '❌ Error: Image not found in registry'
+
+        updateSummaryTable(
+          data,
+          dispatchStatus,
+          `${payloadCtx.owner}/${stateRepoName}`,
+          summaryTable
+        )
+
+        if (!imageExists) {
+          gitController.handleError(`Image ${data.image} not found in registry`)
+          continue
+        }
+
+        gitController.handleNotice(
+          `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`
+        )
+
+        data.message = dispatchStatus
+        groupedDispatches[stateRepoName] =
+          groupedDispatches[stateRepoName] ?? [] // Initialize as an empty array if the property doesn't exist
+        groupedDispatches[stateRepoName].push(data)
+      }
+    }
+
+    const resultList = []
+    for (const key in groupedDispatches) {
+      const result = await gitController.dispatch(
+        groupedDispatches[key][0].state_repo, // They all belong to the same repo
+        groupedDispatches[key]
+      )
+      resultList.push(result)
+    }
+
+    return resultList
+  } catch (error) {
+    // Fail the workflow run if an error occurs
+    gitController.handleFailure(error.message)
+  } finally {
+    gitController.handleSummary('Dispatches summary', summaryTable)
+  }
+}
+
+function createDispatchList(
+  dispatches,
+  buildSummary,
+  reviewersList,
+  versionOverride = '',
+  tenantOverride = '',
+  envOverride = ''
+) {
+  return dispatches.flatMap(({ type, flavors, state_repos }) =>
+    flavors.flatMap(flavor =>
+      state_repos.flatMap(({ service_names, ...state_repo }) => {
+        const version = versionOverride || state_repo.version
+        const imageData = buildSummary.filter(
+          entry =>
+            entry.flavor === flavor &&
+            entry.version === version &&
+            entry.image_type === type
+        )[0]
+
+        return service_names.flatMap(service_name =>
+          imageData.registries.map(registry => ({
+            type,
+            flavor,
+            state_repo,
+            tenant: tenantOverride || state_repo.tenant,
+            app: state_repo.application,
+            env: envOverride || state_repo.env,
+            service_name,
+            image: `${registry}/${imageData.repository}:${imageData.image_name}`,
+            reviewers: reviewersList,
+            base_folder: state_repo.base_path || ''
+          }))
+        )
+      })
+    )
+  )
+}
+
+function getLatestBuildSummary() {
+  console.log('TODO')
+}
+
+function isDispatchValid(
+  dispatch,
+  imageTypesList,
+  flavorsList,
+  stateReposList,
+  envFilterList,
+  tenantFilterList
+) {
+  const stateRepo = dispatch.state_repo
+
+  return (
+    imageTypesList.includes(dispatch.type) &&
+    (flavorsList === '*' || flavorsList.includes(dispatch.flavor)) &&
+    (stateReposList === '*' || stateReposList.includes(stateRepo.repo)) &&
+    (envFilterList === '*' || envFilterList.includes(stateRepo.env)) &&
+    (tenantFilterList === '*' || tenantFilterList.includes(stateRepo.tenant))
+  )
+}
+
+function updateSummaryTable(
+  dispatch,
+  dispatchStatus,
+  stateRepoName,
+  summaryTable
+) {
+  summaryTable.push([
+    stateRepoName,
+    dispatch.tenant,
+    dispatch.app,
+    dispatch.env,
+    dispatch.service_name,
+    dispatch.image,
+    dispatch.reviewers.join(', '),
+    dispatch.base_path,
+    dispatchStatus
+  ])
+}
+
+module.exports = {
+  makeDispatches,
+  createDispatchList,
+  getLatestBuildSummary,
+  isDispatchValid,
+  updateSummaryTable
+}
+
+
+/***/ }),
+
+/***/ 1713:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const githubUtils = __nccwpck_require__(3881)
+const dispatcher = __nccwpck_require__(8921)
+const dockerHelper = __nccwpck_require__(5812)
+
+/**
+ * The main function for the action.
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+async function run() {
+  await dispatcher.makeDispatches(githubUtils, dockerHelper)
+}
+
+module.exports = {
+  run
+}
+
+
+/***/ }),
+
+/***/ 5812:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { execSync } = __nccwpck_require__(2081)
+
+function checkManifest(image) {
   try {
     // Execute the command
     const output = execSync(`docker manifest inspect ${image}`, {
@@ -34509,208 +34746,8 @@ function checkDockerManifest(image) {
   }
 }
 
-async function makeDispatches(gitController) {
-  try {
-    // Parse action inputs
-    debug('Parsing action inputs')
-
-    const ctx = gitController.getPayloadContext()
-
-    const dispatchesFilePath = gitController.getInput('dispatches_file', true)
-    debug('Loading dispatches file content from path', dispatchesFilePath)
-    const dispatchesFileContent =
-      await gitController.getFileContent(dispatchesFilePath)
-
-    debug('Parsing dispatches file yaml content')
-    const yamlContent = Buffer.from(dispatchesFileContent, 'base64').toString(
-      'utf-8'
-    )
-
-    const dispatchesFileData = YAML.load(yamlContent)
-
-    await iterateDispatches(dispatchesFileData['dispatches'], gitController)
-  } catch (error) {
-    // Fail the workflow run if an error occurs
-    gitController.handleFailure(error.message)
-  } finally {
-    gitController.handleSummary('Dispatches summary', summaryTable)
-  }
-}
-
-async function iterateDispatches(dispatches, gitController) {
-  const image_type = gitController.getInput('image_type', true)
-  const imageTypesList =
-    image_type === '*' ? ['releases', 'snapshots'] : [image_type]
-
-  for (const dispatch of dispatches) {
-    if (!imageTypesList.includes(dispatch.type)) {
-      debug('Skipping dispatch', dispatch.type)
-    } else {
-      await iterateDispatchFlavors(dispatch, gitController)
-    }
-  }
-}
-
-async function iterateDispatchFlavors(dispatch, gitController) {
-  const selectedFlavors = gitController.getInput('flavors')
-  const flavorsList =
-    selectedFlavors === '*' ? '*' : getListFromInput(selectedFlavors)
-
-  for (const flavor of dispatch.flavors) {
-    if (flavorsList !== '*' && !flavorsList.includes(flavor)) {
-      debug('Skipping flavor', flavor)
-    } else {
-      await iterateDispatchStateRepos(dispatch, flavor, gitController)
-    }
-  }
-}
-
-async function iterateDispatchStateRepos(dispatch, flavor, gitController) {
-  const destinationRepos = gitController.getInput('state_repo', true)
-  const envFilter = gitController.getInput('filter_by_env')
-  const tenantFilter = gitController.getInput('filter_by_tenant')
-
-  const stateReposList =
-    destinationRepos === '*' ? '*' : getListFromInput(destinationRepos)
-  const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
-  const tenantFilterList =
-    tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
-
-  for (const stateRepo of dispatch.state_repos) {
-    if (
-      (stateReposList !== '*' && !stateReposList.includes(stateRepo.repo)) ||
-      (envFilterList !== '*' && !envFilterList.includes(stateRepo.env)) ||
-      (tenantFilterList !== '*' && !tenantFilterList.includes(stateRepo.tenant))
-    ) {
-      debug('Skipping state repo', stateRepo)
-    } else {
-      const dispatchMatrix = await iterateStateRepoServices(
-        dispatch,
-        stateRepo,
-        flavor,
-        gitController
-      )
-
-      if (dispatchMatrix.length === 0) continue
-
-      await gitController.dispatch(stateRepo, dispatchMatrix)
-    }
-  }
-}
-
-async function iterateStateRepoServices(
-  dispatch,
-  stateRepo,
-  flavor,
-  gitController
-) {
-  const dispatchMatrix = []
-  const version = gitController.getInput('overwrite_version')
-  const envOverride = gitController.getInput('overwrite_env')
-  const tenantOverride = gitController.getInput('overwrite_tenant')
-  const registryBasePathsRaw = gitController.getInput('registry_base_paths')
-  const registryBasePaths = JSON.parse(registryBasePathsRaw)
-  const defaultRegistries = {
-    releases: gitController.getInput('default_releases_registry', true),
-    snapshots: gitController.getInput('default_snapshots_registry', true)
-  }
-  const reviewersInput = gitController.getInput('reviewers', true)
-  const reviewersList = getListFromInput(reviewersInput)
-  const repoCtx = gitController.getRepoContext()
-  const payloadCtx = gitController.getPayloadContext()
-
-  for (const serviceName of stateRepo.service_names) {
-    const imageName = await imageNameCalculator.calculateImageName(
-      version || stateRepo.version,
-      gitController,
-      flavor
-    )
-
-    const registry = stateRepo.registry || defaultRegistries[dispatch.type]
-    const imageRepository =
-      stateRepo.image_repository || `${repoCtx.owner}/${repoCtx.repo}`
-
-    const imageBasePath = registryBasePaths?.services?.[dispatch.type]
-
-    const fullImageBasePath =
-      imageBasePath && !stateRepo.registry && !stateRepo.image_repository
-        ? `${imageBasePath}/`
-        : ''
-
-    const fullImageRepo = `${registry}/${fullImageBasePath}${imageRepository}`
-
-    console.log('Registry debug')
-    console.log(`stateRepo.registry: ${stateRepo.registry}`)
-    console.log(`defaultRegistry: ${defaultRegistries[dispatch.type]}`)
-    console.log(`registry: ${registry}`)
-    console.log(`imageRepo: ${fullImageRepo}`)
-
-    const fullImagePath = `${fullImageRepo}:${imageName}`
-
-    const imageExists = checkDockerManifest(fullImagePath)
-    const dispatchStatus = imageExists
-      ? '✔ Dispatching'
-      : '❌ Error: Image not found in registry'
-
-    summaryTable.push([
-      `${payloadCtx.owner}/${stateRepo.repo}`,
-      tenantOverride || stateRepo.tenant,
-      stateRepo.application,
-      envOverride || stateRepo.env,
-      serviceName,
-      fullImagePath,
-      reviewersList.join(', '),
-      stateRepo.base_path || '',
-      dispatchStatus
-    ])
-
-    if (!imageExists) {
-      gitController.handleError(`Image ${fullImagePath} not found in registry`)
-      continue
-    }
-
-    gitController.handleNotice(
-      `Dispatching image ${fullImagePath} to state repo ${stateRepo.repo} for service ${serviceName}`
-    )
-
-    dispatchMatrix.push({
-      tenant: tenantOverride || stateRepo.tenant,
-      app: stateRepo.application,
-      env: envOverride || stateRepo.env,
-      service_name: serviceName,
-      image: fullImagePath,
-      reviewers: reviewersList,
-      base_folder: stateRepo.base_path || '',
-      message: dispatchStatus
-    })
-  }
-
-  return dispatchMatrix
-}
-
 module.exports = {
-  makeDispatches
-}
-
-
-/***/ }),
-
-/***/ 1713:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const githubUtils = __nccwpck_require__(3881)
-const dispatcher = __nccwpck_require__(8921)
-
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
-async function run() {
-  await dispatcher.makeDispatches(githubUtils)
-}
-
-module.exports = {
-  run
+  checkManifest
 }
 
 
@@ -34733,6 +34770,47 @@ const _octokit = github.getOctokit(_token)
 
 function getInput(inputName, isRequired = false) {
   return core.getInput(inputName, { required: isRequired })
+}
+
+function getAllInputs() {
+  const dispatchesFilePath = core.getInput('dispatches_file', {
+    required: true
+  })
+  const imageType = core.getInput('image_type', { required: true })
+  const stateRepoFilter = core.getInput('state_repo', { required: true })
+  const defaultReleasesRegistry = core.getInput('default_releases_registry', {
+    required: true
+  })
+  const defaultSnapshotsRegistry = core.getInput('default_snapshots_registry', {
+    required: true
+  })
+
+  const buildSummary = core.getInput('build_summary')
+  const flavorFilter = core.getInput('flavors')
+  const envFilter = core.getInput('filter_by_env')
+  const tenantFilter = core.getInput('filter_by_tenant')
+  const overwriteVersion = core.getInput('overwrite_version')
+  const overwriteEnv = core.getInput('overwrite_env')
+  const overwriteTenant = core.getInput('overwrite_tenant')
+  const reviewers = core.getInput('reviewers')
+  const registryBasePaths = core.getInput('registry_base_paths')
+
+  return {
+    dispatchesFilePath,
+    imageType,
+    stateRepoFilter,
+    defaultReleasesRegistry,
+    defaultSnapshotsRegistry,
+    buildSummary,
+    flavorFilter,
+    envFilter,
+    tenantFilter,
+    overwriteVersion,
+    overwriteEnv,
+    overwriteTenant,
+    reviewers,
+    registryBasePaths
+  }
 }
 
 function getPayloadContext() {
@@ -34909,6 +34987,26 @@ async function __last_branch_commit(branch, gitController) {
 
 module.exports = {
   calculateImageName
+}
+
+
+/***/ }),
+
+/***/ 5276:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const YAML = __nccwpck_require__(1917)
+
+function parseFile(fileContent, encoding = '') {
+  if (encoding) {
+    fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
+  }
+
+  return YAML.load(fileContent)
+}
+
+module.exports = {
+  parseFile
 }
 
 

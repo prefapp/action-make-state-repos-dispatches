@@ -14,6 +14,47 @@ function getInput(inputName, isRequired = false) {
   return core.getInput(inputName, { required: isRequired })
 }
 
+function getAllInputs() {
+  const dispatchesFilePath = core.getInput('dispatches_file', {
+    required: true
+  })
+  const imageType = core.getInput('image_type', { required: true })
+  const stateRepoFilter = core.getInput('state_repo', { required: true })
+  const defaultReleasesRegistry = core.getInput('default_releases_registry', {
+    required: true
+  })
+  const defaultSnapshotsRegistry = core.getInput('default_snapshots_registry', {
+    required: true
+  })
+
+  const buildSummary = core.getInput('build_summary')
+  const flavorFilter = core.getInput('flavors')
+  const envFilter = core.getInput('filter_by_env')
+  const tenantFilter = core.getInput('filter_by_tenant')
+  const overwriteVersion = core.getInput('overwrite_version')
+  const overwriteEnv = core.getInput('overwrite_env')
+  const overwriteTenant = core.getInput('overwrite_tenant')
+  const reviewers = core.getInput('reviewers')
+  const registryBasePaths = core.getInput('registry_base_paths')
+
+  return {
+    dispatchesFilePath,
+    imageType,
+    stateRepoFilter,
+    defaultReleasesRegistry,
+    defaultSnapshotsRegistry,
+    buildSummary,
+    flavorFilter,
+    envFilter,
+    tenantFilter,
+    overwriteVersion,
+    overwriteEnv,
+    overwriteTenant,
+    reviewers,
+    registryBasePaths
+  }
+}
+
 function getPayloadContext() {
   debug('Getting payload context', _payloadCtx)
   return _payloadCtx

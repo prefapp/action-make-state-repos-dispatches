@@ -1,5 +1,5 @@
 const debug = require('debug')('make-state-repos-dispatches')
-const imageNameCalculator = require('../utils/image-name-calculator')
+const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
 
 function getListFromInput(input) {
@@ -52,7 +52,7 @@ async function makeDispatches(gitController, imageHelper) {
     if (buildSummary) {
       buildSummaryData = textHelper.parseFile(buildSummary)
     } else {
-      buildSummaryData = getLatestBuildSummary()
+      buildSummaryData = getLatestBuildSummary(overwriteVersion, gitController)
     }
 
     const defaultRegistries = {
@@ -168,7 +168,7 @@ function createDispatchList(
             app: state_repo.application,
             env: envOverride || state_repo.env,
             service_name,
-            image: `${registry}/${imageData.repository}:${imageData.image_name}`,
+            image: `${registry}/${imageData.repository}:${imageData.image_tag}`,
             reviewers: reviewersList,
             base_folder: state_repo.base_path || ''
           }))
@@ -178,8 +178,14 @@ function createDispatchList(
   )
 }
 
-function getLatestBuildSummary() {
-  console.log('TODO')
+function getLatestBuildSummary(version, gitController) {
+  const latestRef = refHelper.getLatestRef(version, gitController)
+  const summaryData = gitController.getSummaryDataForRef(
+    latestRef,
+    'Integration tests'
+  )
+
+  return summaryData.summary
 }
 
 function isDispatchValid(

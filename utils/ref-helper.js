@@ -1,28 +1,25 @@
 const debug = require('debug')('make-state-repos-dispatches')
 
-async function calculateImageName(version, gitController, flavor) {
-  let image
-
+async function getLatestRef(version, gitController) {
   debug('Calculating image name for action type %s', version)
+  let ref = null
 
   switch (version) {
     case '$latest_prerelease':
-      image = await __last_prerelease(gitController)
+      ref = await __last_prerelease(gitController)
       break
     case '$latest_release':
-      image = await __last_release(gitController)
+      ref = await __last_release(gitController)
       break
     default:
       if (version.match(/^\$branch_/)) {
-        image = await __last_branch_commit(version, gitController)
+        ref = await __last_branch_commit(version, gitController)
       } else {
-        image = version
+        ref = version
       }
   }
 
-  // If no flavor is provided, throw error
-  if (!flavor) throw new Error('Flavor is required')
-  return `${image}_${flavor}`
+  return ref
 }
 
 async function __last_release(gitController) {
@@ -62,5 +59,5 @@ async function __last_branch_commit(branch, gitController) {
 }
 
 module.exports = {
-  calculateImageName
+  getLatestRef
 }

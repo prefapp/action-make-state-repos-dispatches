@@ -1,4 +1,4 @@
-const githubUtils = require('../utils/github')
+const githubUtils = require('../utils/github-helper')
 const dispatcher = require('./dispatcher')
 const dockerHelper = require('../utils/docker-helper')
 

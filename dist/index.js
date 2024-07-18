@@ -35002,7 +35002,9 @@ module.exports = {
   handleNotice,
   handleSummary,
   handleError,
-  handleFailure
+  handleFailure,
+  getAllInputs,
+  getSummaryData
 }
 
 

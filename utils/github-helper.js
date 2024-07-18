@@ -238,4 +238,5 @@ module.exports = {
   handleError,
   handleFailure,
   getAllInputs,
+  getSummaryData
 }

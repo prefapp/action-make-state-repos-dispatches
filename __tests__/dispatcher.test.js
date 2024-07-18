@@ -80,7 +80,7 @@ describe('The dispatcher', () => {
     )
     const result = dispatcher.createDispatchList(
       dispatches['dispatches'],
-      buildSummary,
+      _ => buildSummary,
       []
     )
     console.dir(result, { depth: null })

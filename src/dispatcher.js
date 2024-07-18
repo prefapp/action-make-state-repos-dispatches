@@ -48,11 +48,12 @@ async function makeDispatches(gitController, imageHelper) {
       await gitController.getFileContent(dispatchesFilePath)
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
-    let buildSummaryData = null
-    if (buildSummary) {
-      buildSummaryData = textHelper.parseFile(buildSummary)
-    } else {
-      buildSummaryData = getLatestBuildSummary(overwriteVersion, gitController)
+    const getBuildSummaryData = version => {
+      if (buildSummary) {
+        return textHelper.parseFile(buildSummary)
+      } else {
+        return getLatestBuildSummary(version, gitController)
+      }
     }
 
     const defaultRegistries = {
@@ -73,7 +74,7 @@ async function makeDispatches(gitController, imageHelper) {
 
     const dispatchList = createDispatchList(
       dispatchesData['dispatches'],
-      buildSummaryData,
+      getBuildSummaryData,
       reviewersList,
       overwriteVersion,
       overwriteEnv,
@@ -142,7 +143,7 @@ async function makeDispatches(gitController, imageHelper) {
 
 function createDispatchList(
   dispatches,
-  buildSummary,
+  getBuildSummaryData,
   reviewersList,
   versionOverride = '',
   tenantOverride = '',
@@ -152,6 +153,7 @@ function createDispatchList(
     flavors.flatMap(flavor =>
       state_repos.flatMap(({ service_names, ...state_repo }) => {
         const version = versionOverride || state_repo.version
+        const buildSummary = getBuildSummaryData(version)
         const imageData = buildSummary.filter(
           entry =>
             entry.flavor === flavor &&

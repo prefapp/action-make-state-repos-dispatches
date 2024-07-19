@@ -34521,12 +34521,12 @@ async function makeDispatches(gitController, imageHelper) {
       await gitController.getFileContent(dispatchesFilePath)
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
-    const getBuildSummaryData = version => {
-      if (buildSummary) {
-        return textHelper.parseFile(buildSummary)
-      } else {
-        return getLatestBuildSummary(version, gitController)
-      }
+    let getBuildSummaryData = version =>
+      getLatestBuildSummary(version, gitController)
+    if (buildSummary) {
+      const parsedBuildSummary = textHelper.parseFile(buildSummary)
+      debug('?????????????????????????????????', parsedBuildSummary)
+      getBuildSummaryData = _ => parsedBuildSummary
     }
 
     const defaultRegistries = {
@@ -34627,6 +34627,7 @@ function createDispatchList(
       state_repos.flatMap(({ service_names, ...state_repo }) => {
         const version = versionOverride || state_repo.version
         const buildSummary = getBuildSummaryData(version)
+        debug('-----------------------------------', buildSummary)
         const imageData = buildSummary.filter(
           entry =>
             entry.flavor === flavor &&
@@ -34803,6 +34804,8 @@ function getAllInputs() {
   const reviewers = core.getInput('reviewers')
   const registryBasePaths = core.getInput('registry_base_paths')
 
+  debug(')))))))))))))))))))))))))))))))))))))))))))))))))', buildSummary)
+
   return {
     dispatchesFilePath,
     imageType,
@@ -34901,7 +34904,7 @@ async function getFileContent(filePath) {
   }
 }
 
-async function getSummaryData(ref, workflowName) {
+async function getSummaryDataForRef(ref, workflowName) {
   try {
     console.info(
       `Getting check run summary for ref: ${ref} and workflow: ${workflowName}`
@@ -35004,7 +35007,7 @@ module.exports = {
   handleError,
   handleFailure,
   getAllInputs,
-  getSummaryData
+  getSummaryDataForRef
 }
 
 
@@ -35084,11 +35087,14 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const YAML = __nccwpck_require__(1917)
+const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 
 function parseFile(fileContent, encoding = '') {
   if (encoding) {
     fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
   }
+
+  debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FILE CONTENT', fileContent)
 
   return YAML.load(fileContent)
 }

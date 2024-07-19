@@ -30397,7 +30397,7 @@ async function makeDispatches(gitController, imageHelper) {
       stateRepoFilter,
       defaultReleasesRegistry,
       defaultSnapshotsRegistry,
-      buildSummary,
+      buildSummaryPath,
       flavorFilter,
       envFilter,
       tenantFilter,
@@ -30417,10 +30417,10 @@ async function makeDispatches(gitController, imageHelper) {
     let getBuildSummaryData = version =>
       getLatestBuildSummary(version, gitController)
 
-    if (buildSummary) {
-      const buildSummaryContent = fs.readFileSync(buildSummary, 'utf8')
-      const parsedBuildSummary = textHelper.parseFile(buildSummaryContent)
-      getBuildSummaryData = _ => parsedBuildSummary
+    if (buildSummaryPath) {
+      const buildSummaryContent = fs.readFileSync(buildSummaryPath, 'utf8')
+      const buildSummary = textHelper.parseFile(buildSummaryContent)
+      getBuildSummaryData = _ => buildSummary
     }
 
     const defaultRegistries = {
@@ -30517,7 +30517,6 @@ async function makeDispatches(gitController, imageHelper) {
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {
-    debug('00000000000000000000000000000000000000', summaryTable)
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
 }
@@ -30556,8 +30555,11 @@ function getLatestBuildSummary(version, gitController) {
     latestRef,
     'Integration tests'
   )
+  const buildSummary = summaryData.summary
+    .replace('```yaml', '')
+    .replace('```', '')
 
-  return summaryData.summary
+  return buildSummary
 }
 
 function isDispatchValid(
@@ -30690,7 +30692,7 @@ function getAllInputs() {
     required: true
   })
 
-  const buildSummary = core.getInput('build_summary')
+  const buildSummaryPath = core.getInput('build_summary')
   const flavorFilter = core.getInput('flavors')
   const envFilter = core.getInput('filter_by_env')
   const tenantFilter = core.getInput('filter_by_tenant')
@@ -30706,7 +30708,7 @@ function getAllInputs() {
     stateRepoFilter,
     defaultReleasesRegistry,
     defaultSnapshotsRegistry,
-    buildSummary,
+    buildSummaryPath,
     flavorFilter,
     envFilter,
     tenantFilter,
@@ -30875,12 +30877,6 @@ function handleNotice(msg) {
 }
 
 function handleSummary(heading, table) {
-  console.log('HEADING')
-  console.dir(heading)
-
-  console.log('TABLE')
-  console.dir(table)
-
   core.summary.addHeading(heading).addTable(table).write()
 }
 

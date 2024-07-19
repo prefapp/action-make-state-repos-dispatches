@@ -27,7 +27,7 @@ function getAllInputs() {
     required: true
   })
 
-  const buildSummary = core.getInput('build_summary')
+  const buildSummaryPath = core.getInput('build_summary')
   const flavorFilter = core.getInput('flavors')
   const envFilter = core.getInput('filter_by_env')
   const tenantFilter = core.getInput('filter_by_tenant')
@@ -43,7 +43,7 @@ function getAllInputs() {
     stateRepoFilter,
     defaultReleasesRegistry,
     defaultSnapshotsRegistry,
-    buildSummary,
+    buildSummaryPath,
     flavorFilter,
     envFilter,
     tenantFilter,
@@ -212,12 +212,6 @@ function handleNotice(msg) {
 }
 
 function handleSummary(heading, table) {
-  console.log('HEADING')
-  console.dir(heading)
-
-  console.log('TABLE')
-  console.dir(table)
-
   core.summary.addHeading(heading).addTable(table).write()
 }
 

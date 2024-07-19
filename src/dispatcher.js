@@ -49,13 +49,13 @@ async function makeDispatches(gitController, imageHelper) {
       await gitController.getFileContent(dispatchesFilePath)
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
-    let getBuildSummaryData = version =>
-      getLatestBuildSummary(version, gitController)
+    let getBuildSummaryData = async version =>
+      await getLatestBuildSummary(version, gitController)
 
     if (buildSummaryPath) {
       const buildSummaryContent = fs.readFileSync(buildSummaryPath, 'utf8')
       const buildSummary = textHelper.parseFile(buildSummaryContent)
-      getBuildSummaryData = _ => buildSummary
+      getBuildSummaryData = async _ => buildSummary
     }
 
     const defaultRegistries = {
@@ -100,7 +100,7 @@ async function makeDispatches(gitController, imageHelper) {
           gitController
         )
         const stateRepoName = data.state_repo.repo
-        const buildSummaryObj = getBuildSummaryData(data.version)
+        const buildSummaryObj = await getBuildSummaryData(data.version)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
@@ -184,9 +184,9 @@ function createDispatchList(
   )
 }
 
-function getLatestBuildSummary(version, gitController) {
-  const latestRef = refHelper.getLatestRef(version, gitController)
-  const summaryData = gitController.getSummaryDataForRef(
+async function getLatestBuildSummary(version, gitController) {
+  const latestRef = await refHelper.getLatestRef(version, gitController)
+  const summaryData = await gitController.getSummaryDataForRef(
     latestRef,
     'Integration tests'
   )

@@ -48,12 +48,11 @@ async function makeDispatches(gitController, imageHelper) {
       await gitController.getFileContent(dispatchesFilePath)
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
-    const getBuildSummaryData = version => {
-      if (buildSummary) {
-        return textHelper.parseFile(buildSummary)
-      } else {
-        return getLatestBuildSummary(version, gitController)
-      }
+    let getBuildSummaryData = version =>
+      getLatestBuildSummary(version, gitController)
+    if (buildSummary) {
+      const parsedBuildSummary = textHelper.parseFile(buildSummary)
+      getBuildSummaryData = _ => parsedBuildSummary
     }
 
     const defaultRegistries = {

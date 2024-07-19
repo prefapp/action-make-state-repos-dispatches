@@ -135,7 +135,7 @@ async function getFileContent(filePath) {
   }
 }
 
-async function getSummaryData(ref, workflowName) {
+async function getSummaryDataForRef(ref, workflowName) {
   try {
     console.info(
       `Getting check run summary for ref: ${ref} and workflow: ${workflowName}`
@@ -238,5 +238,5 @@ module.exports = {
   handleError,
   handleFailure,
   getAllInputs,
-  getSummaryData
+  getSummaryDataForRef
 }

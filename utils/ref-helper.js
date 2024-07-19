@@ -18,8 +18,9 @@ async function getLatestRef(version, gitController, shortSha = true) {
       } else {
         if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
           ref = version.substring(0, 7)
+        } else {
+          ref = version
         }
-        ref = version
       }
   }
 

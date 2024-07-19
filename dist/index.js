@@ -34568,6 +34568,15 @@ async function makeDispatches(gitController, imageHelper) {
         )
       ) {
         const stateRepoName = data.state_repo.repo
+        const buildSummaryObj = getBuildSummaryData(data.version)
+        const imageData = buildSummaryObj.filter(
+          entry =>
+            entry.flavor === data.flavor &&
+            entry.version === data.version &&
+            entry.image_type === data.type
+        )[0]
+
+        data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 
         const imageExists = imageHelper.checkManifest(data.image)
         const dispatchStatus = imageExists
@@ -34590,15 +34599,6 @@ async function makeDispatches(gitController, imageHelper) {
           `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`
         )
 
-        const buildSummaryObj = getBuildSummaryData(data.version)
-        const imageData = buildSummaryObj.filter(
-          entry =>
-            entry.flavor === data.flavor &&
-            entry.version === data.version &&
-            entry.image_type === data.type
-        )[0]
-
-        data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
         data.message = dispatchStatus
         groupedDispatches[stateRepoName] =
           groupedDispatches[stateRepoName] ?? [] // Initialize as an empty array if the property doesn't exist

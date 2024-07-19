@@ -30460,7 +30460,7 @@ async function makeDispatches(gitController, imageHelper) {
           tenantFilterList
         )
       ) {
-        const resolvedVersion = await refHelper.getLatestRef(
+        const { ref } = await refHelper.getLatestRef(
           data.version,
           gitController
         )
@@ -30469,7 +30469,7 @@ async function makeDispatches(gitController, imageHelper) {
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
-            entry.version === resolvedVersion.shortSha &&
+            entry.version === ref.shortSha &&
             entry.image_type === data.type
         )[0]
 
@@ -30550,10 +30550,13 @@ function createDispatchList(
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {
-  const latestRef = await refHelper.getLatestRef(version, gitController)
+  const { ref, workflowName } = await refHelper.getLatestRef(
+    version,
+    gitController
+  )
   const summaryData = await gitController.getSummaryDataForRef(
-    latestRef.longSha,
-    checkRunName
+    ref.longSha,
+    workflowName
   )
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
@@ -30922,23 +30925,26 @@ const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 async function getLatestRef(version, gitController) {
   debug('Calculating image name for action type %s', version)
   let ref = null
-
+  let workflowName = null
   switch (version) {
     case '$latest_prerelease':
       ref = await __last_prerelease(gitController)
+      workflowName = 'Build Docker pre-releases'
       break
     case '$latest_release':
       ref = await __last_release(gitController)
+      workflowName = 'Build Docker releases'
       break
     default:
       if (version.match(/^\$branch_/)) {
         ref = await __last_branch_commit(version, gitController)
+        workflowName = 'Build Docker snapshots'
       } else {
         ref = version
       }
   }
 
-  return ref
+  return { ref, workflowName }
 }
 
 async function __last_release(gitController) {

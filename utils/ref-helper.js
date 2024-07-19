@@ -3,23 +3,26 @@ const debug = require('debug')('make-state-repos-dispatches')
 async function getLatestRef(version, gitController) {
   debug('Calculating image name for action type %s', version)
   let ref = null
-
+  let workflowName = null
   switch (version) {
     case '$latest_prerelease':
       ref = await __last_prerelease(gitController)
+      workflowName = 'Build Docker pre-releases'
       break
     case '$latest_release':
       ref = await __last_release(gitController)
+      workflowName = 'Build Docker releases'
       break
     default:
       if (version.match(/^\$branch_/)) {
         ref = await __last_branch_commit(version, gitController)
+        workflowName = 'Build Docker snapshots'
       } else {
         ref = version
       }
   }
 
-  return ref
+  return { ref, workflowName }
 }
 
 async function __last_release(gitController) {

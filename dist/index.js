@@ -30459,15 +30459,16 @@ async function makeDispatches(gitController, imageHelper) {
           tenantFilterList
         )
       ) {
-        debug('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&', overwriteVersion)
-        debug('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', data.version)
-        const ref = await refHelper.getLatestRef(data.version, gitController)
+        const resolvedVersion = await refHelper.getLatestRef(
+          data.version,
+          gitController
+        )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
-            entry.version === ref.shortSha &&
+            entry.version === resolvedVersion &&
             entry.image_type === data.type
         )[0]
 

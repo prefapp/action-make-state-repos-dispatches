@@ -30405,6 +30405,7 @@ async function makeDispatches(gitController, imageHelper) {
       overwriteEnv,
       overwriteTenant,
       reviewers,
+      checkRunName,
       registryBasePaths
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
@@ -30415,7 +30416,7 @@ async function makeDispatches(gitController, imageHelper) {
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
     let getBuildSummaryData = async version =>
-      await getLatestBuildSummary(version, gitController)
+      await getLatestBuildSummary(version, gitController, checkRunName)
 
     if (buildSummary) {
       const parsedBuildSummary = JSON.parse(buildSummary)
@@ -30548,11 +30549,11 @@ function createDispatchList(
   )
 }
 
-async function getLatestBuildSummary(version, gitController) {
+async function getLatestBuildSummary(version, gitController, checkRunName) {
   const latestRef = await refHelper.getLatestRef(version, gitController)
   const summaryData = await gitController.getSummaryDataForRef(
     latestRef.longSha,
-    'Integration tests'
+    checkRunName
   )
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
@@ -30699,6 +30700,7 @@ function getAllInputs() {
   const overwriteEnv = core.getInput('overwrite_env')
   const overwriteTenant = core.getInput('overwrite_tenant')
   const reviewers = core.getInput('reviewers')
+  const checkRunName = core.getInput('check_run_name')
   const registryBasePaths = core.getInput('registry_base_paths')
 
   return {
@@ -30715,6 +30717,7 @@ function getAllInputs() {
     overwriteEnv,
     overwriteTenant,
     reviewers,
+    checkRunName,
     registryBasePaths
   }
 }

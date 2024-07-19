@@ -35,6 +35,7 @@ function getAllInputs() {
   const overwriteEnv = core.getInput('overwrite_env')
   const overwriteTenant = core.getInput('overwrite_tenant')
   const reviewers = core.getInput('reviewers')
+  const checkRunName = core.getInput('check_run_name')
   const registryBasePaths = core.getInput('registry_base_paths')
 
   return {
@@ -51,6 +52,7 @@ function getAllInputs() {
     overwriteEnv,
     overwriteTenant,
     reviewers,
+    checkRunName,
     registryBasePaths
   }
 }

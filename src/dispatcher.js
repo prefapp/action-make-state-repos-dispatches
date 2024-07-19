@@ -95,10 +95,7 @@ async function makeDispatches(gitController, imageHelper) {
           tenantFilterList
         )
       ) {
-        const { ref } = await refHelper.getLatestRef(
-          data.version,
-          gitController
-        )
+        const ref = await refHelper.getLatestRef(data.version, gitController)
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
         const imageData = buildSummaryObj.filter(
@@ -185,13 +182,10 @@ function createDispatchList(
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {
-  const { ref, workflowName } = await refHelper.getLatestRef(
-    version,
-    gitController
-  )
+  const ref = await refHelper.getLatestRef(version, gitController)
   const summaryData = await gitController.getSummaryDataForRef(
     ref.longSha,
-    workflowName
+    checkRunName
   )
   const buildSummary = summaryData.summary
     .replace('```yaml', '')

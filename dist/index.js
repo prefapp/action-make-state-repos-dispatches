@@ -34516,6 +34516,9 @@ async function makeDispatches(gitController, imageHelper) {
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
 
+    console.info('999999999999999999999999999999999999999999999999999')
+    console.info(buildSummary)
+
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
       await gitController.getFileContent(dispatchesFilePath)
@@ -35085,7 +35088,6 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const YAML = __nccwpck_require__(1917)
-const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 
 function parseFile(fileContent, encoding = '') {
   if (encoding) {

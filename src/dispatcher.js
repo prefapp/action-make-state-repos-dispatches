@@ -43,6 +43,9 @@ async function makeDispatches(gitController, imageHelper) {
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
 
+    console.info('999999999999999999999999999999999999999999999999999')
+    console.info(buildSummary)
+
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
       await gitController.getFileContent(dispatchesFilePath)

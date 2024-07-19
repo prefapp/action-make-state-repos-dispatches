@@ -1,5 +1,4 @@
 const YAML = require('js-yaml')
-const debug = require('debug')('make-state-repos-dispatches')
 
 function parseFile(fileContent, encoding = '') {
   if (encoding) {

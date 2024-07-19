@@ -37,8 +37,6 @@ function getAllInputs() {
   const reviewers = core.getInput('reviewers')
   const registryBasePaths = core.getInput('registry_base_paths')
 
-  debug(')))))))))))))))))))))))))))))))))))))))))))))))))', buildSummary)
-
   return {
     dispatchesFilePath,
     imageType,

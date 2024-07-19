@@ -6,8 +6,6 @@ function parseFile(fileContent, encoding = '') {
     fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
   }
 
-  debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FILE CONTENT', fileContent)
-
   return YAML.load(fileContent)
 }
 

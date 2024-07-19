@@ -100,7 +100,10 @@ async function makeDispatches(gitController, imageHelper) {
           tenantFilterList
         )
       ) {
-        const resolvedVersion = refHelper.getLatestRef(data.version)
+        const resolvedVersion = await refHelper.getLatestRef(
+          data.version,
+          gitController
+        )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = getBuildSummaryData(data.version)
         debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummaryObj)

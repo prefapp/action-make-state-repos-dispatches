@@ -34516,9 +34516,6 @@ async function makeDispatches(gitController, imageHelper) {
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
 
-    console.info('999999999999999999999999999999999999999999999999999')
-    console.info(buildSummary)
-
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent =
       await gitController.getFileContent(dispatchesFilePath)
@@ -34529,7 +34526,12 @@ async function makeDispatches(gitController, imageHelper) {
 
     if (buildSummary) {
       const firstParsing = textHelper.parseFile(buildSummary)
+      debug('1111111111111111111111111111111111111111111111111', firstParsing)
       const parsedBuildSummary = textHelper.parseFile(firstParsing)
+      debug(
+        '2222222222222222222222222222222222222222222222222',
+        parsedBuildSummary
+      )
       getBuildSummaryData = _ => parsedBuildSummary
     }
 
@@ -34570,14 +34572,16 @@ async function makeDispatches(gitController, imageHelper) {
           tenantFilterList
         )
       ) {
+        const resolvedVersion = refHelper.getLatestRef(data.version)
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = getBuildSummaryData(data.version)
         debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummaryObj)
         debug('---------------------------------------', data)
+        debug('=======================================', resolvedVersion)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
-            entry.version === data.version &&
+            entry.version === resolvedVersion &&
             entry.image_type === data.type
         )[0]
 

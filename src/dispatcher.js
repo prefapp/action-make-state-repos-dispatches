@@ -56,7 +56,9 @@ async function makeDispatches(gitController, imageHelper) {
       // const buildSummaryContent = fs.readFileSync(buildSummaryPath, 'utf8')
       // const buildSummary = textHelper.parseFile(buildSummaryContent)
       debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummary)
-      getBuildSummaryData = async _ => buildSummary
+      const parsedBuildSummary = JSON.parse(buildSummary)
+      debug('=======================================', parsedBuildSummary)
+      getBuildSummaryData = async _ => parsedBuildSummary
     }
 
     const defaultRegistries = {

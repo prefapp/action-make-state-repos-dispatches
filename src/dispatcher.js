@@ -197,7 +197,7 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     .replace('```yaml', '')
     .replace('```', '')
 
-  return buildSummary
+  return textHelper.parseFile(buildSummary)
 }
 
 function isDispatchValid(

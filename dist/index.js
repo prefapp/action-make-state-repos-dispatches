@@ -30593,7 +30593,7 @@ function updateSummaryTable(
     dispatch.service_name,
     dispatch.image,
     dispatch.reviewers.join(', '),
-    dispatch.base_path,
+    dispatch.base_path || '',
     dispatchStatus
   ])
 }

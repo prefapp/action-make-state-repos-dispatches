@@ -30441,7 +30441,6 @@ async function makeDispatches(gitController, imageHelper) {
 
     const dispatchList = createDispatchList(
       dispatchesData['dispatches'],
-      getBuildSummaryData,
       reviewersList,
       overwriteVersion,
       overwriteEnv,
@@ -30460,6 +30459,8 @@ async function makeDispatches(gitController, imageHelper) {
           tenantFilterList
         )
       ) {
+        debug('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&', overwriteVersion)
+        debug('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', data.version)
         const ref = await refHelper.getLatestRef(data.version, gitController)
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
@@ -30520,7 +30521,6 @@ async function makeDispatches(gitController, imageHelper) {
 
 function createDispatchList(
   dispatches,
-  getBuildSummaryData,
   reviewersList,
   versionOverride = '',
   tenantOverride = '',

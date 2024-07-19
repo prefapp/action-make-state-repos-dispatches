@@ -1,7 +1,8 @@
 const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
-const YAML = require('yaml')
+const fs = require('fs')
+
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
@@ -52,14 +53,8 @@ async function makeDispatches(gitController, imageHelper) {
       getLatestBuildSummary(version, gitController)
 
     if (buildSummary) {
-      // const firstParsing = textHelper.parseFile(buildSummary)
-      const firstParsing = YAML.parse(buildSummary)
-      debug('1111111111111111111111111111111111111111111111111', firstParsing)
-      const parsedBuildSummary = textHelper.parseFile(firstParsing)
-      debug(
-        '2222222222222222222222222222222222222222222222222',
-        parsedBuildSummary
-      )
+      const buildSummaryContent = fs.readFileSync(buildSummary, 'utf8')
+      const parsedBuildSummary = textHelper.parseFile(buildSummaryContent)
       getBuildSummaryData = _ => parsedBuildSummary
     }
 

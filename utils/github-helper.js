@@ -101,7 +101,10 @@ async function getLastBranchCommit(payload) {
 
     const getBranchResponse = await octokit.rest.repos.getBranch(payload)
 
-    return getBranchResponse.data.commit.sha.substring(0, 7)
+    return {
+      longSha: getBranchResponse.data.commit.sha,
+      shortSha: getBranchResponse.data.commit.sha.substring(0, 7)
+    }
   } catch (e) {
     console.error(e)
 

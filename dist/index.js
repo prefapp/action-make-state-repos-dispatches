@@ -30418,9 +30418,7 @@ async function makeDispatches(gitController, imageHelper) {
       await getLatestBuildSummary(version, gitController)
 
     if (buildSummary) {
-      debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummary)
       const parsedBuildSummary = JSON.parse(buildSummary)
-      debug('=======================================', parsedBuildSummary)
       getBuildSummaryData = async _ => parsedBuildSummary
     }
 
@@ -30467,14 +30465,10 @@ async function makeDispatches(gitController, imageHelper) {
         )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
-        debug(')))))))))))))))))))))))))))))))))', buildSummaryObj)
-        debug('*********************************', data)
-        debug('.................................', resolvedVersion)
-        debug('/////////////////////////////////', typeof buildSummaryObj)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
-            entry.version === resolvedVersion &&
+            entry.version === resolvedVersion.shortSha &&
             entry.image_type === data.type
         )[0]
 
@@ -30557,7 +30551,7 @@ function createDispatchList(
 async function getLatestBuildSummary(version, gitController) {
   const latestRef = await refHelper.getLatestRef(version, gitController)
   const summaryData = await gitController.getSummaryDataForRef(
-    latestRef,
+    latestRef.longSha,
     'Integration tests'
   )
   const buildSummary = summaryData.summary
@@ -30771,7 +30765,10 @@ async function getLastBranchCommit(payload) {
 
     const getBranchResponse = await octokit.rest.repos.getBranch(payload)
 
-    return getBranchResponse.data.commit.sha.substring(0, 7)
+    return {
+      longSha: getBranchResponse.data.commit.sha,
+      shortSha: getBranchResponse.data.commit.sha.substring(0, 7)
+    }
   } catch (e) {
     console.error(e)
 

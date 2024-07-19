@@ -30465,7 +30465,6 @@ async function makeDispatches(gitController, imageHelper) {
         )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
-        debug('········································', resolvedVersion)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&

@@ -32,7 +32,7 @@ async function makeDispatches(gitController, imageHelper) {
       stateRepoFilter,
       defaultReleasesRegistry,
       defaultSnapshotsRegistry,
-      buildSummaryPath,
+      buildSummary,
       flavorFilter,
       envFilter,
       tenantFilter,
@@ -52,9 +52,10 @@ async function makeDispatches(gitController, imageHelper) {
     let getBuildSummaryData = async version =>
       await getLatestBuildSummary(version, gitController)
 
-    if (buildSummaryPath) {
-      const buildSummaryContent = fs.readFileSync(buildSummaryPath, 'utf8')
-      const buildSummary = textHelper.parseFile(buildSummaryContent)
+    if (buildSummary) {
+      // const buildSummaryContent = fs.readFileSync(buildSummaryPath, 'utf8')
+      // const buildSummary = textHelper.parseFile(buildSummaryContent)
+      debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummary)
       getBuildSummaryData = async _ => buildSummary
     }
 

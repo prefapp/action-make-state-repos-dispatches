@@ -27,7 +27,7 @@ function getAllInputs() {
     required: true
   })
 
-  const buildSummaryPath = core.getInput('build_summary')
+  const buildSummary = core.getInput('build_summary')
   const flavorFilter = core.getInput('flavors')
   const envFilter = core.getInput('filter_by_env')
   const tenantFilter = core.getInput('filter_by_tenant')
@@ -43,7 +43,7 @@ function getAllInputs() {
     stateRepoFilter,
     defaultReleasesRegistry,
     defaultSnapshotsRegistry,
-    buildSummaryPath,
+    buildSummary,
     flavorFilter,
     envFilter,
     tenantFilter,

@@ -5,7 +5,7 @@ function parseFile(fileContent, encoding = '') {
     fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
   }
 
-  return YAML.parse(fileContent)
+  return YAML.parse(fileContent, 'utf8')
 }
 
 module.exports = {

@@ -212,6 +212,13 @@ function handleNotice(msg) {
 }
 
 function handleSummary(heading, table) {
+
+  console.log("HEADING")
+  console.dir(heading)
+
+  console.log("TABLE")
+  console.dir(table)
+
   core.summary.addHeading(heading).addTable(table).write()
 }
 

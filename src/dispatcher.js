@@ -182,9 +182,9 @@ function createDispatchList(
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {
-  const ref = await refHelper.getLatestRef(version, gitController)
+  const ref = await refHelper.getLatestRef(version, gitController, false)
   const summaryData = await gitController.getSummaryDataForRef(
-    ref.longSha,
+    ref,
     checkRunName
   )
   const buildSummary = summaryData.summary

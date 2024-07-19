@@ -97,16 +97,16 @@ async function getLatestPrerelease(payload) {
   }
 }
 
-async function getLastBranchCommit(payload) {
+async function getLastBranchCommit(payload, short = true) {
   try {
     const octokit = getOctokit()
 
     const getBranchResponse = await octokit.rest.repos.getBranch(payload)
 
-    return {
-      longSha: getBranchResponse.data.commit.sha,
-      shortSha: getBranchResponse.data.commit.sha.substring(0, 7)
+    if (short) {
+      return getBranchResponse.data.commit.sha.substring(0, 7)
     }
+    return getBranchResponse.data.commit.sha
   } catch (e) {
     console.error(e)
 

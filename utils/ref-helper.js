@@ -1,6 +1,6 @@
 const debug = require('debug')('make-state-repos-dispatches')
 
-async function getLatestRef(version, gitController) {
+async function getLatestRef(version, gitController, shortSha = true) {
   debug('Calculating image name for action type %s', version)
   let ref = null
   switch (version) {
@@ -14,7 +14,7 @@ async function getLatestRef(version, gitController) {
       break
     default:
       if (version.match(/^\$branch_/)) {
-        ref = await __last_branch_commit(version, gitController)
+        ref = await __last_branch_commit(version, gitController, shortSha)
       } else {
         ref = version
       }
@@ -48,12 +48,12 @@ async function __last_prerelease(gitController) {
   }
 }
 
-async function __last_branch_commit(branch, gitController) {
+async function __last_branch_commit(branch, gitController, shortSha = true) {
   try {
     const payload = gitController.getPayloadContext()
     payload['branch'] = branch.replace(/^\$branch_/, '')
 
-    return await gitController.getLastBranchCommit(payload)
+    return await gitController.getLastBranchCommit(payload, shortSha)
   } catch (err) {
     throw new Error(`calculating last commit on branch ${branch}: ${err}`)
   }

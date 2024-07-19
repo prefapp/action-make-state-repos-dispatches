@@ -34527,7 +34527,6 @@ async function makeDispatches(gitController, imageHelper) {
     if (buildSummary) {
       const firstParsing = textHelper.parseFile(buildSummary)
       const parsedBuildSummary = textHelper.parseFile(firstParsing)
-      debug('?????????????????????????????????', parsedBuildSummary)
       getBuildSummaryData = _ => parsedBuildSummary
     }
 
@@ -34591,6 +34590,15 @@ async function makeDispatches(gitController, imageHelper) {
           `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`
         )
 
+        const buildSummaryObj = getBuildSummaryData(data.version)
+        const imageData = buildSummaryObj.filter(
+          entry =>
+            entry.flavor === data.flavor &&
+            entry.version === data.version &&
+            entry.image_type === data.type
+        )[0]
+
+        data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
         data.message = dispatchStatus
         groupedDispatches[stateRepoName] =
           groupedDispatches[stateRepoName] ?? [] // Initialize as an empty array if the property doesn't exist
@@ -34627,30 +34635,18 @@ function createDispatchList(
   return dispatches.flatMap(({ type, flavors, state_repos }) =>
     flavors.flatMap(flavor =>
       state_repos.flatMap(({ service_names, ...state_repo }) => {
-        const version = versionOverride || state_repo.version
-        const buildSummary = getBuildSummaryData(version)
-        debug('-----------------------------------', buildSummary)
-        const imageData = buildSummary.filter(
-          entry =>
-            entry.flavor === flavor &&
-            entry.version === version &&
-            entry.image_type === type
-        )[0]
-
-        return service_names.flatMap(service_name =>
-          imageData.registries.map(registry => ({
-            type,
-            flavor,
-            state_repo,
-            tenant: tenantOverride || state_repo.tenant,
-            app: state_repo.application,
-            env: envOverride || state_repo.env,
-            service_name,
-            image: `${registry}/${imageData.repository}:${imageData.image_tag}`,
-            reviewers: reviewersList,
-            base_folder: state_repo.base_path || ''
-          }))
-        )
+        return service_names.map(service_name => ({
+          type,
+          flavor,
+          state_repo,
+          version: versionOverride || state_repo.version,
+          tenant: tenantOverride || state_repo.tenant,
+          app: state_repo.application,
+          env: envOverride || state_repo.env,
+          service_name,
+          reviewers: reviewersList,
+          base_folder: state_repo.base_path || ''
+        }))
       })
     )
   )
@@ -34805,8 +34801,6 @@ function getAllInputs() {
   const overwriteTenant = core.getInput('overwrite_tenant')
   const reviewers = core.getInput('reviewers')
   const registryBasePaths = core.getInput('registry_base_paths')
-
-  debug(')))))))))))))))))))))))))))))))))))))))))))))))))', buildSummary)
 
   return {
     dispatchesFilePath,
@@ -35095,8 +35089,6 @@ function parseFile(fileContent, encoding = '') {
   if (encoding) {
     fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
   }
-
-  debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FILE CONTENT', fileContent)
 
   return YAML.load(fileContent)
 }

@@ -16,7 +16,7 @@ async function getLatestRef(version, gitController, shortSha = true) {
       if (version.match(/^\$branch_/)) {
         ref = await __last_branch_commit(version, gitController, shortSha)
       } else {
-        if (version.match(/\b[0-9a-f]{40}/) && shortSha) {
+        if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
           ref = version.substring(0, 7)
         }
         ref = version

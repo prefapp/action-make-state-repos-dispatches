@@ -53,8 +53,6 @@ async function makeDispatches(gitController, imageHelper) {
       await getLatestBuildSummary(version, gitController)
 
     if (buildSummary) {
-      // const buildSummaryContent = fs.readFileSync(buildSummaryPath, 'utf8')
-      // const buildSummary = textHelper.parseFile(buildSummaryContent)
       debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummary)
       const parsedBuildSummary = JSON.parse(buildSummary)
       debug('=======================================', parsedBuildSummary)
@@ -104,6 +102,9 @@ async function makeDispatches(gitController, imageHelper) {
         )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
+        debug(')))))))))))))))))))))))))))))))))', buildSummaryObj)
+        debug('*********************************', data)
+        debug('.................................', resolvedVersion)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&

@@ -30470,6 +30470,7 @@ async function makeDispatches(gitController, imageHelper) {
         debug(')))))))))))))))))))))))))))))))))', buildSummaryObj)
         debug('*********************************', data)
         debug('.................................', resolvedVersion)
+        debug('/////////////////////////////////', typeof buildSummaryObj)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&

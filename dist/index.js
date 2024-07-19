@@ -30366,7 +30366,7 @@ function wrappy (fn, cb) {
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 const refHelper = __nccwpck_require__(9978)
 const textHelper = __nccwpck_require__(5276)
-
+const YAML = __nccwpck_require__(4083)
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
@@ -30417,7 +30417,8 @@ async function makeDispatches(gitController, imageHelper) {
       getLatestBuildSummary(version, gitController)
 
     if (buildSummary) {
-      const firstParsing = textHelper.parseFile(buildSummary)
+      // const firstParsing = textHelper.parseFile(buildSummary)
+      const firstParsing = YAML.parse(buildSummary)
       debug('1111111111111111111111111111111111111111111111111', firstParsing)
       const parsedBuildSummary = textHelper.parseFile(firstParsing)
       debug(

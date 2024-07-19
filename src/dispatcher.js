@@ -52,8 +52,6 @@ async function makeDispatches(gitController, imageHelper) {
       getLatestBuildSummary(version, gitController)
 
     if (buildSummary) {
-
-
       // const firstParsing = textHelper.parseFile(buildSummary)
       const firstParsing = YAML.parse(buildSummary)
       debug('1111111111111111111111111111111111111111111111111', firstParsing)

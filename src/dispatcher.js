@@ -101,9 +101,6 @@ async function makeDispatches(gitController, imageHelper) {
         )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = getBuildSummaryData(data.version)
-        debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', buildSummaryObj)
-        debug('---------------------------------------', data)
-        debug('=======================================', resolvedVersion)
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
@@ -155,6 +152,7 @@ async function makeDispatches(gitController, imageHelper) {
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {
+    debug('00000000000000000000000000000000000000', summaryTable)
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
 }

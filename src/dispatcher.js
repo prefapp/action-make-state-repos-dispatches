@@ -52,8 +52,8 @@ async function makeDispatches(gitController, imageHelper) {
       getLatestBuildSummary(version, gitController)
     if (buildSummary) {
       const parsedBuildSummary = textHelper.parseFile(buildSummary)
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-      console.dir(parsedBuildSummary, { depth: null })
+      debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+      debug(parsedBuildSummary)
       getBuildSummaryData = _ => parsedBuildSummary
     }
 
@@ -155,8 +155,8 @@ function createDispatchList(
       state_repos.flatMap(({ service_names, ...state_repo }) => {
         const version = versionOverride || state_repo.version
         const buildSummary = getBuildSummaryData(version)
-        console.log('-----------------------------------')
-        console.dir(buildSummary, { depth: null })
+        debug('-----------------------------------')
+        debug(buildSummary, { depth: null })
         const imageData = buildSummary.filter(
           entry =>
             entry.flavor === flavor &&

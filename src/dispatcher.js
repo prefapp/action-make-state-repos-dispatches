@@ -106,6 +106,11 @@ async function makeDispatches(gitController, imageHelper) {
           JSON.stringify(buildSummaryObj, null, 2)
         )
 
+        console.log(
+          '🔍 Filtering by:',
+          `flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+        )
+
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&

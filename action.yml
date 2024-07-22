@@ -78,6 +78,14 @@ inputs:
       state repo pull request.
     required: false
     default: ''
+  build_summary:
+    description: Build summary of the last call to build_images.yaml
+    required: false
+    default: ''
+  check_run_name:
+    description: Name of the check run where the build summary will be uploaded
+    required: false
+    default: ''
 
 runs:
   using: node20

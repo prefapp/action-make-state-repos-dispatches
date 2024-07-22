@@ -1,28 +1,30 @@
 const debug = require('debug')('make-state-repos-dispatches')
 
-async function calculateImageName(version, gitController, flavor) {
-  let image
-
+async function getLatestRef(version, gitController, shortSha = true) {
   debug('Calculating image name for action type %s', version)
-
+  let ref = null
   switch (version) {
     case '$latest_prerelease':
-      image = await __last_prerelease(gitController)
+      ref = await __last_prerelease(gitController)
+
       break
     case '$latest_release':
-      image = await __last_release(gitController)
+      ref = await __last_release(gitController)
+
       break
     default:
       if (version.match(/^\$branch_/)) {
-        image = await __last_branch_commit(version, gitController)
+        ref = await __last_branch_commit(version, gitController, shortSha)
       } else {
-        image = version
+        if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
+          ref = version.substring(0, 7)
+        } else {
+          ref = version
+        }
       }
   }
 
-  // If no flavor is provided, throw error
-  if (!flavor) throw new Error('Flavor is required')
-  return `${image}_${flavor}`
+  return ref
 }
 
 async function __last_release(gitController) {
@@ -50,17 +52,17 @@ async function __last_prerelease(gitController) {
   }
 }
 
-async function __last_branch_commit(branch, gitController) {
+async function __last_branch_commit(branch, gitController, shortSha = true) {
   try {
     const payload = gitController.getPayloadContext()
     payload['branch'] = branch.replace(/^\$branch_/, '')
 
-    return await gitController.getLastBranchCommit(payload)
+    return await gitController.getLastBranchCommit(payload, shortSha)
   } catch (err) {
     throw new Error(`calculating last commit on branch ${branch}: ${err}`)
   }
 }
 
 module.exports = {
-  calculateImageName
+  getLatestRef
 }

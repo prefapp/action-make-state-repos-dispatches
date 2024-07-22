@@ -1,10 +1,29 @@
 const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
+const YAML = require('js-yaml')
 const path = require('path')
 
 const gitControllerMock = {
   getInput: (input, required) => {
     return `${input}_value`
+  },
+  getAllInputs: () => {
+    return {
+      dispatchesFilePath: 'dispatches_file.yaml',
+      imageType: '*',
+      stateRepoFilter: '*',
+      defaultReleasesRegistry: 'test-releases-registry',
+      defaultSnapshotsRegistry: 'test-snapshots-registry',
+      buildSummary: fs.readFileSync('fixtures/build_summary.yaml', 'utf-8'),
+      flavorFilter: '*',
+      envFilter: '*',
+      tenantFilter: '*',
+      overwriteVersion: '',
+      overwriteEnv: '',
+      overwriteTenant: '',
+      reviewers: 'juanjosevazquezgil,test-reviewer',
+      registryBasePaths: ''
+    }
   },
   getFileContent: filePath => {
     return Buffer.from(
@@ -23,8 +42,8 @@ const gitControllerMock = {
       repo: 'repo-ctx-repo'
     }
   },
-  createDispatchEvent: (dispatchObj, matrix) => {
-    return true
+  dispatch: (dispatchObj, matrix) => {
+    return `${dispatchObj.tenant}-${dispatchObj.app}-${dispatchObj.env} published`
   },
   handleNotice: msg => {
     console.log(msg)
@@ -39,10 +58,32 @@ const gitControllerMock = {
     console.log(msg)
   }
 }
+const imageHelperMock = {
+  checkManifest: _ => {
+    return true
+  }
+}
 
 describe('The dispatcher', () => {
   it('can make dispatches', async () => {
-    await dispatcher.makeDispatches(gitControllerMock)
+    console.dir(
+      await dispatcher.makeDispatches(gitControllerMock, imageHelperMock),
+      { depth: null }
+    )
+  })
+  it('can get a dispatch object from a YAML config', async () => {
+    const dispatches = YAML.load(
+      fs.readFileSync('fixtures/dispatches_file.yaml', 'utf-8')
+    )
+    const buildSummary = YAML.load(
+      fs.readFileSync('fixtures/build_summary.yaml', 'utf-8')
+    )
+    const result = dispatcher.createDispatchList(
+      dispatches['dispatches'],
+      _ => buildSummary,
+      []
+    )
+    console.dir(result, { depth: null })
   })
   // it('can filter by dispatch type', async () => {
   //   expect(dispatcher).toHaveBeenCalled()

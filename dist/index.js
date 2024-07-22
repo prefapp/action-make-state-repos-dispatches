@@ -30765,12 +30765,20 @@ async function getLatestPrerelease(payload) {
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
-    return listReleasesResponse.data.filter(r => r.prerelease)[0]
+    return sortReleasesByTime(
+      listReleasesResponse.data.filter(r => r.prerelease)
+    )[0]
   } catch (e) {
     console.error(e)
 
     throw new Error(`Error getting latest prerelease for ${payload}`)
   }
+}
+
+function sortReleasesByTime(releases) {
+  return releases.sort((a, b) => {
+    return Date.parse(a.created_at) <= Date.parse(b.created_at) ? 1 : -1
+  })
 }
 
 async function getLastBranchCommit(payload, short = true) {

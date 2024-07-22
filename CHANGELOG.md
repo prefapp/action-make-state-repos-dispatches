@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.5.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.4.0...v1.5.0) (2024-07-22)
+
+
+### Features
+
+* Added initial tests ([4dc1e7b](https://github.com/prefapp/action-make-state-repos-dispatches/commit/4dc1e7bff0d58e42939c9a84806e19412e4d8dea))
+* Compiled the action ([fd48c4b](https://github.com/prefapp/action-make-state-repos-dispatches/commit/fd48c4bb172cb89c8311640adee406fb10f04244))
+* Further changes and improvements to the refactor ([607ab95](https://github.com/prefapp/action-make-state-repos-dispatches/commit/607ab95f9d83155d2447606db84d49f5f1f91928))
+* Test structure ([32ab5e5](https://github.com/prefapp/action-make-state-repos-dispatches/commit/32ab5e55a5c72ceef4c910a9a028cde2ae5ece9c))
+
+
+### Bug Fixes
+
+* dispatch function name and recompiled action ([6e2d8c2](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6e2d8c290e014acf4e0c25521fe372574e1e247c))
+* Fixed github function name and recompiled action ([d9e1dcb](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d9e1dcbef7a62c3f2e2be9e2bd771a8c74a8fc45))
+* Fixed missing await and recompiled action ([5adb0e5](https://github.com/prefapp/action-make-state-repos-dispatches/commit/5adb0e5d4b13c54907d89f5c1b144af16127fd3b))
+* Fixed missing exports and recompiled action ([12f83b0](https://github.com/prefapp/action-make-state-repos-dispatches/commit/12f83b04264e472ca9617bffe385e3155157a23f))
+* missing await and recompiled action ([f287db4](https://github.com/prefapp/action-make-state-repos-dispatches/commit/f287db413c3e605f1088613e3a5c824ef9920c77))
+* Recompiled action ([02519bd](https://github.com/prefapp/action-make-state-repos-dispatches/commit/02519bd3a2414b3c649b9fb6995e400ab482600a))
+* Removed unused imports ([80af5a7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/80af5a7a32dd026200e1d3963a693236a7d7686c))
+* simplify the four for loops ([#29](https://github.com/prefapp/action-make-state-repos-dispatches/issues/29)) ([7b1bc4d](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7b1bc4dd1819b4db2de820dedc4b56e7e8feecde))
+
 ## [1.4.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.3.0...v1.4.0) (2024-07-09)
 
 ### Features

@@ -78,8 +78,8 @@ async function makeDispatches(gitController, imageHelper) {
       dispatchesData['dispatches'],
       reviewersList,
       overwriteVersion,
-      overwriteEnv,
-      overwriteTenant
+      overwriteTenant,
+      overwriteEnv
     )
 
     const groupedDispatches = {}

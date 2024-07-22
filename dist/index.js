@@ -30465,12 +30465,20 @@ async function makeDispatches(gitController, imageHelper) {
         )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
+
+        console.log(
+          '📜 Summary builds >',
+          JSON.stringify(buildSummaryObj, null, 2)
+        )
+
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type
         )[0]
+
+        console.log('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 

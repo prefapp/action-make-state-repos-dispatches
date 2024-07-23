@@ -30443,8 +30443,8 @@ async function makeDispatches(gitController, imageHelper) {
       dispatchesData['dispatches'],
       reviewersList,
       overwriteVersion,
-      overwriteEnv,
-      overwriteTenant
+      overwriteTenant,
+      overwriteEnv
     )
 
     const groupedDispatches = {}
@@ -30465,12 +30465,25 @@ async function makeDispatches(gitController, imageHelper) {
         )
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
+
+        console.log(
+          '📜 Summary builds >',
+          JSON.stringify(buildSummaryObj, null, 2)
+        )
+
+        console.log(
+          '🔍 Filtering by:',
+          `flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+        )
+
         const imageData = buildSummaryObj.filter(
           entry =>
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type
         )[0]
+
+        console.log('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 
@@ -30752,12 +30765,20 @@ async function getLatestPrerelease(payload) {
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
-    return listReleasesResponse.data.filter(r => r.prerelease)[0]
+    return sortReleasesByTime(
+      listReleasesResponse.data.filter(r => r.prerelease)
+    )[0]
   } catch (e) {
     console.error(e)
 
     throw new Error(`Error getting latest prerelease for ${payload}`)
   }
+}
+
+function sortReleasesByTime(releases) {
+  return releases.sort((a, b) => {
+    return Date.parse(a.created_at) <= Date.parse(b.created_at) ? 1 : -1
+  })
 }
 
 async function getLastBranchCommit(payload, short = true) {

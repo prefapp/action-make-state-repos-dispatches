@@ -2,17 +2,21 @@
 
 ## [1.6.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.1...v1.6.0) (2024-07-23)
 
-
 ### Features
 
-* Compiled app ([2ffaf73](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2ffaf73a564b370469dbb1f8ede9d81eaf994b4d))
-
+- Compiled app
+  ([2ffaf73](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2ffaf73a564b370469dbb1f8ede9d81eaf994b4d))
 
 ### Bug Fixes
 
-* Fixed getting wrong registry from build summary ([639b676](https://github.com/prefapp/action-make-state-repos-dispatches/commit/639b67600ea45f93e89c7bdc3b880b78452128da))
-* Merge pull request [#33](https://github.com/prefapp/action-make-state-repos-dispatches/issues/33) from prefapp/fix/wrong-registry ([878cdda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/878cdda57ff5665821e80c6a2fd863ffa98d7c6e))
-* Wrong registry ([878cdda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/878cdda57ff5665821e80c6a2fd863ffa98d7c6e))
+- Fixed getting wrong registry from build summary
+  ([639b676](https://github.com/prefapp/action-make-state-repos-dispatches/commit/639b67600ea45f93e89c7bdc3b880b78452128da))
+- Merge pull request
+  [#33](https://github.com/prefapp/action-make-state-repos-dispatches/issues/33)
+  from prefapp/fix/wrong-registry
+  ([878cdda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/878cdda57ff5665821e80c6a2fd863ffa98d7c6e))
+- Wrong registry
+  ([878cdda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/878cdda57ff5665821e80c6a2fd863ffa98d7c6e))
 
 ## [1.5.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.0...v1.5.1) (2024-07-23)
 

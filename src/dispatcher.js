@@ -116,7 +116,8 @@ async function makeDispatches(gitController, imageHelper) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
-            entry.registry === (data.registry || defaultRegistries[data.type])
+            entry.registry ===
+              (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
         console.log('🖼 Image data >', JSON.stringify(imageData, null, 2))

@@ -1,0 +1,100 @@
+[
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor1",
+    "image_repo": "my-org/my-repo",
+    "image_tag": "v1.1.0-pre",
+    "image_type": "snapshots",
+    "registry": "registry1",
+    "repository": "service/my-org/my-repo",
+    "version": "version1"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor4",
+    "image_repo": "org/repo",
+    "image_tag": "v444",
+    "image_type": "snapshots",
+    "registry": "registry4",
+    "repository": "service/org/repo",
+    "version": "version4"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor2",
+    "image_repo": "my-other-org/my-other-repo",
+    "image_tag": "v2.3-dev",
+    "image_type": "snapshots",
+    "registry": "registry3",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor3",
+    "image_repo": "my-other-org/my-other-repo",
+    "image_tag": "v2.3-dev",
+    "image_type": "snapshots",
+    "registry": "registry2",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor1",
+    "image_repo": "my-org/my-repo",
+    "image_tag": "v1.1.0-pro",
+    "image_type": "releases",
+    "registry": "registry1",
+    "repository": "service/my-org/my-repo",
+    "version": "version-releases1"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor2",
+    "image_repo": "my-other-org/my-other-repo",
+    "image_tag": "v2.3-pro",
+    "image_type": "releases",
+    "registry": "registry2",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor3",
+    "image_repo": "my-other-org/my-other-repo",
+    "image_tag": "v2.3-pro",
+    "image_type": "releases",
+    "registry": "registry3",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  }
+]

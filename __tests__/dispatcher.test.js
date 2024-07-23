@@ -14,7 +14,7 @@ const gitControllerMock = {
       stateRepoFilter: '*',
       defaultReleasesRegistry: 'test-releases-registry',
       defaultSnapshotsRegistry: 'test-snapshots-registry',
-      buildSummary: fs.readFileSync('fixtures/build_summary.yaml', 'utf-8'),
+      buildSummary: fs.readFileSync('fixtures/build_summary.json', 'utf-8'),
       flavorFilter: '*',
       envFilter: '*',
       tenantFilter: '*',
@@ -43,7 +43,11 @@ const gitControllerMock = {
     }
   },
   dispatch: (dispatchObj, matrix) => {
-    return `${dispatchObj.tenant}-${dispatchObj.app}-${dispatchObj.env} published`
+    const result = []
+    for (const dispatch of matrix) {
+      result.push(`${dispatch.image} published`)
+    }
+    return result
   },
   handleNotice: msg => {
     console.log(msg)
@@ -75,14 +79,10 @@ describe('The dispatcher', () => {
     const dispatches = YAML.load(
       fs.readFileSync('fixtures/dispatches_file.yaml', 'utf-8')
     )
-    const buildSummary = YAML.load(
-      fs.readFileSync('fixtures/build_summary.yaml', 'utf-8')
+    const buildSummary = JSON.parse(
+      fs.readFileSync('fixtures/build_summary.json', 'utf-8')
     )
-    const result = dispatcher.createDispatchList(
-      dispatches['dispatches'],
-      _ => buildSummary,
-      []
-    )
+    const result = dispatcher.createDispatchList(dispatches['dispatches'], [])
     console.dir(result, { depth: null })
   })
   // it('can filter by dispatch type', async () => {

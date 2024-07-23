@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.0...v1.5.1) (2024-07-23)
+
+
+### Bug Fixes
+
+* filters and sort pre-releases ([#31](https://github.com/prefapp/action-make-state-repos-dispatches/issues/31)) ([43bdf82](https://github.com/prefapp/action-make-state-repos-dispatches/commit/43bdf820d58cbdf7c65e42b36b46b3e39daae225))
+
 ## [1.5.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.4.0...v1.5.0) (2024-07-22)
 
 ### Features

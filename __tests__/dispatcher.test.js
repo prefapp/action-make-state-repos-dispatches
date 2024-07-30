@@ -4,27 +4,28 @@ const fs = require('fs')
 const YAML = require('js-yaml')
 const path = require('path')
 
+const allInputs = {
+  dispatchesFilePath: 'dispatches_file.yaml',
+  imageType: '*',
+  stateRepoFilter: '*',
+  defaultReleasesRegistry: 'test-releases-registry',
+  defaultSnapshotsRegistry: 'test-snapshots-registry',
+  buildSummary: fs.readFileSync('fixtures/build_summary.json', 'utf-8'),
+  flavorFilter: '*',
+  envFilter: '*',
+  tenantFilter: '*',
+  overwriteVersion: '',
+  overwriteEnv: '',
+  overwriteTenant: '',
+  reviewers: 'juanjosevazquezgil,test-reviewer',
+  registryBasePaths: ''
+}
 const gitControllerMock = {
   getInput: (input, required) => {
     return `${input}_value`
   },
   getAllInputs: () => {
-    return {
-      dispatchesFilePath: 'dispatches_file.yaml',
-      imageType: '*',
-      stateRepoFilter: '*',
-      defaultReleasesRegistry: 'test-releases-registry',
-      defaultSnapshotsRegistry: 'test-snapshots-registry',
-      buildSummary: fs.readFileSync('fixtures/build_summary.json', 'utf-8'),
-      flavorFilter: '*',
-      envFilter: '*',
-      tenantFilter: '*',
-      overwriteVersion: '',
-      overwriteEnv: '',
-      overwriteTenant: '',
-      reviewers: 'juanjosevazquezgil,test-reviewer',
-      registryBasePaths: ''
-    }
+    return allInputs
   },
   getFileContent: filePath => {
     return Buffer.from(
@@ -43,6 +44,11 @@ const gitControllerMock = {
       repo: 'repo-ctx-repo'
     }
   },
+  getSummaryDataForRef: (ref, checkRunName) => {
+    return {
+      summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
+    }
+  },
   dispatch: (dispatchObj, matrix) => {
     const result = []
     for (const dispatch of matrix) {
@@ -54,7 +60,7 @@ const gitControllerMock = {
     debug(msg)
   },
   handleFailure: msg => {
-    throw new Error('Git controller managed error')
+    throw new Error('Git controller managed failure')
   },
   handleSummary: (msg, table) => {
     debug(msg)
@@ -64,9 +70,7 @@ const gitControllerMock = {
   }
 }
 const imageHelperMock = {
-  checkManifest: _ => {
-    return true
-  }
+  checkManifest: _ => true
 }
 
 describe('The dispatcher', () => {
@@ -87,6 +91,43 @@ describe('The dispatcher', () => {
     expect(dispatches[0]).toEqual([
       'registry1/service/my-org/my-repo:v1.1.0-pre published'
     ])
+  })
+
+  it('can make dispatches without a build summary', async () => {
+    const dispatchesExpectedLengths = [1, 12, 2, 1]
+    gitControllerMock.getAllInputs = () => {
+      allInputs.buildSummary = ''
+      return allInputs
+    }
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches.length).toEqual(4)
+
+    for (const index in dispatches) {
+      expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
+    }
+
+    expect(dispatches[0]).toEqual([
+      'registry1/service/my-org/my-repo:v1.1.0-pre published'
+    ])
+  })
+
+  it("can detect when a image doesn't exist in the registry", async () => {
+    gitControllerMock.getAllInputs = () => {
+      allInputs.buildSummary = ''
+      return allInputs
+    }
+
+    const dispatches = await dispatcher.makeDispatches(gitControllerMock, {
+      checkManifest: _ => false
+    })
+
+    expect(dispatches).toEqual([])
+    expect(dispatches.length).toEqual(0)
   })
 
   it('can get a dispatch object from a YAML config', async () => {
@@ -326,7 +367,7 @@ describe('The dispatcher', () => {
   it('can handle a failure', async () => {
     const incompleteGitController = {
       handleFailure: msg => {
-        throw new Error('Git controller managed error')
+        throw new Error('Git controller managed failure')
       },
       handleSummary: (msg, table) => {
         debug(msg)
@@ -335,6 +376,6 @@ describe('The dispatcher', () => {
 
     await expect(
       dispatcher.makeDispatches(incompleteGitController, imageHelperMock)
-    ).rejects.toThrow('Git controller managed error')
+    ).rejects.toThrow('Git controller managed failure')
   })
 })

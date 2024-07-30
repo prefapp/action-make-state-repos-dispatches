@@ -1,3 +1,4 @@
+const debug = require('debug')('make-state-repos-dispatches')
 const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
 const YAML = require('js-yaml')
@@ -50,16 +51,16 @@ const gitControllerMock = {
     return result
   },
   handleNotice: msg => {
-    console.log(msg)
+    debug(msg)
   },
   handleFailure: msg => {
     throw new Error('Git controller managed error')
   },
   handleSummary: (msg, table) => {
-    console.log(msg)
+    debug(msg)
   },
   handleError: msg => {
-    console.log(msg)
+    debug(msg)
   }
 }
 const imageHelperMock = {
@@ -328,7 +329,7 @@ describe('The dispatcher', () => {
         throw new Error('Git controller managed error')
       },
       handleSummary: (msg, table) => {
-        console.log(msg)
+        debug(msg)
       }
     }
 

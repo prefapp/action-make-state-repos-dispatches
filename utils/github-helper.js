@@ -170,12 +170,6 @@ async function getSummaryDataForRef(ref, workflowName) {
       }
     )
 
-    for (const run of resp.data.check_runs) {
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', run.name)
-      console.log('????????????????????????????????????????????', workflowName)
-      console.log('////////////////////////////////', run.name === workflowName)
-    }
-
     const checkRun = resp.data.check_runs.find(
       check => check.name === workflowName
     )

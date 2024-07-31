@@ -170,8 +170,6 @@ async function getSummaryDataForRef(ref, workflowName) {
       }
     )
 
-    console.dir(resp, { depth: null })
-
     const checkRun = resp.data.check_runs.find(
       check => check.name === workflowName
     )

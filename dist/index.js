@@ -30569,8 +30569,6 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     checkRunName
   )
 
-  console.dir(summaryData)
-
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
     .replace('```', '')
@@ -30865,6 +30863,8 @@ async function getSummaryDataForRef(ref, workflowName) {
       console.info(
         `Check run found for ref: ${ref} and workflow: ${workflowName}`
       )
+
+      console.dir(checkRun)
 
       return {
         summary: checkRun.output.summary,

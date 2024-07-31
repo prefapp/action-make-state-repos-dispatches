@@ -185,6 +185,8 @@ async function getSummaryDataForRef(ref, workflowName) {
         `Check run found for ref: ${ref} and workflow: ${workflowName}`
       )
 
+      console.dir(checkRun)
+
       return {
         summary: checkRun.output.summary,
         conclusion: checkRun.conclusion,

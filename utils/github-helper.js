@@ -75,7 +75,11 @@ async function getLatestRelease(payload) {
   try {
     const octokit = getOctokit()
 
-    return await octokit.rest.repos.getLatestRelease(payload)
+    if (payload.tag) {
+      return await octokit.rest.repos.getReleaseByTag(payload)
+    } else {
+      return await octokit.rest.repos.getLatestRelease(payload)
+    }
   } catch (e) {
     console.error(e)
 

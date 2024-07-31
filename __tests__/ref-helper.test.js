@@ -58,4 +58,37 @@ describe('The ref helper', () => {
 
     expect(ref).toEqual('0123456')
   })
+
+  it('can get the short sha of a long sha commit', async () => {
+    const sha =
+      '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+    const ref = await refHelper.getLatestRef(sha, gitControllerMock)
+
+    expect(ref).toEqual(sha.substring(0, 7))
+  })
+
+  it('returns null when no prerelease is found', async () => {
+    gitControllerMock.getLatestPrerelease = _ => false
+
+    const ref = await refHelper.getLatestRef(
+      '$latest_prerelease',
+      gitControllerMock
+    )
+
+    expect(ref).toEqual(null)
+  })
+
+  it('throws a controlled error when any of the refs cannot be found', async () => {
+    await expect(refHelper.getLatestRef('$latest_release', {})).rejects.toThrow(
+      'calculating last release: TypeError: gitController.getPayloadContext is not a function'
+    )
+    await expect(
+      refHelper.getLatestRef('$latest_prerelease', {})
+    ).rejects.toThrow(
+      'calculating last pre-release: TypeError: gitController.getPayloadContext is not a function'
+    )
+    await expect(refHelper.getLatestRef('$branch_test', {})).rejects.toThrow(
+      'calculating last commit on branch $branch_test: TypeError: gitController.getPayloadContext is not a function'
+    )
+  })
 })

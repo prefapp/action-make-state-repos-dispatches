@@ -203,6 +203,9 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     ref,
     checkRunName
   )
+
+  console.dir(summaryData)
+
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
     .replace('```', '')

@@ -30568,6 +30568,9 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     ref,
     checkRunName
   )
+
+  console.dir(summaryData)
+
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
     .replace('```', '')
@@ -30847,12 +30850,6 @@ async function getSummaryDataForRef(ref, workflowName) {
         headers: { 'X-GitHub-Api-Version': '2022-11-28' }
       }
     )
-
-    for (const run of resp.data.check_runs) {
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', run.name)
-      console.log('????????????????????????????????????????????', workflowName)
-      console.log('////////////////////////////////', run.name === workflowName)
-    }
 
     const checkRun = resp.data.check_runs.find(
       check => check.name === workflowName

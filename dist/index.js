@@ -30753,7 +30753,11 @@ async function getLatestRelease(payload) {
   try {
     const octokit = getOctokit()
 
-    return await octokit.rest.repos.getLatestRelease(payload)
+    if (payload.tag) {
+      return await octokit.rest.repos.getReleaseByTag(payload)
+    } else {
+      return await octokit.rest.repos.getLatestRelease(payload)
+    }
   } catch (e) {
     console.error(e)
 
@@ -30953,13 +30957,17 @@ async function getLatestRef(version, gitController, shortSha = true) {
 
       break
     default:
-      if (version.match(/^\$branch_/)) {
-        ref = await __last_branch_commit(version, gitController, shortSha)
+      if (version.match(/^\$latest_release_/)) {
+        ref = await __last_release_by_tag(version, gitController)
       } else {
-        if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
-          ref = version.substring(0, 7)
+        if (version.match(/^\$branch_/)) {
+          ref = await __last_branch_commit(version, gitController, shortSha)
         } else {
-          ref = version
+          if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
+            ref = version.substring(0, 7)
+          } else {
+            ref = version
+          }
         }
       }
   }
@@ -30972,6 +30980,18 @@ async function __last_release(gitController) {
     const latestReleaseResponse = await gitController.getLatestRelease(
       gitController.getPayloadContext()
     )
+    return latestReleaseResponse.data.tag_name
+  } catch (err) {
+    throw new Error(`calculating last release: ${err}`)
+  }
+}
+
+async function __last_release_by_tag(release, gitController) {
+  try {
+    const payload = gitController.getPayloadContext()
+    payload['tag'] = release.replace(/^\$latest_release_/, '')
+
+    const latestReleaseResponse = await gitController.getLatestRelease(payload)
     return latestReleaseResponse.data.tag_name
   } catch (err) {
     throw new Error(`calculating last release: ${err}`)

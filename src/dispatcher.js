@@ -39,8 +39,7 @@ async function makeDispatches(gitController, imageHelper) {
       overwriteEnv,
       overwriteTenant,
       reviewers,
-      checkRunName,
-      registryBasePaths
+      checkRunName
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
 

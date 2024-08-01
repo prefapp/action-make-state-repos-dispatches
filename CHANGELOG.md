@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.7.0...v1.8.0) (2024-08-01)
+
+
+### Features
+
+* Allowed specifying a version when using ([dcd3ad4](https://github.com/prefapp/action-make-state-repos-dispatches/commit/dcd3ad43843edd3aae93c8eed9a48e528ca2a76a))
+* Compiled app ([ca84ca9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ca84ca9286a9d134ac0abae92e8b12bb737adfb7))
+* Compiled the action ([c33ee3f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c33ee3f4cc2f6e94827754dca25338e2bb79289d))
+
+
+### Bug Fixes
+
+* Removed all instances of the unused registry_base_paths inputs and variable ([6b8e7b8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6b8e7b88c392e94c80381859e19d81daf045ccbe))
+* Removed debug logs ([2783357](https://github.com/prefapp/action-make-state-repos-dispatches/commit/27833574a4eb4c9e9e76b59475b15d322a1b9a43))
+* Some linter errors ([aaa8d52](https://github.com/prefapp/action-make-state-repos-dispatches/commit/aaa8d528fa875c02c694e8adc5e80347178e6ff9))
+
 ## [1.7.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.6.0...v1.7.0) (2024-07-23)
 
 ### Features

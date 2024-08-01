@@ -30404,8 +30404,7 @@ async function makeDispatches(gitController, imageHelper) {
       overwriteEnv,
       overwriteTenant,
       reviewers,
-      checkRunName,
-      registryBasePaths
+      checkRunName
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
 
@@ -30714,7 +30713,6 @@ function getAllInputs() {
   const overwriteTenant = core.getInput('overwrite_tenant')
   const reviewers = core.getInput('reviewers')
   const checkRunName = core.getInput('check_run_name')
-  const registryBasePaths = core.getInput('registry_base_paths')
 
   return {
     dispatchesFilePath,
@@ -30730,8 +30728,7 @@ function getAllInputs() {
     overwriteEnv,
     overwriteTenant,
     reviewers,
-    checkRunName,
-    registryBasePaths
+    checkRunName
   }
 }
 

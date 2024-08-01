@@ -2,17 +2,21 @@
 
 ## [1.7.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.6.0...v1.7.0) (2024-07-23)
 
-
 ### Features
 
-* Recompile app ([a326b53](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a326b53852957bf123de53af4c8adec1cc880ee6))
-
+- Recompile app
+  ([a326b53](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a326b53852957bf123de53af4c8adec1cc880ee6))
 
 ### Bug Fixes
 
-* Merge pull request [#35](https://github.com/prefapp/action-make-state-repos-dispatches/issues/35) from prefapp/fix/wrong-registry-access ([b8638e9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b8638e92e7df46ca938268465fcf423e690e53da))
-* Wrong access to registry value ([b8638e9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b8638e92e7df46ca938268465fcf423e690e53da))
-* Wrong access to registry value ([c770459](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c770459dbee70e7723f49f6c254832dd983e2656))
+- Merge pull request
+  [#35](https://github.com/prefapp/action-make-state-repos-dispatches/issues/35)
+  from prefapp/fix/wrong-registry-access
+  ([b8638e9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b8638e92e7df46ca938268465fcf423e690e53da))
+- Wrong access to registry value
+  ([b8638e9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b8638e92e7df46ca938268465fcf423e690e53da))
+- Wrong access to registry value
+  ([c770459](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c770459dbee70e7723f49f6c254832dd983e2656))
 
 ## [1.6.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.1...v1.6.0) (2024-07-23)
 

@@ -79,7 +79,7 @@ describe('The dispatcher', () => {
       fs.readFileSync('fixtures/build_summary.yaml', 'utf-8')
     )
     const result = dispatcher.createDispatchList(
-      dispatches['dispatches'],
+      dispatches.dispatches,
       _ => buildSummary,
       []
     )

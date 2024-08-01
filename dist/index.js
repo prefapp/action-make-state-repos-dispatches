@@ -30366,7 +30366,6 @@ function wrappy (fn, cb) {
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 const refHelper = __nccwpck_require__(9978)
 const textHelper = __nccwpck_require__(5276)
-const fs = __nccwpck_require__(7147)
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -30440,7 +30439,7 @@ async function makeDispatches(gitController, imageHelper) {
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
     const dispatchList = createDispatchList(
-      dispatchesData['dispatches'],
+      dispatchesData.dispatches,
       reviewersList,
       overwriteVersion,
       overwriteTenant,
@@ -30816,12 +30815,14 @@ async function getFileContent(filePath) {
       path: filePath
     })
 
-    if (fileResponse.status !== 200)
+    if (fileResponse.status !== 200) {
       throw new Error(
         `Got status code ${fileResponse.status}, please check the file path exists or the token permissions.`
       )
-    if (fileResponse.data.type !== 'file')
+    }
+    if (fileResponse.data.type !== 'file') {
       throw new Error(`The path ${filePath} is not a file.`)
+    }
 
     return fileResponse.data.content
   } catch (e) {
@@ -30990,7 +30991,7 @@ async function __last_release(gitController) {
 async function __last_release_by_tag(release, gitController) {
   try {
     const payload = gitController.getPayloadContext()
-    payload['tag'] = release.replace(/^\$latest_release_/, '')
+    payload.tag = release.replace(/^\$latest_release_/, '')
 
     const latestReleaseResponse = await gitController.getLatestRelease(payload)
     return latestReleaseResponse.data.tag_name
@@ -31016,7 +31017,7 @@ async function __last_prerelease(gitController) {
 async function __last_branch_commit(branch, gitController, shortSha = true) {
   try {
     const payload = gitController.getPayloadContext()
-    payload['branch'] = branch.replace(/^\$branch_/, '')
+    payload.branch = branch.replace(/^\$branch_/, '')
 
     return await gitController.getLastBranchCommit(payload, shortSha)
   } catch (err) {

@@ -1,7 +1,6 @@
 const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
-const fs = require('fs')
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -75,7 +74,7 @@ async function makeDispatches(gitController, imageHelper) {
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
     const dispatchList = createDispatchList(
-      dispatchesData['dispatches'],
+      dispatchesData.dispatches,
       reviewersList,
       overwriteVersion,
       overwriteTenant,

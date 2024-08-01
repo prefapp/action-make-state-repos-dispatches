@@ -45,7 +45,7 @@ async function __last_release(gitController) {
 async function __last_release_by_tag(release, gitController) {
   try {
     const payload = gitController.getPayloadContext()
-    payload['tag'] = release.replace(/^\$latest_release_/, '')
+    payload.tag = release.replace(/^\$latest_release_/, '')
 
     const latestReleaseResponse = await gitController.getLatestRelease(payload)
     return latestReleaseResponse.data.tag_name
@@ -71,7 +71,7 @@ async function __last_prerelease(gitController) {
 async function __last_branch_commit(branch, gitController, shortSha = true) {
   try {
     const payload = gitController.getPayloadContext()
-    payload['branch'] = branch.replace(/^\$branch_/, '')
+    payload.branch = branch.replace(/^\$branch_/, '')
 
     return await gitController.getLastBranchCommit(payload, shortSha)
   } catch (err) {

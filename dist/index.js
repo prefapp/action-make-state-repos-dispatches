@@ -30366,7 +30366,6 @@ function wrappy (fn, cb) {
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 const refHelper = __nccwpck_require__(9978)
 const textHelper = __nccwpck_require__(5276)
-const fs = __nccwpck_require__(7147)
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -30440,7 +30439,7 @@ async function makeDispatches(gitController, imageHelper) {
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
     const dispatchList = createDispatchList(
-      dispatchesData['dispatches'],
+      dispatchesData.dispatches,
       reviewersList,
       overwriteVersion,
       overwriteTenant,
@@ -30480,7 +30479,9 @@ async function makeDispatches(gitController, imageHelper) {
           entry =>
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
-            entry.image_type === data.type
+            entry.image_type === data.type &&
+            entry.registry ===
+              (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
         console.log('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -30566,6 +30567,7 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     ref,
     checkRunName
   )
+
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
     .replace('```', '')
@@ -30751,7 +30753,11 @@ async function getLatestRelease(payload) {
   try {
     const octokit = getOctokit()
 
-    return await octokit.rest.repos.getLatestRelease(payload)
+    if (payload.tag) {
+      return await octokit.rest.repos.getReleaseByTag(payload)
+    } else {
+      return await octokit.rest.repos.getLatestRelease(payload)
+    }
   } catch (e) {
     console.error(e)
 
@@ -30809,12 +30815,14 @@ async function getFileContent(filePath) {
       path: filePath
     })
 
-    if (fileResponse.status !== 200)
+    if (fileResponse.status !== 200) {
       throw new Error(
         `Got status code ${fileResponse.status}, please check the file path exists or the token permissions.`
       )
-    if (fileResponse.data.type !== 'file')
+    }
+    if (fileResponse.data.type !== 'file') {
       throw new Error(`The path ${filePath} is not a file.`)
+    }
 
     return fileResponse.data.content
   } catch (e) {
@@ -30951,13 +30959,17 @@ async function getLatestRef(version, gitController, shortSha = true) {
 
       break
     default:
-      if (version.match(/^\$branch_/)) {
-        ref = await __last_branch_commit(version, gitController, shortSha)
+      if (version.match(/^\$latest_release_/)) {
+        ref = await __last_release_by_tag(version, gitController)
       } else {
-        if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
-          ref = version.substring(0, 7)
+        if (version.match(/^\$branch_/)) {
+          ref = await __last_branch_commit(version, gitController, shortSha)
         } else {
-          ref = version
+          if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
+            ref = version.substring(0, 7)
+          } else {
+            ref = version
+          }
         }
       }
   }
@@ -30970,6 +30982,18 @@ async function __last_release(gitController) {
     const latestReleaseResponse = await gitController.getLatestRelease(
       gitController.getPayloadContext()
     )
+    return latestReleaseResponse.data.tag_name
+  } catch (err) {
+    throw new Error(`calculating last release: ${err}`)
+  }
+}
+
+async function __last_release_by_tag(release, gitController) {
+  try {
+    const payload = gitController.getPayloadContext()
+    payload.tag = release.replace(/^\$latest_release_/, '')
+
+    const latestReleaseResponse = await gitController.getLatestRelease(payload)
     return latestReleaseResponse.data.tag_name
   } catch (err) {
     throw new Error(`calculating last release: ${err}`)
@@ -30993,7 +31017,7 @@ async function __last_prerelease(gitController) {
 async function __last_branch_commit(branch, gitController, shortSha = true) {
   try {
     const payload = gitController.getPayloadContext()
-    payload['branch'] = branch.replace(/^\$branch_/, '')
+    payload.branch = branch.replace(/^\$branch_/, '')
 
     return await gitController.getLastBranchCommit(payload, shortSha)
   } catch (err) {

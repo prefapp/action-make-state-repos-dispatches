@@ -1,7 +1,6 @@
 const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
-const fs = require('fs')
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -75,7 +74,7 @@ async function makeDispatches(gitController, imageHelper) {
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
     const dispatchList = createDispatchList(
-      dispatchesData['dispatches'],
+      dispatchesData.dispatches,
       reviewersList,
       overwriteVersion,
       overwriteTenant,
@@ -112,7 +111,9 @@ async function makeDispatches(gitController, imageHelper) {
           entry =>
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
-            entry.image_type === data.type
+            entry.image_type === data.type &&
+            entry.registry ===
+              (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -198,6 +199,7 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     ref,
     checkRunName
   )
+
   const buildSummary = summaryData.summary
     .replace('```yaml', '')
     .replace('```', '')

@@ -30464,12 +30464,9 @@ async function makeDispatches(gitController, imageHelper) {
         const stateRepoName = data.state_repo.repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
 
-        console.log(
-          '📜 Summary builds >',
-          JSON.stringify(buildSummaryObj, null, 2)
-        )
+        debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
 
-        console.log(
+        debug(
           '🔍 Filtering by:',
           `flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
         )
@@ -30483,7 +30480,10 @@ async function makeDispatches(gitController, imageHelper) {
               (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
-        console.log('🖼 Image data >', JSON.stringify(imageData, null, 2))
+        console.log(data)
+        console.log(imageData)
+
+        debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 
@@ -30653,9 +30653,7 @@ const { execSync } = __nccwpck_require__(2081)
 function checkManifest(image) {
   try {
     // Execute the command
-    const output = execSync(`docker manifest inspect ${image}`, {
-      stdio: 'ignore'
-    })
+    execSync(`docker manifest inspect ${image}`, { stdio: 'ignore' })
 
     // If the command succeeds (exit code 0), return true
     return true

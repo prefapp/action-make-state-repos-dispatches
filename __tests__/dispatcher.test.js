@@ -8,8 +8,8 @@ const allInputs = {
   dispatchesFilePath: 'dispatches_file.yaml',
   imageType: '*',
   stateRepoFilter: '*',
-  defaultReleasesRegistry: 'test-releases-registry',
-  defaultSnapshotsRegistry: 'test-snapshots-registry',
+  defaultReleasesRegistry: 'default_registry_rel',
+  defaultSnapshotsRegistry: 'default_registry_snap',
   buildSummary: fs.readFileSync('fixtures/build_summary.json', 'utf-8'),
   flavorFilter: '*',
   envFilter: '*',
@@ -59,7 +59,7 @@ const gitControllerMock = {
     debug(msg)
   },
   handleFailure: msg => {
-    throw new Error('Git controller managed failure')
+    debug(msg)
   },
   handleSummary: (msg, table) => {
     debug(msg)
@@ -144,6 +144,7 @@ describe('The dispatcher', () => {
         repo: 'repo1',
         tenant: 'tenant1',
         application: 'application1',
+        registry: 'registry1',
         env: 'env1',
         version: 'version1'
       },

@@ -23,7 +23,7 @@
     "image_repo": "org/repo",
     "image_tag": "v444",
     "image_type": "snapshots",
-    "registry": "registry4",
+    "registry": "default_registry_snap",
     "repository": "service/org/repo",
     "version": "version4"
   },
@@ -37,7 +37,7 @@
     "image_repo": "my-other-org/my-other-repo",
     "image_tag": "v2.3-dev",
     "image_type": "snapshots",
-    "registry": "registry3",
+    "registry": "default_registry_snap",
     "repository": "service/my-other-org/my-other-repo",
     "version": "version23"
   },
@@ -51,7 +51,7 @@
     "image_repo": "my-other-org/my-other-repo",
     "image_tag": "v2.3-dev",
     "image_type": "snapshots",
-    "registry": "registry2",
+    "registry": "default_registry_snap",
     "repository": "service/my-other-org/my-other-repo",
     "version": "version23"
   },
@@ -79,7 +79,7 @@
     "image_repo": "my-other-org/my-other-repo",
     "image_tag": "v2.3-pro",
     "image_type": "releases",
-    "registry": "registry2",
+    "registry": "default_registry_rel",
     "repository": "service/my-other-org/my-other-repo",
     "version": "version23"
   },
@@ -93,7 +93,7 @@
     "image_repo": "my-other-org/my-other-repo",
     "image_tag": "v2.3-pro",
     "image_type": "releases",
-    "registry": "registry3",
+    "registry": "default_registry_rel",
     "repository": "service/my-other-org/my-other-repo",
     "version": "version23"
   }

@@ -7,8 +7,8 @@ const gitControllerMock = {
       repo: 'payload-ctx-repo'
     }
   },
-  getLatestRelease: _ => {
-    return { data: { tag_name: 'release_tag' } }
+  getLatestRelease: payload => {
+    return { data: { tag_name: `release_tag${payload.tag || ''}` } }
   },
   getLatestPrerelease: _ => {
     return { tag_name: 'prerelease_tag' }
@@ -32,6 +32,15 @@ describe('The ref helper', () => {
     )
 
     expect(ref).toEqual('release_tag')
+  })
+
+  it('can get the latest release of a specific tag', async () => {
+    const ref = await refHelper.getLatestRef(
+      '$latest_release_v1.2.3',
+      gitControllerMock
+    )
+
+    expect(ref).toEqual('release_tagv1.2.3')
   })
 
   it('can get the latest prerelease', async () => {
@@ -80,6 +89,11 @@ describe('The ref helper', () => {
 
   it('throws a controlled error when any of the refs cannot be found', async () => {
     await expect(refHelper.getLatestRef('$latest_release', {})).rejects.toThrow(
+      'calculating last release: TypeError: gitController.getPayloadContext is not a function'
+    )
+    await expect(
+      refHelper.getLatestRef('$latest_release_v1.2.3', {})
+    ).rejects.toThrow(
       'calculating last release: TypeError: gitController.getPayloadContext is not a function'
     )
     await expect(

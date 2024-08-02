@@ -115,6 +115,9 @@ async function makeDispatches(gitController, imageHelper) {
               (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
+        console.log(data)
+        console.log(imageData)
+
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`

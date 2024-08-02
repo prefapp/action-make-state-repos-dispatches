@@ -1,11 +1,48 @@
 # Changelog
 
-## [1.5.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.0...v1.5.1) (2024-07-23)
+## [1.7.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.6.0...v1.7.0) (2024-07-23)
 
+### Features
+
+- Recompile app
+  ([a326b53](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a326b53852957bf123de53af4c8adec1cc880ee6))
 
 ### Bug Fixes
 
-* filters and sort pre-releases ([#31](https://github.com/prefapp/action-make-state-repos-dispatches/issues/31)) ([43bdf82](https://github.com/prefapp/action-make-state-repos-dispatches/commit/43bdf820d58cbdf7c65e42b36b46b3e39daae225))
+- Merge pull request
+  [#35](https://github.com/prefapp/action-make-state-repos-dispatches/issues/35)
+  from prefapp/fix/wrong-registry-access
+  ([b8638e9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b8638e92e7df46ca938268465fcf423e690e53da))
+- Wrong access to registry value
+  ([b8638e9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b8638e92e7df46ca938268465fcf423e690e53da))
+- Wrong access to registry value
+  ([c770459](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c770459dbee70e7723f49f6c254832dd983e2656))
+
+## [1.6.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.1...v1.6.0) (2024-07-23)
+
+### Features
+
+- Compiled app
+  ([2ffaf73](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2ffaf73a564b370469dbb1f8ede9d81eaf994b4d))
+
+### Bug Fixes
+
+- Fixed getting wrong registry from build summary
+  ([639b676](https://github.com/prefapp/action-make-state-repos-dispatches/commit/639b67600ea45f93e89c7bdc3b880b78452128da))
+- Merge pull request
+  [#33](https://github.com/prefapp/action-make-state-repos-dispatches/issues/33)
+  from prefapp/fix/wrong-registry
+  ([878cdda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/878cdda57ff5665821e80c6a2fd863ffa98d7c6e))
+- Wrong registry
+  ([878cdda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/878cdda57ff5665821e80c6a2fd863ffa98d7c6e))
+
+## [1.5.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.5.0...v1.5.1) (2024-07-23)
+
+### Bug Fixes
+
+- filters and sort pre-releases
+  ([#31](https://github.com/prefapp/action-make-state-repos-dispatches/issues/31))
+  ([43bdf82](https://github.com/prefapp/action-make-state-repos-dispatches/commit/43bdf820d58cbdf7c65e42b36b46b3e39daae225))
 
 ## [1.5.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.4.0...v1.5.0) (2024-07-22)
 

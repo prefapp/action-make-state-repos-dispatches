@@ -36,7 +36,6 @@ function getAllInputs() {
   const overwriteTenant = core.getInput('overwrite_tenant')
   const reviewers = core.getInput('reviewers')
   const checkRunName = core.getInput('check_run_name')
-  const registryBasePaths = core.getInput('registry_base_paths')
 
   return {
     dispatchesFilePath,
@@ -52,8 +51,7 @@ function getAllInputs() {
     overwriteEnv,
     overwriteTenant,
     reviewers,
-    checkRunName,
-    registryBasePaths
+    checkRunName
   }
 }
 
@@ -75,7 +73,11 @@ async function getLatestRelease(payload) {
   try {
     const octokit = getOctokit()
 
-    return await octokit.rest.repos.getLatestRelease(payload)
+    if (payload.tag) {
+      return await octokit.rest.repos.getReleaseByTag(payload)
+    } else {
+      return await octokit.rest.repos.getLatestRelease(payload)
+    }
   } catch (e) {
     console.error(e)
 
@@ -133,12 +135,14 @@ async function getFileContent(filePath) {
       path: filePath
     })
 
-    if (fileResponse.status !== 200)
+    if (fileResponse.status !== 200) {
       throw new Error(
         `Got status code ${fileResponse.status}, please check the file path exists or the token permissions.`
       )
-    if (fileResponse.data.type !== 'file')
+    }
+    if (fileResponse.data.type !== 'file') {
       throw new Error(`The path ${filePath} is not a file.`)
+    }
 
     return fileResponse.data.content
   } catch (e) {

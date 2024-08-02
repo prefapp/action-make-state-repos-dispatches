@@ -17,8 +17,7 @@ const allInputs = {
   overwriteVersion: '',
   overwriteEnv: '',
   overwriteTenant: '',
-  reviewers: 'juanjosevazquezgil,test-reviewer',
-  registryBasePaths: ''
+  reviewers: 'juanjosevazquezgil,test-reviewer'
 }
 const gitControllerMock = {
   getInput: (input, required) => {

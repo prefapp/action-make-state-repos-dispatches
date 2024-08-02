@@ -134,11 +134,8 @@ describe('The dispatcher', () => {
     const dispatches = YAML.load(
       fs.readFileSync('fixtures/dispatches_file.yaml', 'utf-8')
     )
-    const buildSummary = JSON.parse(
-      fs.readFileSync('fixtures/build_summary.json', 'utf-8')
-    )
 
-    const result = dispatcher.createDispatchList(dispatches['dispatches'], [])
+    const result = dispatcher.createDispatchList(dispatches.dispatches, [])
 
     expect(result.length).toEqual(16)
     expect(result[0]).toEqual({

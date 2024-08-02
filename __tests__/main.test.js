@@ -20,4 +20,3 @@ describe('main', () => {
     expect(makeDispatches).toHaveBeenCalled()
   })
 })
-

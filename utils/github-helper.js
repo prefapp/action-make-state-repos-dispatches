@@ -247,6 +247,7 @@ module.exports = {
   getOctokit,
   getLatestRelease,
   getLatestPrerelease,
+  sortReleasesByTime,
   getLastBranchCommit,
   getFileContent,
   dispatch,

@@ -35,6 +35,18 @@ jest.mock('@actions/github', () => ({
               return { data: { commit: { sha: '0123456789' } } }
             }
           },
+          getContent: payload => {
+            if (payload.path === 'wrong_status') {
+              return { status: 404 }
+            } else if (payload.path === 'wrong_file_type') {
+              return { status: 200, data: { type: 'not-file' } }
+            } else {
+              return {
+                status: 200,
+                data: { type: 'file', content: 'file-content' }
+              }
+            }
+          },
           createDispatchEvent: payload => true,
           listReleases: payload => {
             if (payload.throw) {
@@ -179,6 +191,20 @@ describe('github-helper', () => {
     const branchPayload = { throw: true }
     await expect(ghHelper.getLastBranchCommit(branchPayload)).rejects.toThrow(
       `Error getting last branch commit for ${branchPayload}`
+    )
+  })
+
+  it('can get the contents of a file', async () => {
+    const fileContents = await ghHelper.getFileContent('')
+    expect(fileContents).toEqual('file-content')
+  })
+
+  it("throws an error when a file is not found or isn't actually a file", async () => {
+    await expect(ghHelper.getFileContent('wrong_status')).rejects.toThrow(
+      `Error getting file content for wrong_status`
+    )
+    await expect(ghHelper.getFileContent('wrong_file_type')).rejects.toThrow(
+      `Error getting file content for wrong_file_type`
     )
   })
 })

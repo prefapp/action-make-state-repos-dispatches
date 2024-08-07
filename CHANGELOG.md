@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.8.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.7.0...v1.8.0) (2024-08-07)
+
+
+### Features
+
+* Added additional testing for github-helper ([eb702e2](https://github.com/prefapp/action-make-state-repos-dispatches/commit/eb702e25ce4e7c1fbc5f6e52bea5c94c2decb99a))
+* Added additional tests and improved existing ones ([e53b25d](https://github.com/prefapp/action-make-state-repos-dispatches/commit/e53b25d57910d774fa806be725901b92d1a98464))
+* Added additional tests for docker-helper and github-helper ([ef6d029](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ef6d029d0938b71acdf69045064cd4fbcb286fbb))
+* Added additional tests for ref-helper.js ([96d58e0](https://github.com/prefapp/action-make-state-repos-dispatches/commit/96d58e01768e90c099781d1e20d8bafdb89a2786))
+* Added last needed tests ([c2d2d83](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c2d2d834774d02388bea57bde4e3f429fa7cba98))
+* Added missing tests por code coverage ([e260a19](https://github.com/prefapp/action-make-state-repos-dispatches/commit/e260a19eb869b6af4e604c5106e1fcc747d31bf2))
+* Added tests for ref-helper.js ([2966623](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2966623c3cbdf2319cc12c82f3224a47271c9d7c))
+* Allowed specifying a version when using ([dcd3ad4](https://github.com/prefapp/action-make-state-repos-dispatches/commit/dcd3ad43843edd3aae93c8eed9a48e528ca2a76a))
+* Compiled app ([ca84ca9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ca84ca9286a9d134ac0abae92e8b12bb737adfb7))
+* Compiled the action ([c33ee3f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c33ee3f4cc2f6e94827754dca25338e2bb79289d))
+
+
+### Bug Fixes
+
+* Changed all instances of console.log to debug ([b09132b](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b09132b49b67b6e7548d6157e2614a3881408b63))
+* Fixed linter errors ([1157d8b](https://github.com/prefapp/action-make-state-repos-dispatches/commit/1157d8be13a3fea79f7bbb03d9ec1fd52f45e957))
+* Linter errors ([79baebc](https://github.com/prefapp/action-make-state-repos-dispatches/commit/79baebc6b7ba9923427a5df147bc03a752bc46ae))
+* Removed all instances of the unused registry_base_paths inputs and variable ([6b8e7b8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6b8e7b88c392e94c80381859e19d81daf045ccbe))
+* Removed debug logs ([2783357](https://github.com/prefapp/action-make-state-repos-dispatches/commit/27833574a4eb4c9e9e76b59475b15d322a1b9a43))
+* Some linter errors ([aaa8d52](https://github.com/prefapp/action-make-state-repos-dispatches/commit/aaa8d528fa875c02c694e8adc5e80347178e6ff9))
+
 ## [1.7.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.6.0...v1.7.0) (2024-07-23)
 
 ### Features

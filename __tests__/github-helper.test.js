@@ -5,13 +5,64 @@ const ghHelper = require('../utils/github-helper')
 
 jest.mock('@actions/core', () => ({
   getInput: inputName => `${inputName}-value`,
-  notice: _ => true,
-  error: _ => true,
-  setFailed: _ => true
+  notice: jest.fn(),
+  error: jest.fn(),
+  setFailed: jest.fn(),
+  summary: {
+    addHeading: heading => {
+      return {
+        addTable: msg => {
+          return {
+            write: () => {
+              throw new Error(
+                `Function correctly executed with ${heading} and ${msg}`
+              )
+            }
+          }
+        }
+      }
+    }
+  }
 }))
 jest.mock('@actions/github', () => ({
-  getOctokit: _ => {
+  getOctokit: () => {
     return {
+      request: (url, payload) => {
+        if (url.includes('throw')) {
+          throw new Error()
+        } else {
+          return {
+            data: {
+              check_runs: [
+                {
+                  name: 'check1',
+                  id: 'id1',
+                  conclusion: 'conclusion1',
+                  output: { summary: 'summary1' }
+                },
+                {
+                  name: 'check2',
+                  id: 'id2',
+                  conclusion: 'conclusion2',
+                  output: { summary: 'summary2' }
+                },
+                {
+                  name: 'check3',
+                  id: 'id3',
+                  conclusion: 'conclusion3',
+                  output: { summary: 'summary3' }
+                },
+                {
+                  name: 'check4',
+                  id: 'id4',
+                  conclusion: 'conclusion4',
+                  output: { summary: 'summary4' }
+                }
+              ]
+            }
+          }
+        }
+      },
       rest: {
         repos: {
           getReleaseByTag: payload => {
@@ -47,7 +98,11 @@ jest.mock('@actions/github', () => ({
               }
             }
           },
-          createDispatchEvent: payload => true,
+          createDispatchEvent: jest.fn(payload => {
+            if (payload.repo === 'throw') {
+              throw new Error()
+            }
+          }),
           listReleases: payload => {
             if (payload.throw) {
               throw new Error()
@@ -205,6 +260,59 @@ describe('github-helper', () => {
     )
     await expect(ghHelper.getFileContent('wrong_file_type')).rejects.toThrow(
       `Error getting file content for wrong_file_type`
+    )
+  })
+
+  it('can get the summary of a reference', async () => {
+    const summaryContents = await ghHelper.getSummaryDataForRef('', 'check3')
+
+    expect(summaryContents.id).toEqual('id3')
+    expect(summaryContents.conclusion).toEqual('conclusion3')
+    expect(summaryContents.summary).toEqual('summary3')
+  })
+
+  it('when a reference is not found, false is returned instead', async () => {
+    const summaryContents = await ghHelper.getSummaryDataForRef('', 'check5')
+
+    expect(summaryContents).toEqual(false)
+  })
+
+  it('when looking for a reference, throws an error if any happen', async () => {
+    await expect(ghHelper.getSummaryDataForRef('throw', 'wf')).rejects.toThrow(
+      `Error getting check run summary for ref: throw and workflow: wf`
+    )
+  })
+
+  it('can make dispatches', async () => {
+    const result = await ghHelper.dispatch({ repo: '' }, '')
+
+    expect(result).toEqual(true)
+  })
+
+  it('when making dispatches, throws an error if any happen', async () => {
+    const ctx = ghHelper.getPayloadContext()
+
+    await expect(
+      ghHelper.dispatch({ repo: 'throw' }, 'dispatch-matrix')
+    ).rejects.toThrow(
+      `Error creating dispatch event for repo throw. Context: ${ctx}. Dispatch matrix: dispatch-matrix`
+    )
+  })
+
+  it('can handle varied types of messages: info, failures, errors', async () => {
+    ghHelper.handleNotice('')
+    expect(core.notice).toHaveBeenCalled()
+
+    ghHelper.handleError('')
+    expect(core.error).toHaveBeenCalled()
+
+    ghHelper.handleFailure('')
+    expect(core.setFailed).toHaveBeenCalled()
+  })
+
+  it('can handle creating a summary', async () => {
+    expect(() => ghHelper.handleSummary('header', 'message-content')).toThrow(
+      'Function correctly executed with header and message-content'
     )
   })
 })

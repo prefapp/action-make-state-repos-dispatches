@@ -30887,6 +30887,8 @@ async function dispatch(repoData, dispatchMatrix) {
         version: 4
       }
     })
+
+    return true
   } catch (e) {
     console.error(e)
 

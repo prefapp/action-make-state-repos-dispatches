@@ -30366,6 +30366,7 @@ function wrappy (fn, cb) {
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 const refHelper = __nccwpck_require__(9978)
 const textHelper = __nccwpck_require__(5276)
+const fs = __nccwpck_require__(7147)
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -30409,8 +30410,10 @@ async function makeDispatches(gitController, imageHelper) {
     const payloadCtx = gitController.getPayloadContext()
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
-    const dispatchesFileContent =
-      await gitController.getFileContent(dispatchesFilePath)
+    const dispatchesFileContent = await getDispatchesFileContent(
+      dispatchesFilePath,
+      gitController
+    )
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
     let getBuildSummaryData = async version =>
@@ -30527,6 +30530,14 @@ async function makeDispatches(gitController, imageHelper) {
     gitController.handleFailure(error.message)
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)
+  }
+}
+
+async function getDispatchesFileContent(filePath, gitController) {
+  try {
+    return fs.readFileSync(filePath).toString('utf-8')
+  } catch (err) {
+    return await gitController.getFileContent(filePath)
   }
 }
 

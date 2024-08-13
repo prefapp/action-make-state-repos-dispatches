@@ -382,7 +382,8 @@ describe('The dispatcher', () => {
       '../fixtures/dispatches_file.yaml'
     )
     const expectedLocalResult = fs
-      .readFileSync(localFilePath).toString('base64')
+      .readFileSync(localFilePath)
+      .toString('base64')
     const localFileContent = await dispatcher.getDispatchesFileContent(
       localFilePath,
       gitControllerMock

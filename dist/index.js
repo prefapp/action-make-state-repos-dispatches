@@ -30535,7 +30535,7 @@ async function makeDispatches(gitController, imageHelper) {
 
 async function getDispatchesFileContent(filePath, gitController) {
   try {
-    return fs.readFileSync(filePath).toString('utf-8')
+    return fs.readFileSync(filePath).toString('base64')
   } catch (err) {
     return await gitController.getFileContent(filePath)
   }
@@ -30624,6 +30624,7 @@ module.exports = {
   makeDispatches,
   createDispatchList,
   getLatestBuildSummary,
+  getDispatchesFileContent,
   isDispatchValid,
   updateSummaryTable
 }

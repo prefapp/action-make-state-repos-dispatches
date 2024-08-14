@@ -1,6 +1,7 @@
 const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
+const fs = require('fs')
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -44,8 +45,10 @@ async function makeDispatches(gitController, imageHelper) {
     const payloadCtx = gitController.getPayloadContext()
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
-    const dispatchesFileContent =
-      await gitController.getFileContent(dispatchesFilePath)
+    const dispatchesFileContent = await getDispatchesFileContent(
+      dispatchesFilePath,
+      gitController
+    )
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
     let getBuildSummaryData = async version =>
@@ -165,6 +168,14 @@ async function makeDispatches(gitController, imageHelper) {
   }
 }
 
+async function getDispatchesFileContent(filePath, gitController) {
+  try {
+    return fs.readFileSync(filePath).toString('base64')
+  } catch (err) {
+    return await gitController.getFileContent(filePath)
+  }
+}
+
 function createDispatchList(
   dispatches,
   reviewersList,
@@ -248,6 +259,7 @@ module.exports = {
   makeDispatches,
   createDispatchList,
   getLatestBuildSummary,
+  getDispatchesFileContent,
   isDispatchValid,
   updateSummaryTable
 }

@@ -28,7 +28,7 @@ const gitControllerMock = {
   },
   getFileContent: filePath => {
     return Buffer.from(
-      fs.readFileSync(path.join('fixtures', filePath))
+      fs.readFileSync(path.join('fixtures/github', filePath))
     ).toString('base64')
   },
   getPayloadContext: () => {
@@ -131,7 +131,7 @@ describe('The dispatcher', () => {
 
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = YAML.load(
-      fs.readFileSync('fixtures/dispatches_file.yaml', 'utf-8')
+      fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
     )
 
     const result = dispatcher.createDispatchList(dispatches.dispatches, [])
@@ -374,5 +374,32 @@ describe('The dispatcher', () => {
     await expect(
       dispatcher.makeDispatches(incompleteGitController, imageHelperMock)
     ).rejects.toThrow('Git controller managed failure')
+  })
+
+  it('can get the dispatches file content, both locally and remotely', async () => {
+    const localFilePath = path.join(
+      __dirname,
+      '../fixtures/dispatches_file.yaml'
+    )
+    const expectedLocalResult = fs
+      .readFileSync(localFilePath)
+      .toString('base64')
+    const localFileContent = await dispatcher.getDispatchesFileContent(
+      localFilePath,
+      gitControllerMock
+    )
+
+    expect(localFileContent).toEqual(expectedLocalResult)
+
+    const remoteFilePath = 'dispatches_file.yaml'
+    const expectedRemoteResult = fs
+      .readFileSync(path.join('fixtures/github', remoteFilePath))
+      .toString('base64')
+    const remoteFileContent = await dispatcher.getDispatchesFileContent(
+      remoteFilePath,
+      gitControllerMock
+    )
+
+    expect(remoteFileContent).toEqual(expectedRemoteResult)
   })
 })

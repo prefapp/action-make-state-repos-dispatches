@@ -297,6 +297,27 @@ describe('The dispatcher', () => {
         '*'
       )
     ).toEqual(true)
+
+    expect(
+      dispatcher.isDispatchValid(
+        flavorDevDispatch,
+        ['any'],
+        ['*-pre', '*-pro'],
+        '*',
+        '*',
+        '*'
+      )
+    ).toEqual(false)
+    expect(
+      dispatcher.isDispatchValid(
+        flavorProDispatch,
+        ['any'],
+        ['*-dev', '*-pre'],
+        '*',
+        '*',
+        '*'
+      )
+    ).toEqual(false)
   })
 
   it('can filter by repos', async () => {

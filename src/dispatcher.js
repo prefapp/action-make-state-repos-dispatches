@@ -2,6 +2,7 @@ const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
 const fs = require('fs')
+const minimatch = require('minimatch')
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -229,7 +230,8 @@ function isDispatchValid(
 
   return (
     imageTypesList.includes(dispatch.type) &&
-    (flavorsList === '*' || flavorsList.includes(dispatch.flavor)) &&
+    (flavorsList === '*' ||
+      flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
     (stateReposList === '*' || stateReposList.includes(stateRepo.repo)) &&
     (envFilterList === '*' || envFilterList.includes(stateRepo.env)) &&
     (tenantFilterList === '*' || tenantFilterList.includes(stateRepo.tenant))

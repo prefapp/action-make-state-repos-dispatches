@@ -252,6 +252,53 @@ describe('The dispatcher', () => {
     ).toEqual(true)
   })
 
+  it('can filter by flavor using a matching pattern', async () => {
+    const flavorDevDispatch = { type: 'any', flavor: 'flavor-dev' }
+    const flavorProDispatch = { type: 'any', flavor: 'flavor-pro' }
+
+    expect(
+      dispatcher.isDispatchValid(
+        flavorDevDispatch,
+        ['any'],
+        ['*-dev'],
+        '*',
+        '*',
+        '*'
+      )
+    ).toEqual(true)
+    expect(
+      dispatcher.isDispatchValid(
+        flavorProDispatch,
+        ['any'],
+        ['*-dev'],
+        '*',
+        '*',
+        '*'
+      )
+    ).toEqual(false)
+
+    expect(
+      dispatcher.isDispatchValid(
+        flavorDevDispatch,
+        ['any'],
+        ['*-dev', '*-pro'],
+        '*',
+        '*',
+        '*'
+      )
+    ).toEqual(true)
+    expect(
+      dispatcher.isDispatchValid(
+        flavorProDispatch,
+        ['any'],
+        ['*-dev', '*-pro'],
+        '*',
+        '*',
+        '*'
+      )
+    ).toEqual(true)
+  })
+
   it('can filter by repos', async () => {
     const stateRepo1Dispatch = { type: 'any', state_repo: { repo: 'repo1' } }
     const stateRepo2Dispatch = { type: 'any', state_repo: { repo: 'repo2' } }

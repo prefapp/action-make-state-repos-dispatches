@@ -50,6 +50,7 @@ async function makeDispatches(gitController, imageHelper) {
       dispatchesFilePath,
       gitController
     )
+    debug('Dispatches file content', dispatchesFileContent)
     const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
 
     let getBuildSummaryData = async version =>

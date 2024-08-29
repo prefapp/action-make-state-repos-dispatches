@@ -10,6 +10,17 @@ const _payloadCtx = {
 const _token = core.getInput('token', true)
 const _octokit = github.getOctokit(_token)
 
+function _calculateTagRegex(tag) {
+  let regexAsString = tag
+  const nOfDots = tag.split('.').length()
+
+  for (let i = 0; i < 2 - nOfDots; i++) {
+    regexAsString = `${regexAsString}\\..+`
+  }
+
+  return new RegExp(regexAsString)
+}
+
 function getInput(inputName, isRequired = false) {
   return core.getInput(inputName, { required: isRequired })
 }
@@ -74,10 +85,31 @@ async function getLatestRelease(payload) {
     const octokit = getOctokit()
 
     if (payload.tag) {
-      return await octokit.rest.repos.getReleaseByTag(payload)
+      return await getLatestTagRelease(payload, octokit)
+      // return await octokit.rest.repos.getReleaseByTag(payload)
     } else {
       return await octokit.rest.repos.getLatestRelease(payload)
     }
+  } catch (e) {
+    console.error(e)
+
+    throw new Error(`Error getting latest release for ${payload}`)
+  }
+}
+
+async function getLatestTagRelease(payload, octokit) {
+  try {
+    const regexFilter = _calculateTagRegex(payload.tag)
+    const response = await octokit.rest.repos.listReleases({
+      owner: payload.owner,
+      repo: payload.repo
+    })
+    const releases = response.data.filter(r => !r.prerelease)
+    const taggedReleases = releases.filter(r =>
+      regexFilter.test(releases.tagName)
+    )
+
+    return sortReleasesByTime(taggedReleases)[0]
   } catch (e) {
     console.error(e)
 

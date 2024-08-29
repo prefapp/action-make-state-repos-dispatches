@@ -101,7 +101,7 @@ async function getLatestTaggedRelease(payload, octokit) {
 
     const releases = response.data.filter(r => !r.prerelease)
 
-    return await getMostRecentTaggedRelease(payload.tag, releases)
+    return await getHighestSemVerTaggedRelease(payload.tag, releases)
   } catch (e) {
     console.error(e)
 
@@ -109,7 +109,7 @@ async function getLatestTaggedRelease(payload, octokit) {
   }
 }
 
-async function getMostRecentTaggedRelease(tag_filter, releases) {
+async function getHighestSemVerTaggedRelease(tag_filter, releases) {
   let mostRecentReleaseData = null
   const [_, filterMajor, filterMinor, filterPatch] = _resolveSemver(tag_filter)
 
@@ -121,10 +121,14 @@ async function getMostRecentTaggedRelease(tag_filter, releases) {
       currentRelease.tag_name
     )
 
-    if (!releaseMajor || !releaseMinor || !releasePatch) continue
-    if (filterMajor !== releaseMajor) continue
-    if (filterMinor && filterMinor !== releaseMinor) continue
-    if (filterPatch && filterPatch !== releasePatch) continue
+    if (
+      !releaseMajor || !releaseMinor || !releasePatch ||
+      (filterMajor !== releaseMajor) ||
+      (filterMinor && filterMinor !== releaseMinor) ||
+      (filterPatch && filterPatch !== releasePatch)
+    ) {
+      continue
+    }
 
     if (
       mostRecentReleaseData === null ||

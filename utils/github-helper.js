@@ -9,16 +9,12 @@ const _payloadCtx = {
 
 const _token = core.getInput('token', true)
 const _octokit = github.getOctokit(_token)
+const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/
 
-function _calculateTagRegex(tag) {
-  let regexAsString = tag
-  const nOfDots = tag.split('.').length()
-
-  for (let i = 0; i < 2 - nOfDots; i++) {
-    regexAsString = `${regexAsString}\\..+`
-  }
-
-  return new RegExp(regexAsString)
+function _resolveSemver(version) {
+  return version.match(regex).map(value => {
+    if (value) return value.replace('.', '')
+  })
 }
 
 function getInput(inputName, isRequired = false) {
@@ -85,8 +81,7 @@ async function getLatestRelease(payload) {
     const octokit = getOctokit()
 
     if (payload.tag) {
-      return await getLatestTagRelease(payload, octokit)
-      // return await octokit.rest.repos.getReleaseByTag(payload)
+      return await getLatestTaggedRelease(payload, octokit)
     } else {
       return await octokit.rest.repos.getLatestRelease(payload)
     }
@@ -97,24 +92,57 @@ async function getLatestRelease(payload) {
   }
 }
 
-async function getLatestTagRelease(payload, octokit) {
+async function getLatestTaggedRelease(payload, octokit) {
   try {
-    const regexFilter = _calculateTagRegex(payload.tag)
     const response = await octokit.rest.repos.listReleases({
       owner: payload.owner,
       repo: payload.repo
     })
-    const releases = response.data.filter(r => !r.prerelease)
-    const taggedReleases = releases.filter(r =>
-      regexFilter.test(releases.tagName)
-    )
 
-    return sortReleasesByTime(taggedReleases)[0]
+    const releases = response.data.filter(r => !r.prerelease)
+
+    return await getMostRecentTaggedRelease(payload.tag, releases)
   } catch (e) {
     console.error(e)
 
     throw new Error(`Error getting latest release for ${payload}`)
   }
+}
+
+async function getMostRecentTaggedRelease(tag_filter, releases) {
+  let mostRecentReleaseData = null
+  const [_, filterMajor, filterMinor, filterPatch] = _resolveSemver(tag_filter)
+
+  if (!filterMajor)
+    throw new Error(`Major does not exist for ${tag_filter} filter`)
+
+  for (const currentRelease of releases) {
+    const [__, releaseMajor, releaseMinor, releasePatch] = _resolveSemver(
+      currentRelease.tag_name
+    )
+
+    if (!releaseMajor || !releaseMinor || !releasePatch) continue
+    if (filterMajor !== releaseMajor) continue
+    if (filterMinor && filterMinor !== releaseMinor) continue
+    if (filterPatch && filterPatch !== releasePatch) continue
+
+    if (
+      mostRecentReleaseData === null ||
+      (releaseMinor >= mostRecentReleaseData.minor &&
+        releasePatch > mostRecentReleaseData.patch)
+    ) {
+      mostRecentReleaseData = {
+        release: currentRelease,
+        minor: releaseMinor,
+        patch: releasePatch
+      }
+    }
+  }
+
+  if (mostRecentReleaseData === null)
+    throw new Error(`No release matched filter ${tag_filter}`)
+
+  return mostRecentReleaseData.release
 }
 
 async function getLatestPrerelease(payload) {

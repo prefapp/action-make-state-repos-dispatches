@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.0...v1.8.1) (2024-08-30)
+
+
+### Bug Fixes
+
+* remove docker inspect ([#51](https://github.com/prefapp/action-make-state-repos-dispatches/issues/51)) ([80dacd9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/80dacd9dde204e8bd6938a9ec2ea069e4faa83ca))
+
 ## [1.8.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.7.0...v1.8.0) (2024-08-20)
 
 ### Features

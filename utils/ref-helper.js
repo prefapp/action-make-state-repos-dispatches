@@ -13,8 +13,10 @@ async function getLatestRef(version, gitController, shortSha = true) {
 
       break
     default:
-      if (version.match(/^\$latest_release_/)) {
-        ref = await __last_release_by_tag(version, gitController)
+      if (version.match(/^\$highest_semver_release_/)) {
+        ref = await __highest_semver_release(version, gitController)
+      } else if (version.match(/^\$highest_semver_prerelease_/)) {
+        ref = await __highest_semver_prerelease(version, gitController)
       } else {
         if (version.match(/^\$branch_/)) {
           ref = await __last_branch_commit(version, gitController, shortSha)
@@ -42,10 +44,10 @@ async function __last_release(gitController) {
   }
 }
 
-async function __last_release_by_tag(release, gitController) {
+async function __highest_semver_release(release, gitController) {
   try {
     const payload = gitController.getPayloadContext()
-    payload.tag = release.replace(/^\$latest_release_/, '')
+    payload.tag = release.replace(/^\$highest_semver_release_/, '')
 
     const latestReleaseResponse = await gitController.getLatestRelease(payload)
     return latestReleaseResponse.data.tag_name
@@ -59,6 +61,21 @@ async function __last_prerelease(gitController) {
     const latestPrerelease = await gitController.getLatestPrerelease(
       gitController.getPayloadContext()
     )
+
+    if (latestPrerelease) return latestPrerelease.tag_name
+
+    return null
+  } catch (err) {
+    throw new Error(`calculating last pre-release: ${err}`)
+  }
+}
+
+async function __highest_semver_prerelease(prerelease, gitController) {
+  try {
+    const payload = gitController.getPayloadContext()
+    payload.tag = prerelease.replace(/^\$highest_semver_prerelease_/, '')
+
+    const latestPrerelease = await gitController.getLatestPrerelease(payload)
 
     if (latestPrerelease) return latestPrerelease.tag_name
 

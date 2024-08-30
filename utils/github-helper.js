@@ -1,6 +1,7 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
 const debug = require('debug')('make-state-repos-dispatches')
+const semver = require('semver')
 
 const _payloadCtx = {
   owner: github.context.payload.repository.owner.login,
@@ -9,6 +10,17 @@ const _payloadCtx = {
 
 const _token = core.getInput('token', true)
 const _octokit = github.getOctokit(_token)
+const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/
+
+function _resolveSemver(version) {
+  try {
+    return version.match(regex).map(value => {
+      if (value) return value.replaceAll('.', '')
+    })
+  } catch (e) {
+    throw new Error(`${version} could not be parsed as a SemVer filter`)
+  }
+}
 
 function getInput(inputName, isRequired = false) {
   return core.getInput(inputName, { required: isRequired })
@@ -74,7 +86,7 @@ async function getLatestRelease(payload) {
     const octokit = getOctokit()
 
     if (payload.tag) {
-      return await octokit.rest.repos.getReleaseByTag(payload)
+      return await getLatestTaggedRelease(payload, octokit)
     } else {
       return await octokit.rest.repos.getLatestRelease(payload)
     }
@@ -85,15 +97,71 @@ async function getLatestRelease(payload) {
   }
 }
 
+async function getLatestTaggedRelease(payload, octokit) {
+  try {
+    const response = await octokit.rest.repos.listReleases({
+      owner: payload.owner,
+      repo: payload.repo
+    })
+
+    const releases = response.data.filter(r => !r.prerelease)
+
+    return await getHighestSemVerTaggedRelease(payload.tag, releases)
+  } catch (e) {
+    console.error(e)
+
+    throw new Error(`Error getting latest release for ${payload}`)
+  }
+}
+
+async function getHighestSemVerTaggedRelease(tag_filter, releases) {
+  const [_, filterMajor, filterMinor, filterPatch] = _resolveSemver(tag_filter)
+
+  let highestSemverRelease = null
+  for (const currentRelease of releases) {
+    const [__, releaseMajor, releaseMinor, releasePatch] = _resolveSemver(
+      currentRelease.tag_name
+    )
+
+    if (
+      !releaseMajor ||
+      !releaseMinor ||
+      !releasePatch ||
+      filterMajor !== releaseMajor ||
+      (filterMinor && filterMinor !== releaseMinor) ||
+      (filterPatch && filterPatch !== releasePatch)
+    ) {
+      continue
+    }
+
+    if (
+      highestSemverRelease === null ||
+      semver.gte(currentRelease.tag_name, highestSemverRelease.tag_name)
+    )
+      highestSemverRelease = currentRelease
+  }
+
+  if (highestSemverRelease === null)
+    throw new Error(`No release matched filter ${tag_filter}`)
+
+  return highestSemverRelease
+}
+
 async function getLatestPrerelease(payload) {
   try {
     const octokit = getOctokit()
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
-    return sortReleasesByTime(
+    const sortedPrereleases = sortReleasesByTime(
       listReleasesResponse.data.filter(r => r.prerelease)
-    )[0]
+    )
+
+    if (payload.tag) {
+      return await getHighestSemVerTaggedRelease(payload.tag, sortedPrereleases)
+    } else {
+      return sortedPrereleases[0]
+    }
   } catch (e) {
     console.error(e)
 
@@ -258,5 +326,7 @@ module.exports = {
   handleError,
   handleFailure,
   getAllInputs,
-  getSummaryDataForRef
+  getSummaryDataForRef,
+  getHighestSemVerTaggedRelease,
+  _resolveSemver // Exported for testing purpouses
 }

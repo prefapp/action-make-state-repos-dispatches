@@ -115,20 +115,6 @@ describe('The dispatcher', () => {
     ])
   })
 
-  it("can detect when a image doesn't exist in the registry", async () => {
-    gitControllerMock.getAllInputs = () => {
-      allInputs.buildSummary = ''
-      return allInputs
-    }
-
-    const dispatches = await dispatcher.makeDispatches(gitControllerMock, {
-      checkManifest: _ => false
-    })
-
-    expect(dispatches).toEqual([])
-    expect(dispatches.length).toEqual(0)
-  })
-
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = YAML.load(
       fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')

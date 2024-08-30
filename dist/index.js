@@ -31625,7 +31625,7 @@ function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
 
-async function makeDispatches(gitController, imageHelper) {
+async function makeDispatches(gitController) {
   const summaryTable = [
     [
       { data: 'State repository', header: true },
@@ -31741,10 +31741,7 @@ async function makeDispatches(gitController, imageHelper) {
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 
-        const imageExists = imageHelper.checkManifest(data.image)
-        const dispatchStatus = imageExists
-          ? '✔ Dispatching'
-          : '❌ Error: Image not found in registry'
+        const dispatchStatus = '✔ Dispatching'
 
         updateSummaryTable(
           data,
@@ -31752,11 +31749,6 @@ async function makeDispatches(gitController, imageHelper) {
           `${payloadCtx.owner}/${stateRepoName}`,
           summaryTable
         )
-
-        if (!imageExists) {
-          gitController.handleError(`Image ${data.image} not found in registry`)
-          continue
-        }
 
         gitController.handleNotice(
           `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`
@@ -31892,43 +31884,17 @@ module.exports = {
 
 const githubUtils = __nccwpck_require__(8382)
 const dispatcher = __nccwpck_require__(8921)
-const dockerHelper = __nccwpck_require__(5812)
 
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
-  await dispatcher.makeDispatches(githubUtils, dockerHelper)
+  await dispatcher.makeDispatches(githubUtils)
 }
 
 module.exports = {
   run
-}
-
-
-/***/ }),
-
-/***/ 5812:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const { execSync } = __nccwpck_require__(2081)
-
-function checkManifest(image) {
-  try {
-    // Execute the command
-    execSync(`docker manifest inspect ${image}`, { stdio: 'ignore' })
-
-    // If the command succeeds (exit code 0), return true
-    return true
-  } catch (error) {
-    // If the command fails (non-zero exit code), return false
-    return false
-  }
-}
-
-module.exports = {
-  checkManifest
 }
 
 
@@ -32335,14 +32301,6 @@ module.exports = require("async_hooks");
 
 "use strict";
 module.exports = require("buffer");
-
-/***/ }),
-
-/***/ 2081:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("child_process");
 
 /***/ }),
 

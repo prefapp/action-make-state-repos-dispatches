@@ -8,7 +8,7 @@ function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
 
-async function makeDispatches(gitController, imageHelper) {
+async function makeDispatches(gitController) {
   const summaryTable = [
     [
       { data: 'State repository', header: true },
@@ -124,10 +124,7 @@ async function makeDispatches(gitController, imageHelper) {
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 
-        const imageExists = imageHelper.checkManifest(data.image)
-        const dispatchStatus = imageExists
-          ? '✔ Dispatching'
-          : '❌ Error: Image not found in registry'
+        const dispatchStatus = '✔ Dispatching'
 
         updateSummaryTable(
           data,
@@ -135,11 +132,6 @@ async function makeDispatches(gitController, imageHelper) {
           `${payloadCtx.owner}/${stateRepoName}`,
           summaryTable
         )
-
-        if (!imageExists) {
-          gitController.handleError(`Image ${data.image} not found in registry`)
-          continue
-        }
 
         gitController.handleNotice(
           `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`

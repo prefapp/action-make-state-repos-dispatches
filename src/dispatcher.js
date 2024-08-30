@@ -8,7 +8,7 @@ function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
 
-async function makeDispatches(gitController, imageHelper) {
+async function makeDispatches(gitController) {
   const summaryTable = [
     [
       { data: 'State repository', header: true },

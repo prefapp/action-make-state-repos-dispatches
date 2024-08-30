@@ -110,9 +110,21 @@ jest.mock('@actions/github', () => ({
             } else {
               return {
                 data: [
-                  { prerelease: true, created_at: '2024-03-11' },
-                  { prerelease: true, created_at: '2024-07-11' },
-                  { prerelease: false, created_at: '2024-07-15' }
+                  {
+                    prerelease: true,
+                    created_at: '2024-03-11',
+                    tag_name: 'v1.2.3'
+                  },
+                  {
+                    prerelease: true,
+                    created_at: '2024-07-11',
+                    tag_name: 'v2.3.4'
+                  },
+                  {
+                    prerelease: false,
+                    created_at: '2024-07-15',
+                    tag_name: 'v3.4.5'
+                  }
                 ]
               }
             }
@@ -182,8 +194,104 @@ describe('github-helper', () => {
     const latestRelease = await ghHelper.getLatestRelease({})
     expect(latestRelease).toEqual('got-latest-release')
 
-    const releaseByTag = await ghHelper.getLatestRelease({ tag: 'tag' })
-    expect(releaseByTag).toEqual('got-release-by-tag')
+    const tag = 'v3.4.5'
+    const releaseByTag = await ghHelper.getLatestRelease({ tag })
+    expect(releaseByTag.tag_name).toEqual(tag)
+  })
+
+  it("correctly resolves SemVer's major, minor and patch values", async () => {
+    const sv123 = '1.2.3'
+    const [sv123Full, sv123Major, sv123Minor, sv123Patch] =
+      ghHelper._resolveSemver(sv123)
+
+    expect(sv123Full).toEqual('123')
+    expect(sv123Major).toEqual('1')
+    expect(sv123Minor).toEqual('2')
+    expect(sv123Patch).toEqual('3')
+
+    const sv456 = 'tagged_version_4.5.6'
+    const [sv456Full, sv456Major, sv456Minor, sv456Patch] =
+      ghHelper._resolveSemver(sv456)
+
+    expect(sv456Full).toEqual('456')
+    expect(sv456Major).toEqual('4')
+    expect(sv456Minor).toEqual('5')
+    expect(sv456Patch).toEqual('6')
+
+    const sv789 = 'leftText-7.8.9-rightText'
+    const [sv789Full, sv789Major, sv789Minor, sv789Patch] =
+      ghHelper._resolveSemver(sv789)
+
+    expect(sv789Full).toEqual('789')
+    expect(sv789Major).toEqual('7')
+    expect(sv789Minor).toEqual('8')
+    expect(sv789Patch).toEqual('9')
+
+    const svAll = '0.1.2.3.4.5.6.7.8.9'
+    const [svAllFull, svAllMajor, svAllMinor, svAllPatch] =
+      ghHelper._resolveSemver(svAll)
+
+    expect(svAllFull).toEqual('012')
+    expect(svAllMajor).toEqual('0')
+    expect(svAllMinor).toEqual('1')
+    expect(svAllPatch).toEqual('2')
+  })
+
+  it('can filter SemVer tagged releases', async () => {
+    const releases = [
+      { tag_name: 'v2.0.0-rc5' },
+      { tag_name: 'v2.0.0' },
+      { tag_name: 'v3.0.0-rc3' },
+      { tag_name: 'v3.0.0-rc2' },
+      { tag_name: 'v2.9.6' },
+      { tag_name: 'v2.9.20' },
+      { tag_name: 'v2.5.4' }
+    ]
+
+    const onlyMajorVersion = 'v2'
+    const onlyMajorVersionResult = await ghHelper.getHighestSemVerTaggedRelease(
+      onlyMajorVersion,
+      releases
+    )
+    expect(onlyMajorVersionResult.tag_name).toEqual('v2.9.20')
+
+    const upToMinorVersion = 'v2.5'
+    const upToMinorVersionResult = await ghHelper.getHighestSemVerTaggedRelease(
+      upToMinorVersion,
+      releases
+    )
+    expect(upToMinorVersionResult.tag_name).toEqual('v2.5.4')
+
+    const upToPatchVersion = 'v2.9.6'
+    const upToPatchVersionResult = await ghHelper.getHighestSemVerTaggedRelease(
+      upToPatchVersion,
+      releases
+    )
+    expect(upToPatchVersionResult.tag_name).toEqual('v2.9.6')
+
+    const beyondPatchVersion = 'v3.0.0'
+    const beyondPatchVersionResult =
+      await ghHelper.getHighestSemVerTaggedRelease(beyondPatchVersion, releases)
+    expect(beyondPatchVersionResult.tag_name).toEqual('v3.0.0-rc3')
+
+    const rcIsLowerVersion = 'v2.0.0'
+    const rcIsLowerVersionResult = await ghHelper.getHighestSemVerTaggedRelease(
+      rcIsLowerVersion,
+      releases
+    )
+    expect(rcIsLowerVersionResult.tag_name).toEqual('v2.0.0')
+  })
+
+  it("throws an error when no matching release is found or the filter doesn't have a major number", async () => {
+    const incorrectTag = 'abcdefg'
+    await expect(
+      ghHelper.getHighestSemVerTaggedRelease(incorrectTag, [])
+    ).rejects.toThrow(`${incorrectTag} could not be parsed as a SemVer filter`)
+
+    const tag = 'v2'
+    await expect(
+      ghHelper.getHighestSemVerTaggedRelease(tag, [])
+    ).rejects.toThrow(`No release matched filter ${tag}`)
   })
 
   it('can catch and throw a custom error when getting releases', async () => {
@@ -198,9 +306,13 @@ describe('github-helper', () => {
     )
   })
 
-  it('can get the latest prerelease', async () => {
+  it('can get the latest prerelease, with and without tags', async () => {
     const latestPrerelease = await ghHelper.getLatestPrerelease({})
     expect(latestPrerelease.created_at).toEqual('2024-07-11')
+
+    const tag = 'v1.2.3'
+    const prereleaseByTag = await ghHelper.getLatestPrerelease({ tag })
+    expect(prereleaseByTag.tag_name).toEqual(tag)
   })
 
   it('can catch and throw a custom error when getting prereleases', async () => {

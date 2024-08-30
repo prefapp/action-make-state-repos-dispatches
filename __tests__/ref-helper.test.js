@@ -10,8 +10,8 @@ const gitControllerMock = {
   getLatestRelease: payload => {
     return { data: { tag_name: `release_tag${payload.tag || ''}` } }
   },
-  getLatestPrerelease: _ => {
-    return { tag_name: 'prerelease_tag' }
+  getLatestPrerelease: payload => {
+    return { tag_name: `prerelease_tag${payload.tag || ''}` }
   },
   getLastBranchCommit: (_, short) => {
     const sha = '0123456789'
@@ -36,7 +36,7 @@ describe('The ref helper', () => {
 
   it('can get the latest release of a specific tag', async () => {
     const ref = await refHelper.getLatestRef(
-      '$latest_release_v1.2.3',
+      '$highest_semver_release_v1.2.3',
       gitControllerMock
     )
 
@@ -50,6 +50,15 @@ describe('The ref helper', () => {
     )
 
     expect(ref).toEqual('prerelease_tag')
+  })
+
+  it('can get the latest prerelease of a specific tag', async () => {
+    const ref = await refHelper.getLatestRef(
+      '$highest_semver_prerelease_v3.2.1',
+      gitControllerMock
+    )
+
+    expect(ref).toEqual('prerelease_tagv3.2.1')
   })
 
   it('can get the latest branch commit sha', async () => {
@@ -79,28 +88,44 @@ describe('The ref helper', () => {
   it('returns null when no prerelease is found', async () => {
     gitControllerMock.getLatestPrerelease = _ => false
 
-    const ref = await refHelper.getLatestRef(
+    const latestRef = await refHelper.getLatestRef(
       '$latest_prerelease',
       gitControllerMock
     )
 
-    expect(ref).toEqual(null)
+    expect(latestRef).toEqual(null)
+
+    const highestSemVerRef = await refHelper.getLatestRef(
+      '$highest_semver_prerelease_v3.2.1',
+      gitControllerMock
+    )
+
+    expect(latestRef).toEqual(null)
   })
 
   it('throws a controlled error when any of the refs cannot be found', async () => {
     await expect(refHelper.getLatestRef('$latest_release', {})).rejects.toThrow(
       'calculating last release: TypeError: gitController.getPayloadContext is not a function'
     )
+
     await expect(
-      refHelper.getLatestRef('$latest_release_v1.2.3', {})
+      refHelper.getLatestRef('$highest_semver_release_v1.2.3', {})
     ).rejects.toThrow(
       'calculating last release: TypeError: gitController.getPayloadContext is not a function'
     )
+
     await expect(
       refHelper.getLatestRef('$latest_prerelease', {})
     ).rejects.toThrow(
       'calculating last pre-release: TypeError: gitController.getPayloadContext is not a function'
     )
+
+    await expect(
+      refHelper.getLatestRef('$highest_semver_prerelease_v1.2.3', {})
+    ).rejects.toThrow(
+      'calculating last pre-release: TypeError: gitController.getPayloadContext is not a function'
+    )
+
     await expect(refHelper.getLatestRef('$branch_test', {})).rejects.toThrow(
       'calculating last commit on branch $branch_test: TypeError: gitController.getPayloadContext is not a function'
     )

@@ -1,7 +1,7 @@
 {
   "name": "javascript-action",
   "description": "GitHub Actions JavaScript Template",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "author": "",
   "private": true,
   "homepage": "https://github.com/actions/javascript-action#readme",

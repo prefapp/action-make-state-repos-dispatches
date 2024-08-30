@@ -124,6 +124,8 @@ async function makeDispatches(gitController) {
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
 
+        const dispatchStatus = '✔ Dispatching'
+
         updateSummaryTable(
           data,
           dispatchStatus,

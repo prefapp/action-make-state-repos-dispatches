@@ -7,7 +7,7 @@ const dockerHelper = require('../utils/docker-helper')
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
-  await dispatcher.makeDispatches(githubUtils, dockerHelper)
+  await dispatcher.makeDispatches(githubUtils)
 }
 
 module.exports = {

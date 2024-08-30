@@ -1,6 +1,5 @@
 const githubUtils = require('../utils/github-helper')
 const dispatcher = require('./dispatcher')
-const dockerHelper = require('../utils/docker-helper')
 
 /**
  * The main function for the action.

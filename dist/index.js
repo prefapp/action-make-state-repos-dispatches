@@ -31882,7 +31882,6 @@ module.exports = {
 
 const githubUtils = __nccwpck_require__(8382)
 const dispatcher = __nccwpck_require__(8921)
-const dockerHelper = __nccwpck_require__(9037)
 
 /**
  * The main function for the action.
@@ -32275,14 +32274,6 @@ function parseFile(fileContent, encoding = '') {
 module.exports = {
   parseFile
 }
-
-
-/***/ }),
-
-/***/ 9037:
-/***/ ((module) => {
-
-module.exports = eval("require")("../utils/docker-helper");
 
 
 /***/ }),

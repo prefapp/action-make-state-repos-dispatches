@@ -9,7 +9,6 @@ jest.mock('../src/dispatcher', () => ({
   makeDispatches: jest.fn()
 }))
 jest.mock('../utils/github-helper', () => ({}))
-jest.mock('../utils/docker-helper', () => ({}))
 
 describe('main', () => {
   it('calls makeDispatches when imported', async () => {

@@ -2,16 +2,17 @@
 
 ## [1.9.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.1...v1.9.0) (2024-08-30)
 
-
 ### Features
 
-* Added highest_semver_[prerelease/release]_[tag] filter ([ca5e208](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ca5e2080e95040dc9eed90d7691f57b62268c665))
-* Added tests and final filter functionality ([6cd2780](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6cd2780cdbf0ea3716306a9116e91e9e71d79e44))
-
+- Added highest*semver*[prerelease/release]\_[tag] filter
+  ([ca5e208](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ca5e2080e95040dc9eed90d7691f57b62268c665))
+- Added tests and final filter functionality
+  ([6cd2780](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6cd2780cdbf0ea3716306a9116e91e9e71d79e44))
 
 ### Bug Fixes
 
-* Merge errors ([12ea281](https://github.com/prefapp/action-make-state-repos-dispatches/commit/12ea2812b586946bbc2f15f27a6d14ac8cd39778))
+- Merge errors
+  ([12ea281](https://github.com/prefapp/action-make-state-repos-dispatches/commit/12ea2812b586946bbc2f15f27a6d14ac8cd39778))
 
 ## [1.8.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.0...v1.8.1) (2024-08-30)
 

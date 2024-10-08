@@ -120,6 +120,11 @@ async function makeDispatches(gitController) {
               (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
+        if (!imageData)
+          throw new Error(
+            `Build summary not found for flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+          )
+
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
         data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
@@ -198,17 +203,23 @@ function createDispatchList(
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {
-  const ref = await refHelper.getLatestRef(version, gitController, false)
-  const summaryData = await gitController.getSummaryDataForRef(
-    ref,
-    checkRunName
-  )
+  try {
+    const ref = await refHelper.getLatestRef(version, gitController, false)
+    const summaryData = await gitController.getSummaryDataForRef(
+      ref,
+      checkRunName
+    )
 
-  const buildSummary = summaryData.summary
-    .replace('```yaml', '')
-    .replace('```', '')
+    const buildSummary = summaryData.summary
+      .replace('```yaml', '')
+      .replace('```', '')
 
-  return textHelper.parseFile(buildSummary)
+    return textHelper.parseFile(buildSummary)
+  } catch (err) {
+    throw new Error(
+      `Error while getting the latest build summary: ${err.message}`
+    )
+  }
 }
 
 function isDispatchValid(

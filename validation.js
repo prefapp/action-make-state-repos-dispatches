@@ -24,4 +24,3 @@ if (valid) {
   console.error('Validation error:', validate.errors)
   process.exit(1)
 }
-

@@ -3,7 +3,10 @@ const path = require('path')
 const yaml = require('js-yaml')
 const Ajv = require('ajv')
 
-const yamlFilePath = path.join( __dirname,  '/fixtures/github/make_dispatches.yaml')
+const yamlFilePath = path.join(
+  __dirname, 
+  '/fixtures/github/make_dispatches.yaml'
+)
 const yamlContent = fs.readFileSync(yamlFilePath, 'utf8')
 const yamlData = yaml.load(yamlContent)
 

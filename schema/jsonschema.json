@@ -24,19 +24,22 @@
               "type": "object",
               "properties": {
                 "repo": {
-                  "type": "string",
-                  "minLength": 1
+                  "type": "string"
+                },
+                "dispatch_event_type": {
+                  "type": "string"
+                },
+                "base_path": {
+                  "type": "string"
                 },
                 "tenant": {
-                  "type": ["string", "null"]
+                  "type": "string"
                 },
                 "application": {
-                  "type": "string",
-                  "minLength": 1
+                  "type": "string"
                 },
                 "env": {
-                  "type": "string",
-                  "minLength": 1
+                  "type": "string"
                 },
                 "service_names": {
                   "type": "array",
@@ -45,17 +48,15 @@
                   },
                   "minItems": 1
                 },
+                "registry": {
+                  "type": "string"
+                },
+                "image_repository": {
+                  "type": "string"
+                },
                 "version": {
                   "type": "string",
-                  "minLength": 1
-                },
-                "registry": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "dispatch_event_type": {
-                  "type": "string",
-                  "default": "dispatch-image"
+                  "pattern": "^\\$branch_dev|\\$latest_release|\\$latest_prerelease|<release tag>|<commit-sha>$"
                 }
               },
               "required": [
@@ -65,17 +66,13 @@
                 "env",
                 "service_names",
                 "version"
-              ],
-              "additionalProperties": true
-            },
-            "minItems": 1
+              ]
+            }
           }
         },
-        "required": ["type", "flavors", "state_repos"],
-        "additionalProperties": false
+        "required": ["type", "flavors", "state_repos"]
       }
     }
   },
-  "required": ["dispatches"],
-  "additionalProperties": false
+  "required": ["dispatches"]
 }

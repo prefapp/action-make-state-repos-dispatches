@@ -41,9 +41,14 @@ describe('Yaml validation against Json schema', () => {
 
   test('should fail if a required field is missing in Yaml', () => {
     const yamlWithoutRequiredField = {
-      requiredField,
-      ...yamlWithoutRequiredField
-    }
+      ...yamlData,
+      dispatches: yamlData.dispatches.map(dispatch =>({
+        ...dispatch,
+        state_repos: dispatch.state_repos.map(repo =>{
+          const { repo: removedRepo, ...rest} = repo;
+        })
+      }))
+    };
 
     const valid = validate(yamlWithoutRequiredField)
     expect(valid).toBe(false)

@@ -44,7 +44,7 @@ dispatches:
       - flavor2
     state_repos:
       - repo: my_state2
-        tenant:
+        tenant: mytenant2
         application: myapp1
         env: pre
         service_names: ['controller']

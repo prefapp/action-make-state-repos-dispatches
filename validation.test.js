@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const yaml = require('js-yaml')
+const yaml = require('yaml')
 const Ajv = require('ajv')
 
 describe('Yaml validation against Json schema', () => {
@@ -11,7 +11,7 @@ describe('Yaml validation against Json schema', () => {
   beforeAll (() => {
     const yamlFilePath = path.join(__dirname, '/fixtures/github/make_dispatches.yaml');
     const yamlConten = fs.readFileSync(yamlFilePath, 'utf8');
-    yamlData = yaml.load(yamlConten);
+    yamlData = yaml.parse(yamlConten);
 
     const schemaFilePath = path.join(__dirname, '/schema/jsonschema.json');
     schema = JSON.parse(fs.readFileSync(schemaFilePath, 'utf8'));
@@ -29,9 +29,17 @@ describe('Yaml validation against Json schema', () => {
 });
 
   test('should fail if Yaml data does not match the schema', () => {
-    const invalidYamlData = {...yamlData, extraField: 'invalid'};
+    const invalidYamlData = {...yamlData, extraField: 'invalid'} ;
 
     const valid = validate(invalidYamlData);
+    expect(valid).toBe(false);
+    expect(validate.errors).toBeDefined();
+  });
+
+  test ('should fail if a required field is missing in Yaml', () => {
+    const yamlWithoutRequiredField = { requiredField, ...yamlWithoutRequiredField };
+
+    const valid = validate(yamlWithoutRequiredField);
     expect(valid).toBe(false);
     expect(validate.errors).toBeDefined();
   });

@@ -56,7 +56,7 @@
                 },
                 "version": {
                   "type": "string",
-                  "pattern": "^\\$branch_dev|\\$latest_release|\\$latest_prerelease|<release tag>|<commit-sha>$"
+                  "pattern": "((\\$latest_release)|(\\$latest_prerelease))|(((\\$highest_semver_)|(\\$branch_))[a-z0-9]+)"
                 }
               },
               "required": [

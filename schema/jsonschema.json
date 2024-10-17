@@ -16,7 +16,8 @@
             "items": {
               "type": "string"
             },
-            "minItems": 1
+            "minItems": 1,
+            "additionalProperties": false
           },
           "state_repos": {
             "type": "array",
@@ -46,7 +47,8 @@
                   "items": {
                     "type": "string"
                   },
-                  "minItems": 1
+                  "minItems": 1,
+                  "additionalProperties": false
                 },
                 "registry": {
                   "type": "string"
@@ -56,7 +58,7 @@
                 },
                 "version": {
                   "type": "string",
-                  "pattern": "((\\$latest_release)|(\\$latest_prerelease))|(((\\$highest_semver_)|(\\$branch_))[a-z0-9]+)"
+                  "pattern": "^(\\$latest_release|(\\$latest_prerelease)|(\\$highest_semver))|((\\$branch_)|(\\$latest_release_)|(\\$latest_prerelease_)|(\\$highest_semver_)?([a-z0-9 _.-])+$)"
                 }
               },
               "required": [
@@ -66,13 +68,16 @@
                 "env",
                 "service_names",
                 "version"
-              ]
+              ],
+              "additionalProperties": false
             }
           }
         },
-        "required": ["type", "flavors", "state_repos"]
+        "required": ["type", "flavors", "state_repos"],
+        "additionalProperties": false
       }
     }
   },
-  "required": ["dispatches"]
+  "required": ["dispatches"],
+  "additionalProperties": false
 }

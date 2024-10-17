@@ -13,8 +13,7 @@ dispatches:
         service_names: ['controller'] # (mandatory)
         registry: my_registry_address # (OPTIONAL: if not specified uses org SNAPSHOTS or org RELEASES registry)
         image_repository: my-image #OPTIONAL: default to ${{ github.repository }}
-        version: $branch_dev | $latest_release | $latest_prerelease | <release
-          tag> | <commit-sha> # (mandatory)
+        version: v.1.8.9 # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)
 
       - repo: my-state-repo2
         registry: my_registry_address
@@ -22,8 +21,7 @@ dispatches:
         application: my-app2
         env: pre
         service_names: ['controller']
-        version: $branch_dev | $latest_release | $latest_prerelease | <release
-          tag> | <commit-sha> # (mandatory)
+        version: $branch_dev # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
 
   # frontends
   - type: releases
@@ -36,8 +34,7 @@ dispatches:
         application: myapp1
         env: dev
         service_names: ['controller']
-        version: $branch_dev | $latest_release | $latest_prerelease | <release
-          tag> | <commit-sha> # (mandatory)
+        version: $latest_prerelease # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
 
   - type: releases
     flavors:
@@ -48,5 +45,4 @@ dispatches:
         application: myapp1
         env: pre
         service_names: ['controller']
-        version: $branch_main | $latest_release | $latest_prerelease | <release
-          tag> | <commit-sha> # (mandatory)
+        version: $branch_main #  $branch_main | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)

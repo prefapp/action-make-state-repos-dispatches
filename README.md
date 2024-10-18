@@ -30,7 +30,7 @@ The action takes the following inputs:
 `overwrite_version` and `dispatches_file.flavor.version` both accept a special set of keywords, which will be expanded during the make dispatches process. The accepted values are:
 
 - `$latest_release`: the latest avaliable release
-- `$latest_prerelease`: the latest avaliable prerelease
+- `$latest_prerelease`: the latest available pre-release, by **date of creation**.
 - `$highest_semver_release_[semver]`: the release with the **highest** [semver] digits available. See [semver precedence according Semver definition](https://semver.org/#spec-item-11): 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.  It could be used with `major` or `major.minor` digits, for example: `$highest_semver_release_v1`.
 - `$highest_semver_prerelease_[semver]`: the prerelease with the highest [semver] avaliable
 - `$branch_[branch_name]`: the latest avaliable image associated to [branch_name]

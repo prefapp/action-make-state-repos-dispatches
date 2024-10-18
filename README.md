@@ -11,7 +11,7 @@ The action takes the following inputs:
 - `dispatches_file`: path to the `make_dispatches.yaml` in *your code repo*. Usually, and by default, `.github/make_dispatches.yaml`.
 - `token`: a Github token, with `repo` permissions over both the code and state repos. It's **mandatory** to pass a PAT token of an user or GitHub app with the needed permission in both repositories.
 - `image_type`: image type to dispatch. Can be any of `releases`, `snapshots` or `\*`, meaning *all* (default).
-- `flavors`: list of flavor names, as defined in the `dispatches_file`. Can be a single flavor or a list of comma separated flavors. By default, `default`.
+- `flavors`: list of flavor names, as defined in the `dispatches_file`. Can be a single flavor or a list of comma separated flavors. By default, the flavor `default` is used.
 - `state_repo`: list of specific state repos to which to dispatch. Can be a single state repo name, a list of comma separated state repo names or `\*`, meaning *all* (default). These state repos must still be defined within the `dispatches_file`, i.e. this parameter works as a filter and won't make dispatches to "unknown" repositories.
 - `filter_by_env`: list of specific enviroments to which to dispatch. Can be a single environment name, a list of comma separated environment names or `\*`, meaning *all* (default). Since this parameter is a filter, the environment names must be one of those defined within the `dispatches_file`.
 - `filter_by_tenant`: list of specific tenants to which to dispatch. Can be a single tenant name, a list of comma separated tenant names or `\*`, meaning *all* (default). Since this parameter is a filter, the tenant names must be one of those defined within the `dispatches_file`.

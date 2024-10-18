@@ -34,7 +34,7 @@ dispatches:
         application: myapp1
         env: dev
         service_names: ['controller']
-        version: $latest_prerelease # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
+        version: $latest_prerelease_vX.Y # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
 
   - type: releases
     flavors:
@@ -45,4 +45,4 @@ dispatches:
         application: myapp1
         env: pre
         service_names: ['controller']
-        version: $branch_main #  $branch_main | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)
+        version: $highest_semver_vZ.Z #  $branch_main | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)

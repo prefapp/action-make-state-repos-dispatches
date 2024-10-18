@@ -2,7 +2,7 @@
 
 # Inputs and configuration
 
-This action dispatches changes made in a claims repo to one or more state repos. That is, when a change is made in a code repo, this action can be called to update the configurations of all related state repos by creating a PR with the relevant changes in each of them. In our case this usually means updating the `images.yaml` with a newly built image
+This action dispatches Docker images changes made in a code repository to one or more helm state repositories. That is, when a new image is generated in a code repository, this action can be called to update the configurations of all related state repositories by creating a pull request with the changes in each of them. In our case this usually means updating the `images.yaml` with a newly built image
 
 ## Inputs
 

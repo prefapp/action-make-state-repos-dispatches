@@ -32,7 +32,7 @@ The action takes the following inputs:
 - `$latest_release`: the latest available release, configured in the GitHub repository. See [Get the latest release](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release) in the GitHub API.
 - `$latest_prerelease`: the latest available pre-release, by **date of creation**.
 - `$highest_semver_release_[semver]`: the release with the **highest** [semver] digits available. See [semver precedence according Semver definition](https://semver.org/#spec-item-11): 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.  It could be used with `major` or `major.minor` digits, for example: `$highest_semver_release_v1`.
-- `$highest_semver_prerelease_[semver]`: the prerelease with the highest [semver] avaliable
+- `$highest_semver_prerelease_[semver]`: the pre-release with the highest [semver] digits available, according with [Semver precedence definition](https://semver.org/#spec-item-11), i.e.  1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
 - `$branch_[branch_name]`: the latest avaliable image associated to [branch_name]
 - Any commit SHA (both short and long) or tag: the latest avaliable image associated to the input
 

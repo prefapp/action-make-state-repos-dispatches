@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.9.0...v1.10.0) (2024-10-18)
+
+
+### Features
+
+* Compiled app and added tests ([c30602c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c30602cff5c5bbc61356d447ca44017cea4ecf93))
+
+
+### Bug Fixes
+
+* Added clearer errors ([67a5191](https://github.com/prefapp/action-make-state-repos-dispatches/commit/67a51918d0997941c8dfc3919d4dac566e74d4ca))
+
 ## [1.9.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.1...v1.9.0) (2024-08-30)
 
 ### Features

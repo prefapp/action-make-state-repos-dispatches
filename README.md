@@ -34,7 +34,7 @@ The action takes the following inputs:
 - `$highest_semver_release_[semver]`: the release with the **highest** [semver] digits available. See [semver precedence according Semver definition](https://semver.org/#spec-item-11): 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.  It could be used with `major` or `major.minor` digits, for example: `$highest_semver_release_v1`.
 - `$highest_semver_prerelease_[semver]`: the pre-release with the highest [semver] digits available, according with [Semver precedence definition](https://semver.org/#spec-item-11), i.e.  1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
 - `$branch_[branch_name]`: the image associated with the **latest commit** in the [branch_name] pattern, for example: `$branch_develop`, `$branch_main`...
-- Any commit SHA (both short and long) or tag: the latest avaliable image associated to the input
+- Any commit SHA (both **short** and **long** are supported) or **git tag**: the latest available image associated with the SHA commit or de-referenced commit from the git tag.
 
 
 # Developing and contributing

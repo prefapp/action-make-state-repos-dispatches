@@ -115,6 +115,33 @@ describe('The dispatcher', () => {
     ])
   })
 
+  it('returns undefined when no data for the current build is found (the error is captured)', async () => {
+    gitControllerMock.getAllInputs = () => {
+      allInputs.buildSummary = '[{}]'
+      return allInputs
+    }
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+  })
+
+  it('returns undefined when no build summary is found (the error is captured)', async () => {
+    gitControllerMock.getSummaryDataForRef = (ref, checkRunName) => {
+      throw new Error('No build summary found mock')
+    }
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+  })
+
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = YAML.load(
       fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')

@@ -62,7 +62,6 @@ async function makeDispatches(gitController) {
         dispatchesFileContent,
         'base64'
       )
-      debug('Dispatches file content', dispatchesData)
     }
 
     let getBuildSummaryData = async version =>

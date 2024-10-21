@@ -58,10 +58,7 @@ async function makeDispatches(gitController) {
       debug('Dispatches file content (validated)', dispatchesData)
     } catch (validationError) {
       debug('Validation failed, using basic parsing', validationError.message)
-      const dispatchesData = textHelper.parseFile(
-        dispatchesFileContent,
-        'base64'
-      )
+      dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
     }
 
     let getBuildSummaryData = async version =>

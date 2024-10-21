@@ -53,14 +53,15 @@ async function makeDispatches(gitController) {
     )
 
     let dispatchesData
-    try{
-
+    try {
       dispatchesData = configHelper.configParse(dispatchesFileContent, 'base64')
       debug('Dispatches file content (validated)', dispatchesData)
-    }catch (validationError){
-
+    } catch (validationError) {
       debug('Validation failed, using basic parsing', validationError.message)
-      const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
+      const dispatchesData = textHelper.parseFile(
+        dispatchesFileContent,
+        'base64'
+      )
       debug('Dispatches file content', dispatchesData)
     }
 

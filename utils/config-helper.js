@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv')
 
-function ConfigParse(fileContent, encoding = '') {
+function configParse(fileContent, encoding = '') {
   try {
     if (encoding) {
       fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
@@ -31,5 +31,5 @@ function ConfigParse(fileContent, encoding = '') {
 }
 
 module.exports = {
-  ConfigParse
+  configParse
 }

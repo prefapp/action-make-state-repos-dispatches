@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const yaml = require('yaml')
-const { ConfigParse } = require('./utils/validate')
+const { configParse } = require('./utils/config-helper')
 
 describe('Yaml validation against Json schema', () => {
   let yamlFilePath
@@ -13,7 +13,7 @@ describe('Yaml validation against Json schema', () => {
     schemaFilePath = path.join(__dirname, 'schema/jsonschema.json')
 
     const yamlContent = fs.readFileSync(yamlFilePath, 'utf8')
-    yamlData = ConfigParse(yamlContent)
+    yamlData = configParse(yamlContent)
   })
 
   test('should validate Yaml successfully against the Json Schema', () => {
@@ -28,7 +28,7 @@ describe('Yaml validation against Json schema', () => {
 
     invalidYamlData.dispatches[0].extraField = 'invalid'
 
-    expect(() => ConfigParse(yaml.stringify(invalidYamlData))).toThrow()
+    expect(() => configParse(yaml.stringify(invalidYamlData))).toThrow()
   })
 
   test('should fail if a required field is missing in Yaml', () => {
@@ -44,7 +44,7 @@ describe('Yaml validation against Json schema', () => {
       })
 
     expect(() =>
-      ConfigParse(yaml.stringify(yamlWithoutRequiredField))
+      configParse(yaml.stringify(yamlWithoutRequiredField))
     ).toThrow()
   })
 })

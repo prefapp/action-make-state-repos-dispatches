@@ -52,14 +52,11 @@ async function makeDispatches(gitController) {
       gitController
     )
 
-    let dispatchesData
-    try {
-      dispatchesData = configHelper.configParse(dispatchesFileContent, 'base64')
-      debug('Dispatches file content (validated)', dispatchesData)
-    } catch (validationError) {
-      debug('Validation failed, using basic parsing', validationError.message)
-      dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
-    }
+    let dispatchesData = configHelper.configParse(
+      dispatchesFileContent,
+      'base64'
+    )
+    debug('Dispatches file content (validated)', dispatchesData)
 
     let getBuildSummaryData = async version =>
       await getLatestBuildSummary(version, gitController, checkRunName)

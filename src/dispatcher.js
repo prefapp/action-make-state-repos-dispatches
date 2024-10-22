@@ -52,7 +52,7 @@ async function makeDispatches(gitController) {
       gitController
     )
 
-    let dispatchesData = configHelper.configParse(
+    const dispatchesData = configHelper.configParse(
       dispatchesFileContent,
       'base64'
     )

@@ -3,6 +3,7 @@ const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
 const fs = require('fs')
 const minimatch = require('minimatch')
+const configHelper = require('../utils/config-helper')
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -50,8 +51,12 @@ async function makeDispatches(gitController) {
       dispatchesFilePath,
       gitController
     )
-    const dispatchesData = textHelper.parseFile(dispatchesFileContent, 'base64')
-    debug('Dispatches file content', dispatchesData)
+
+    const dispatchesData = configHelper.configParse(
+      dispatchesFileContent,
+      'base64'
+    )
+    debug('Dispatches file content (validated)', dispatchesData)
 
     let getBuildSummaryData = async version =>
       await getLatestBuildSummary(version, gitController, checkRunName)

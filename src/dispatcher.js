@@ -190,7 +190,7 @@ function createDispatchList(
   return dispatches.flatMap(({ type, flavors, state_repos }) =>
     flavors.flatMap(flavor =>
       state_repos.flatMap(({ service_names, ...state_repo }) => {
-        return service_names.map(service_name => ({
+        return {
           type,
           flavor,
           state_repo,
@@ -198,10 +198,10 @@ function createDispatchList(
           tenant: tenantOverride || state_repo.tenant,
           app: state_repo.application,
           env: envOverride || state_repo.env,
-          service_name,
+          service_names,
           reviewers: reviewersList,
           base_folder: state_repo.base_path || ''
-        }))
+        }
       })
     )
   )

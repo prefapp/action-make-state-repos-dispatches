@@ -41684,7 +41684,7 @@ function updateSummaryTable(
     dispatch.tenant,
     dispatch.app,
     dispatch.env,
-    dispatch.service_name,
+    dispatch.service_name_list,
     dispatch.image,
     dispatch.reviewers.join(', '),
     dispatch.base_path || '',

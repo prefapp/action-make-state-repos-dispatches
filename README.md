@@ -2,40 +2,95 @@
 
 # Inputs and configuration
 
-This action dispatches Docker images changes made in a code repository to one or more helm state repositories. That is, when a new image is generated in a code repository, this action can be called to update the configurations of all related state repositories by creating a pull request with the changes in each of them. In our case this usually means updating the `images.yaml` with a newly built image
+This action dispatches Docker images changes made in a code repository to one or
+more helm state repositories. That is, when a new image is generated in a code
+repository, this action can be called to update the configurations of all
+related state repositories by creating a pull request with the changes in each
+of them. In our case this usually means updating the `images.yaml` with a newly
+built image
 
 ## Inputs
 
 The action takes the following inputs:
 
-- `dispatches_file`: path to the `make_dispatches.yaml` in *your code repo*. Usually, and by default, `.github/make_dispatches.yaml`.
-- `token`: a Github token, with `repo` permissions over both the code and state repos. It's **mandatory** to pass a PAT token of an user or GitHub app with the needed permission in both repositories.
-- `image_type`: image type to dispatch. Can be any of `releases`, `snapshots` or `*`, meaning *all* (default).
-- `flavors`: list of flavor names, as defined in the `dispatches_file`. Can be a single flavor or a list of comma separated flavors. By default, the flavor `default` is used.
-- `state_repo`: list of specific state repos to which to dispatch. Can be a single state repo name, a list of comma separated state repo names or `*`, meaning *all* (default). These state repositories must still be defined within the `dispatches_file`, i.e. this parameter works as a filter and won't make dispatches to "unknown" repositories.
-- `filter_by_env`: list of specific environments to which to dispatch. Can be a single environment name, a list of comma separated environment names or `*`, meaning *all* (default). Since this parameter is a filter, the environment names must be one of those defined within the `dispatches_file`.
-- `filter_by_tenant`: list of specific tenants to which to dispatch. Can be a single tenant name, a list of comma separated tenant names or `*`, meaning *all* (default). Since this parameter is a filter, the tenant names must be one of those defined within the `dispatches_file`.
-- `overwrite_version`: use this version instead of the one specified in the `dispatches_file`. Meaning, for each flavor to dispatch, instead of using its defined `version` parameter, this will be used instead. Can be a string of any value, so invalid versions are not checked for. This parameter accepts special keywords, see *Special version keywords* below.
-- `overwrite_env`: use this environment instead of the one specified in the `dispatches_file`. Meaning, for each flavor to dispatch, instead of using its defined `environment` parameter, this will be used instead. Can be a string of any value, so invalid environments are not checked for.
-- `overwrite_tenant`: use this tenant instead of the one specified in the `dispatches_file`. Meaning, for each flavor to dispatch, instead of using its defined `tenant` parameter, this will be used instead. Can be a string of any value, so invalid tenants are not checked for.
-- `default_releases_registry`: the registry to use for `release` type dispatches when no registry has been specified. Can be a string of any value, so invalid registries are not checked for.
-- `default_snapshots_registry`: the registry to use for `snapshots` type dispatches when no registry has been specified. Can be a string of any value, so invalid registries are not checked for.
-- `reviewers`: list of reviewers to add to the newly created state repo pull request. Can be a single Github username, a list of Github usernames or an empty string (default). Invalid or nonexistent usernames are not checked for.
-- `build_summary`: *contents* of the `build_summary.yaml` file outputted by the `build_images` workflow. If left blank (default), it will be automatically calculated by the workflow. See its documentation for more information.
-- `check_run_name`: name of the workflow check run where `build_summary` was uploaded. See the `build_images` documentation for more information.
-
+- `dispatches_file`: path to the `make_dispatches.yaml` in _your code repo_.
+  Usually, and by default, `.github/make_dispatches.yaml`.
+- `token`: a Github token, with `repo` permissions over both the code and state
+  repos. It's **mandatory** to pass a PAT token of an user or GitHub app with
+  the needed permission in both repositories.
+- `image_type`: image type to dispatch. Can be any of `releases`, `snapshots` or
+  `*`, meaning _all_ (default).
+- `flavors`: list of flavor names, as defined in the `dispatches_file`. Can be a
+  single flavor or a list of comma separated flavors. By default, the flavor
+  `default` is used.
+- `state_repo`: list of specific state repos to which to dispatch. Can be a
+  single state repo name, a list of comma separated state repo names or `*`,
+  meaning _all_ (default). These state repositories must still be defined within
+  the `dispatches_file`, i.e. this parameter works as a filter and won't make
+  dispatches to "unknown" repositories.
+- `filter_by_env`: list of specific environments to which to dispatch. Can be a
+  single environment name, a list of comma separated environment names or `*`,
+  meaning _all_ (default). Since this parameter is a filter, the environment
+  names must be one of those defined within the `dispatches_file`.
+- `filter_by_tenant`: list of specific tenants to which to dispatch. Can be a
+  single tenant name, a list of comma separated tenant names or `*`, meaning
+  _all_ (default). Since this parameter is a filter, the tenant names must be
+  one of those defined within the `dispatches_file`.
+- `overwrite_version`: use this version instead of the one specified in the
+  `dispatches_file`. Meaning, for each flavor to dispatch, instead of using its
+  defined `version` parameter, this will be used instead. Can be a string of any
+  value, so invalid versions are not checked for. This parameter accepts special
+  keywords, see _Special version keywords_ below.
+- `overwrite_env`: use this environment instead of the one specified in the
+  `dispatches_file`. Meaning, for each flavor to dispatch, instead of using its
+  defined `environment` parameter, this will be used instead. Can be a string of
+  any value, so invalid environments are not checked for.
+- `overwrite_tenant`: use this tenant instead of the one specified in the
+  `dispatches_file`. Meaning, for each flavor to dispatch, instead of using its
+  defined `tenant` parameter, this will be used instead. Can be a string of any
+  value, so invalid tenants are not checked for.
+- `default_releases_registry`: the registry to use for `release` type dispatches
+  when no registry has been specified. Can be a string of any value, so invalid
+  registries are not checked for.
+- `default_snapshots_registry`: the registry to use for `snapshots` type
+  dispatches when no registry has been specified. Can be a string of any value,
+  so invalid registries are not checked for.
+- `reviewers`: list of reviewers to add to the newly created state repo pull
+  request. Can be a single Github username, a list of Github usernames or an
+  empty string (default). Invalid or nonexistent usernames are not checked for.
+- `build_summary`: _contents_ of the `build_summary.yaml` file outputted by the
+  `build_images` workflow. If left blank (default), it will be automatically
+  calculated by the workflow. See its documentation for more information.
+- `check_run_name`: name of the workflow check run where `build_summary` was
+  uploaded. See the `build_images` documentation for more information.
 
 ## Special version keywords
 
-`overwrite_version` and `dispatches_file.flavor.version` both accept a special set of keywords, which will be expanded during the make dispatches process. The accepted values are:
+`overwrite_version` and `dispatches_file.flavor.version` both accept a special
+set of keywords, which will be expanded during the make dispatches process. The
+accepted values are:
 
-- `$latest_release`: the latest available release, configured in the GitHub repository. See [Get the latest release](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release) in the GitHub API.
-- `$latest_prerelease`: the latest available pre-release, by **date of creation**.
-- `$highest_semver_release_[semver]`: the release with the **highest** [semver] digits available. See [semver precedence according Semver definition](https://semver.org/#spec-item-11): 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.  It could be used with `major` or `major.minor` digits, for example: `$highest_semver_release_v1`.
-- `$highest_semver_prerelease_[semver]`: the pre-release with the highest [semver] digits available, according with [Semver precedence definition](https://semver.org/#spec-item-11), i.e.  1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
-- `$branch_[branch_name]`: the image associated with the **latest commit** in the [branch_name] pattern, for example: `$branch_develop`, `$branch_main`...
-- Any commit SHA (both **short** and **long** are supported) or **git tag**: the latest available image associated with the SHA commit or de-referenced commit from the git tag.
-
+- `$latest_release`: the latest available release, configured in the GitHub
+  repository. See
+  [Get the latest release](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release)
+  in the GitHub API.
+- `$latest_prerelease`: the latest available pre-release, by **date of
+  creation**.
+- `$highest_semver_release_[semver]`: the release with the **highest** [semver]
+  digits available. See
+  [semver precedence according Semver definition](https://semver.org/#spec-item-11):
+  1.0.0 < 2.0.0 < 2.1.0 < 2.1.1. It could be used with `major` or `major.minor`
+  digits, for example: `$highest_semver_release_v1`.
+- `$highest_semver_prerelease_[semver]`: the pre-release with the highest
+  [semver] digits available, according with
+  [Semver precedence definition](https://semver.org/#spec-item-11), i.e.
+  1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-alpha.beta < 1.0.0-beta < 1.0.0-beta.2 <
+  1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+- `$branch_[branch_name]`: the image associated with the **latest commit** in
+  the [branch_name] pattern, for example: `$branch_develop`, `$branch_main`...
+- Any commit SHA (both **short** and **long** are supported) or **git tag**: the
+  latest available image associated with the SHA commit or de-referenced commit
+  from the git tag.
 
 # Developing and contributing
 

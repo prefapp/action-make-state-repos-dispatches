@@ -2,22 +2,24 @@
 
 ## [1.11.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.10.0...v1.11.0) (2024-10-22)
 
-
 ### Features
 
-* merge pull request [#64](https://github.com/prefapp/action-make-state-repos-dispatches/issues/64) from prefapp/added-json-schema-validation ([a401a51](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a401a519df84ee34a11f3e55af2953e0d93d294d))
+- merge pull request
+  [#64](https://github.com/prefapp/action-make-state-repos-dispatches/issues/64)
+  from prefapp/added-json-schema-validation
+  ([a401a51](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a401a519df84ee34a11f3e55af2953e0d93d294d))
 
 ## [1.10.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.9.0...v1.10.0) (2024-10-18)
 
-
 ### Features
 
-* Compiled app and added tests ([c30602c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c30602cff5c5bbc61356d447ca44017cea4ecf93))
-
+- Compiled app and added tests
+  ([c30602c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c30602cff5c5bbc61356d447ca44017cea4ecf93))
 
 ### Bug Fixes
 
-* Added clearer errors ([67a5191](https://github.com/prefapp/action-make-state-repos-dispatches/commit/67a51918d0997941c8dfc3919d4dac566e74d4ca))
+- Added clearer errors
+  ([67a5191](https://github.com/prefapp/action-make-state-repos-dispatches/commit/67a51918d0997941c8dfc3919d4dac566e74d4ca))
 
 ## [1.9.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.1...v1.9.0) (2024-08-30)
 

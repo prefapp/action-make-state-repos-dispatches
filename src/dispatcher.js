@@ -258,7 +258,7 @@ function updateSummaryTable(
     dispatch.tenant,
     dispatch.app,
     dispatch.env,
-    dispatch.service_name_list,
+    dispatch.service_name_list.join(', '),
     dispatch.image,
     dispatch.reviewers.join(', '),
     dispatch.base_path || '',

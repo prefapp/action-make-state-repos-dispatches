@@ -74,7 +74,7 @@ const imageHelperMock = {
 
 describe('The dispatcher', () => {
   it('can make dispatches', async () => {
-    const dispatchesExpectedLengths = [1, 12, 2, 1]
+    const dispatchesExpectedLengths = [1, 4, 1, 1]
 
     const dispatches = await dispatcher.makeDispatches(
       gitControllerMock,
@@ -93,7 +93,7 @@ describe('The dispatcher', () => {
   })
 
   it('can make dispatches without a build summary', async () => {
-    const dispatchesExpectedLengths = [1, 12, 2, 1]
+    const dispatchesExpectedLengths = [1, 4, 1, 1]
     gitControllerMock.getAllInputs = () => {
       allInputs.buildSummary = ''
       return allInputs
@@ -149,7 +149,7 @@ describe('The dispatcher', () => {
 
     const result = dispatcher.createDispatchList(dispatches.dispatches, [])
 
-    expect(result.length).toEqual(16)
+    expect(result.length).toEqual(7)
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
@@ -165,7 +165,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
-      service_name: 'service1',
+      service_name_list: ['service1'],
       reviewers: [],
       base_folder: ''
     })

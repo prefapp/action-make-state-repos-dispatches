@@ -198,7 +198,7 @@ function createDispatchList(
           tenant: tenantOverride || state_repo.tenant,
           app: state_repo.application,
           env: envOverride || state_repo.env,
-          service_names,
+          service_name_list: service_names,
           reviewers: reviewersList,
           base_folder: state_repo.base_path || ''
         }

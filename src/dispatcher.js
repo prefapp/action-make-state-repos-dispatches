@@ -144,7 +144,7 @@ async function makeDispatches(gitController) {
         )
 
         gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`
+          `Dispatching image ${data.image} to state repo ${stateRepoName} for services ${data.service_name_list.join(', ')}`
         )
 
         data.message = dispatchStatus
@@ -190,7 +190,7 @@ function createDispatchList(
   return dispatches.flatMap(({ type, flavors, state_repos }) =>
     flavors.flatMap(flavor =>
       state_repos.flatMap(({ service_names, ...state_repo }) => {
-        return service_names.map(service_name => ({
+        return {
           type,
           flavor,
           state_repo,
@@ -198,10 +198,10 @@ function createDispatchList(
           tenant: tenantOverride || state_repo.tenant,
           app: state_repo.application,
           env: envOverride || state_repo.env,
-          service_name,
+          service_name_list: service_names,
           reviewers: reviewersList,
           base_folder: state_repo.base_path || ''
-        }))
+        }
       })
     )
   )
@@ -258,7 +258,7 @@ function updateSummaryTable(
     dispatch.tenant,
     dispatch.app,
     dispatch.env,
-    dispatch.service_name,
+    dispatch.service_name_list.join(', '),
     dispatch.image,
     dispatch.reviewers.join(', '),
     dispatch.base_path || '',

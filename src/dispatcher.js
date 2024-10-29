@@ -144,7 +144,7 @@ async function makeDispatches(gitController) {
         )
 
         gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} for service ${data.service_name}`
+          `Dispatching image ${data.image} to state repo ${stateRepoName} for services ${data.service_name_list.join(', ')}`
         )
 
         data.message = dispatchStatus

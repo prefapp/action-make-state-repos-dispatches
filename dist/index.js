@@ -40107,6 +40107,7 @@ async function makeDispatches(gitController) {
     const dispatchList = createDispatchList(
       dispatchesData.dispatches,
       reviewersList,
+      payloadCtx.repo,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -40205,6 +40206,7 @@ async function getDispatchesFileContent(filePath, gitController) {
 function createDispatchList(
   dispatches,
   reviewersList,
+  repo,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
@@ -40221,6 +40223,7 @@ function createDispatchList(
           app: state_repo.application,
           env: envOverride || state_repo.env,
           service_name_list: service_names,
+          repository_caller: repo,
           reviewers: reviewersList,
           base_folder: state_repo.base_path || ''
         }

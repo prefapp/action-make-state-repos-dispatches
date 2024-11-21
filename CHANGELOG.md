@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v2.0.0...v2.0.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* add repo to payload ([#70](https://github.com/prefapp/action-make-state-repos-dispatches/issues/70)) ([60817f9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/60817f9ad771c5ee5defd101bf4dc6461c47473a))
+
 ## [2.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.11.0...v2.0.0) (2024-10-29)
 
 ### ⚠ BREAKING CHANGES

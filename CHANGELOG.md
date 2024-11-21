@@ -2,14 +2,18 @@
 
 ## [2.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.11.0...v2.0.0) (2024-10-29)
 
-
 ### ⚠ BREAKING CHANGES
 
-* Updated action so it works with new input of the update state repo images action ([#68](https://github.com/prefapp/action-make-state-repos-dispatches/issues/68))
+- Updated action so it works with new input of the update state repo images
+  action
+  ([#68](https://github.com/prefapp/action-make-state-repos-dispatches/issues/68))
 
 ### Features
 
-* Updated action so it works with new input of the update state repo images action ([#68](https://github.com/prefapp/action-make-state-repos-dispatches/issues/68)) ([43641b1](https://github.com/prefapp/action-make-state-repos-dispatches/commit/43641b131eeaab49c5c083cf220f2e67ec80190b))
+- Updated action so it works with new input of the update state repo images
+  action
+  ([#68](https://github.com/prefapp/action-make-state-repos-dispatches/issues/68))
+  ([43641b1](https://github.com/prefapp/action-make-state-repos-dispatches/commit/43641b131eeaab49c5c083cf220f2e67ec80190b))
 
 ## [1.11.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.10.0...v1.11.0) (2024-10-22)
 

@@ -29,7 +29,7 @@ async function makeDispatches(gitController) {
     debug('Parsing action inputs')
 
     const {
-      dispatchesFilePath,
+      firestartrFolderPath,
       imageType,
       stateRepoFilter,
       defaultReleasesRegistry,
@@ -45,6 +45,10 @@ async function makeDispatches(gitController) {
       checkRunName
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
+
+    const dispatchesFilePath = `${firestartrFolderPath}/make_dispatches.yaml`
+    const appsConfigFolderPath = `${firestartrFolderPath}/apps`
+    const clustersConfigFolderPath = `${firestartrFolderPath}/clusters`
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent = await getDispatchesFileContent(
@@ -83,7 +87,7 @@ async function makeDispatches(gitController) {
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
     const dispatchList = createDispatchList(
-      dispatchesData.dispatches,
+      dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
       overwriteVersion,
@@ -182,32 +186,30 @@ async function getDispatchesFileContent(filePath, gitController) {
 }
 
 function createDispatchList(
-  dispatches,
+  deployments,
   reviewersList,
   repo,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
 ) {
-  return dispatches.flatMap(({ type, flavors, state_repos }) =>
-    flavors.flatMap(flavor =>
-      state_repos.flatMap(({ service_names, ...state_repo }) => {
-        return {
-          type,
-          flavor,
-          state_repo,
-          version: versionOverride || state_repo.version,
-          tenant: tenantOverride || state_repo.tenant,
-          app: state_repo.application,
-          env: envOverride || state_repo.env,
-          service_name_list: service_names,
-          repository_caller: repo,
-          reviewers: reviewersList,
-          base_folder: state_repo.base_path || ''
-        }
-      })
-    )
-  )
+  const dispatchList = []
+
+  for (const deployment of deployments) {
+    dispatchList.push({
+      type: deployment.type,
+      flavor: deployment.flavor,
+      version: versionOverride || deployment.version,
+      tenant: tenantOverride || deployment.tenant,
+      app: deployment.application,
+      env: envOverride || deployment.env,
+      service_name_list: deployment.service_names || [],
+      repository_caller: repo,
+      reviewers: reviewersList
+    })
+  }
+
+  return dispatchList
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {

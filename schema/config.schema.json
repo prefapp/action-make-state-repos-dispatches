@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "deployments": {
+      "type": "array",
+      "items": {
+          "type": "object",
+          "properties": {
+            "dispatch_event_type": {
+              "type": "string"
+            },
+            "tenant": {
+              "type": "string"
+            },
+            "cluster": {
+              "type": "string"
+            },
+            "env": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "flavor": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^(\\$latest_release|(\\$latest_prerelease)|(\\$highest_semver))|((\\$branch_)|(\\$latest_release_)|(\\$latest_prerelease_)|(\\$highest_semver_)?([a-z0-9 _.-])+$)"
+            }
+            "application": {
+              "type": "string"
+            },
+            "service_names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "additionalProperties": false
+            },
+          },
+          "required": [
+            "tenant",
+            "cluster",
+            "env",
+            "type",
+            "application",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "required": ["type", "flavors", "state_repos"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["dispatches"],
+  "additionalProperties": false
+}

@@ -19,7 +19,7 @@
     "image_repo": "my-org/my-repo",
     "image_tag": "v1.1.0-pre",
     "image_type": "snapshots",
-    "registry": "registry1",
+    "registry": "default_registry_snap",
     "repository": "service/my-org/my-repo",
     "version": "version1"
   },
@@ -75,7 +75,7 @@
     "image_repo": "my-org/my-repo",
     "image_tag": "v1.1.0-pro",
     "image_type": "releases",
-    "registry": "registry1",
+    "registry": "default_registry_rel",
     "repository": "service/my-org/my-repo",
     "version": "version-releases1"
   },

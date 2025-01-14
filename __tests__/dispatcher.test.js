@@ -5,7 +5,10 @@ const YAML = require('js-yaml')
 const path = require('path')
 
 const allInputs = {
-  dispatchesFilePath: path.join(__dirname, '../fixtures/dispatches_file.yaml'),
+  dispatchesFilePath: path.join(
+    __dirname,
+    '../fixtures/github/dispatches_file.yaml'
+  ),
   appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
   clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
   imageType: '*',

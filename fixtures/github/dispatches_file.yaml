@@ -1,59 +1,61 @@
-dispatches:
-  - type: snapshots
-    flavors:
-      - flavor1
-    state_repos:
-      - repo: repo1
-        tenant: tenant1
-        application: application1
-        env: env1
-        service_names: ['service1']
-        version: version1
-        registry: registry1
+deployments:
+  - tenant: tenant1
+    cluster: cluster1
+    env: env1
+    type: snapshots
+    flavor: flavor1
+    version: version1
+    application: application1
 
-  - type: snapshots
-    flavors:
-      - flavor2
-      - flavor3
-    state_repos:
-      - repo: repo23
-        tenant: tenant23
-        application: application23
-        env: env23
-        service_names: ['service2', 'service3', 'service23']
-        version: version23
+  - tenant: tenant23
+    cluster: cluster23
+    env: env23
+    type: snapshots
+    flavor: flavor2
+    version: version23
+    application: application23
+    service_names: ['service2', 'service23']
 
-  - type: snapshots
-    flavors:
-      - flavor4
-    state_repos:
-      - repo: repo4
-        tenant: tenant4
-        application: application4
-        env: env4
-        service_names: ['service4', 'service0']
-        version: version4
+  - tenant: tenant23
+    cluster: cluster23
+    env: env23
+    type: snapshots
+    flavor: flavor3
+    version: version23
+    application: application23
+    service_names: ['service3', 'service23']
 
-  - type: releases
-    flavors:
-      - flavor2
-      - flavor3
-    state_repos:
-      - repo: repo23
-        tenant: tenant23
-        application: application23
-        env: releases23
-        service_names: ['service2', 'service3', 'service23']
-        version: version23
+  - tenant: tenant4
+    cluster: cluster4
+    env: env4
+    type: snapshots
+    flavor: flavor4
+    version: version4
+    application: application4
+    service_names: ['service0']
 
-  - type: releases
-    flavors:
-      - flavor1
-    state_repos:
-      - repo: repo-releases1
-        tenant: tenant-releases1
-        application: application-releases1
-        env: env-releases1
-        service_names: ['service-releases1']
-        version: version-releases1
-        registry: registry1
+  - tenant: tenant23
+    cluster: cluster23
+    env: env23
+    type: releases
+    flavor: flavor2
+    version: version23
+    application: application23
+    service_names: ['service2', 'service23']
+
+  - tenant: tenant23
+    cluster: cluster23
+    env: env23
+    type: releases 
+    flavor: flavor3
+    version: version23
+    application: application23
+    service_names: ['service3', 'service23']
+
+  - tenant: tenant-releases1
+    cluster: cluster-releases1
+    env: env-releases1
+    type: releases 
+    flavor: flavor1
+    version: version-releases1
+    application: application-releases1

@@ -24,6 +24,25 @@ const allInputs = {
   overwriteTenant: '',
   reviewers: 'juanjosevazquezgil,test-reviewer'
 }
+const getAppConfig = folderPath => {
+  const appsConfig = {}
+  const configFileList = fs.readdirSync(folderPath)
+
+  for (const configFileName of configFileList) {
+    const configFileContent = fs.readFileSync(
+      path.join(folderPath, configFileName),
+      'utf-8'
+    )
+    const configData = YAML.load(configFileContent, 'utf8')
+
+    appsConfig[configData.name] = {
+      state_repo: configData.state_repo,
+      services: configData.services
+    }
+  }
+
+  return appsConfig
+}
 const gitControllerMock = {
   getInput: (input, required) => {
     return `${input}_value`
@@ -78,7 +97,7 @@ const imageHelperMock = {
 }
 
 describe('The dispatcher', () => {
-  it.only('can make dispatches', async () => {
+  it('can make dispatches', async () => {
     const dispatchesExpectedLengths = [1, 4, 1, 1]
 
     const dispatches = await dispatcher.makeDispatches(
@@ -93,7 +112,7 @@ describe('The dispatcher', () => {
     }
 
     expect(dispatches[0]).toEqual([
-      'registry1/service/my-org/my-repo:v1.1.0-pre published'
+      'default_registry_snap/service/my-org/my-repo:v1.1.0-pre published'
     ])
   })
 
@@ -116,7 +135,7 @@ describe('The dispatcher', () => {
     }
 
     expect(dispatches[0]).toEqual([
-      'registry1/service/my-org/my-repo:v1.1.0-pre published'
+      'default_registry_snap/service/my-org/my-repo:v1.1.0-pre published'
     ])
   })
 
@@ -151,18 +170,24 @@ describe('The dispatcher', () => {
     const dispatches = YAML.load(
       fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
     )
+    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
 
-    const result = dispatcher.createDispatchList(dispatches.dispatches, [])
+    const result = dispatcher.createDispatchList(
+      dispatches.deployments,
+      [],
+      '',
+      appConfig
+    )
 
     expect(result.length).toEqual(7)
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
       state_repo: {
-        repo: 'repo1',
+        repo: 'org/state-app-app1',
         tenant: 'tenant1',
         application: 'application1',
-        registry: 'registry1',
+        // registry: 'registry1',
         env: 'env1',
         version: 'version1'
       },
@@ -172,7 +197,7 @@ describe('The dispatcher', () => {
       env: 'env1',
       service_name_list: ['service1'],
       reviewers: [],
-      base_folder: ''
+      // base_folder: ''
     })
   })
 

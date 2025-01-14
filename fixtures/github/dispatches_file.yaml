@@ -25,15 +25,6 @@ deployments:
     application: application23
     service_names: ['service3', 'service23']
 
-  - tenant: tenant4
-    cluster: cluster4
-    env: env4
-    type: snapshots
-    flavor: flavor4
-    version: version4
-    application: application4
-    service_names: ['service0']
-
   - tenant: tenant23
     cluster: cluster23
     env: env23
@@ -51,6 +42,15 @@ deployments:
     version: version23
     application: application23
     service_names: ['service3', 'service23']
+
+  - tenant: tenant4
+    cluster: cluster4
+    env: env4
+    type: snapshots
+    flavor: flavor4
+    version: version4
+    application: application4
+    service_names: ['service0']
 
   - tenant: tenant-releases1
     cluster: cluster-releases1

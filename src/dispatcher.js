@@ -84,16 +84,17 @@ async function makeDispatches(gitController) {
     const tenantFilterList =
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
+    const appConfig = configHelper.getAppsConfig(appsFolderPath)
+    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
     const dispatchList = createDispatchList(
       dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
+      appConfig,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
     )
-    const appConfig = configHelper.getAppsConfig(appsFolderPath)
-    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
 
     const groupedDispatches = {}
     for (const data of dispatchList) {
@@ -188,6 +189,7 @@ function createDispatchList(
   deployments,
   reviewersList,
   repo,
+  appConfig,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
@@ -195,17 +197,27 @@ function createDispatchList(
   const dispatchList = []
 
   for (const deployment of deployments) {
-    dispatchList.push({
-      type: deployment.type,
-      flavor: deployment.flavor,
-      version: versionOverride || deployment.version,
-      tenant: tenantOverride || deployment.tenant,
-      app: deployment.application,
-      env: envOverride || deployment.env,
-      service_name_list: deployment.service_names || [],
-      repository_caller: repo,
-      reviewers: reviewersList
-    })
+    const stateRepo = appConfig[deployment.application].state_repo
+
+    for (const serviceData of appConfig[deployment.application].services) {
+      dispatchList.push({
+        type: deployment.type,
+        flavor: deployment.flavor,
+        version: versionOverride || deployment.version,
+        tenant: tenantOverride || deployment.tenant,
+        app: deployment.application,
+        env: envOverride || deployment.env,
+        service_name_list: serviceData.service_names || [],
+        state_repo: {
+          application: deployment.application,
+          env: envOverride || deployment.env,
+          repo: stateRepo,
+          tenant: tenantOverride || deployment.tenant,
+          version: versionOverride || deployment.version
+        },
+        reviewers: reviewersList
+      })
+    }
   }
 
   return dispatchList

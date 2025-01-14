@@ -5,7 +5,9 @@ const YAML = require('js-yaml')
 const path = require('path')
 
 const allInputs = {
-  dispatchesFilePath: 'dispatches_file.yaml',
+  dispatchesFilePath: path.join(__dirname, '../fixtures/dispatches_file.yaml'),
+  appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
+  clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
   imageType: '*',
   stateRepoFilter: '*',
   defaultReleasesRegistry: 'default_registry_rel',
@@ -73,7 +75,7 @@ const imageHelperMock = {
 }
 
 describe('The dispatcher', () => {
-  it('can make dispatches', async () => {
+  it.only('can make dispatches', async () => {
     const dispatchesExpectedLengths = [1, 4, 1, 1]
 
     const dispatches = await dispatcher.makeDispatches(

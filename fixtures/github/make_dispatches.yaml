@@ -1,48 +1,67 @@
-dispatches:
+deployments:
+  - tenant: mytenant1 # (mandatory)
+    cluster: mycluster1 # (mandatory)
+    env: dev # (mandatory)
+    type: snapshots # MANDATORY
+    flavor: default # (mandatory)
+    version: v.1.8.9 # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)
+    dispatch_event_type: 'dispatch-image' # (optional)
+    application: my-app # (mandatory)
+    service_names: ['controller'] # (optional)
+
+  - tenant: mytenant2 # (mandatory)
+    cluster: mycluster2 # (mandatory)
+    env: pre # (mandatory)
+    type: snapshots # MANDATORY
+    flavor: default # (mandatory)
+    version: $branch_dev # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
+    dispatch_event_type: 'dispatch-image' # (optional)
+    application: my-app2 # (mandatory)
+
   # APIS
-  - type: snapshots # MANDATORY
-    flavors: # MANDATORY
-      - default
-    state_repos: # MANDATORY
-      - repo: my-state-1 # (mandatory)
-        dispatch_event_type: 'dispatch-image' # (optional)
-        base_path: apps # (optional)
-        tenant: mytenant1 # (mandatory)
-        application: my-app # (mandatory)
-        env: dev # (mandatory)
-        service_names: ['controller'] # (mandatory)
-        registry: my_registry_address # (OPTIONAL: if not specified uses org SNAPSHOTS or org RELEASES registry)
-        image_repository: my-image #OPTIONAL: default to ${{ github.repository }}
-        version: v.1.8.9 # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)
+  # - type: snapshots # MANDATORY
+  #   flavors: # MANDATORY
+  #     - default
+  #   state_repos: # MANDATORY
+  #     - repo: my-state-1 # (mandatory)
+  #       dispatch_event_type: 'dispatch-image' # (optional)
+  #       base_path: apps # (optional)
+  #       tenant: mytenant1 # (mandatory)
+  #       application: my-app # (mandatory)
+  #       env: dev # (mandatory)
+  #       service_names: ['controller'] # (mandatory)
+  #       registry: my_registry_address # (OPTIONAL: if not specified uses org SNAPSHOTS or org RELEASES registry)
+  #       image_repository: my-image #OPTIONAL: default to ${{ github.repository }}
+  #       version: v.1.8.9 # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)
 
-      - repo: my-state-repo2
-        registry: my_registry_address
-        tenant: mytenant2
-        application: my-app2
-        env: pre
-        service_names: ['controller']
-        version: $branch_dev # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
+  #     - repo: my-state-repo2
+  #       registry: my_registry_address
+  #       tenant: mytenant2
+  #       application: my-app2
+  #       env: pre
+  #       service_names: ['controller']
+  #       version: $branch_dev # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
 
-  # frontends
-  - type: releases
-    flavors:
-      - flavor1
-    state_repos:
-      - repo: my_state_repo1
-        base_path: apps
-        tenant: mytenant1
-        application: myapp1
-        env: dev
-        service_names: ['controller']
-        version: $latest_prerelease_vX.Y # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
+  # # frontends
+  # - type: releases
+  #   flavors:
+  #     - flavor1
+  #   state_repos:
+  #     - repo: my_state_repo1
+  #       base_path: apps
+  #       tenant: mytenant1
+  #       application: myapp1
+  #       env: dev
+  #       service_names: ['controller']
+  #       version: $latest_prerelease_vX.Y # $branch_dev | $latest_release | $latest_prerelease | <release tag> | <commit-sha> (mandatory)
 
-  - type: releases
-    flavors:
-      - flavor2
-    state_repos:
-      - repo: my_state2
-        tenant: mytenant2
-        application: myapp1
-        env: pre
-        service_names: ['controller']
-        version: $highest_semver_vZ.Z #  $branch_main | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)
+  # - type: releases
+  #   flavors:
+  #     - flavor2
+  #   state_repos:
+  #     - repo: my_state2
+  #       tenant: mytenant2
+  #       application: myapp1
+  #       env: pre
+  #       service_names: ['controller']
+  #       version: $highest_semver_vZ.Z #  $branch_main | $latest_release | $latest_prerelease | <release tag> | <commit-sha>  (mandatory)

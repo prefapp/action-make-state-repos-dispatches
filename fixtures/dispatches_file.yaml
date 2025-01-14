@@ -1,12 +1,10 @@
-dispatches:
-  - type: snapshots
-    flavors:
-      - flavor99
-    state_repos:
-      - repo: repo99
-        tenant: tenant99
-        application: application99
-        env: env99
-        service_names: ['service99']
-        version: version99
-        registry: registry99
+deployments:
+  - tenant: tenant99
+    cluster: cluster99
+    env: env99
+    type: snapshots
+    flavor: flavor99
+    version: version99
+    application: application99
+    service_names: ['service99']
+    dispatch_event_type: 'dispatch-image' # (optional)

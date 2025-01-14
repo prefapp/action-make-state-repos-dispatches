@@ -155,7 +155,7 @@ describe('github-helper', () => {
     const result = ghHelper.getAllInputs()
 
     expect(result).toEqual({
-      dispatchesFilePath: 'dispatches_file-value',
+      firestartrFolderPath: 'firestartr_folder_path-value',
       imageType: 'image_type-value',
       stateRepoFilter: 'state_repo-value',
       defaultReleasesRegistry: 'default_releases_registry-value',

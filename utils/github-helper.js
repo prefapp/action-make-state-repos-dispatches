@@ -27,7 +27,11 @@ function getInput(inputName, isRequired = false) {
 }
 
 function getAllInputs() {
-  const firestartrFolderPath = core.getInput('firestartr_folder_path', {
+  const dispatchesFilePath = core.getInput('dispatches_file', {
+    required: true
+  })
+  const appsFolderPath = core.getInput('apps_folder', { required: true })
+  const clustersFolderPath = core.getInput('clusters_folder', {
     required: true
   })
   const imageType = core.getInput('image_type', { required: true })
@@ -50,7 +54,9 @@ function getAllInputs() {
   const checkRunName = core.getInput('check_run_name')
 
   return {
-    firestartrFolderPath,
+    dispatchesFilePath,
+    appsFolderPath,
+    clustersFolderPath,
     imageType,
     stateRepoFilter,
     defaultReleasesRegistry,

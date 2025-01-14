@@ -1,0 +1,3 @@
+name: myclusteraks1
+tenants: [tenant1, tenant2, tenant3]
+envs: [dev, pre]

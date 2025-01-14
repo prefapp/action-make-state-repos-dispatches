@@ -29,7 +29,9 @@ async function makeDispatches(gitController) {
     debug('Parsing action inputs')
 
     const {
-      firestartrFolderPath,
+      dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
       imageType,
       stateRepoFilter,
       defaultReleasesRegistry,
@@ -45,10 +47,6 @@ async function makeDispatches(gitController) {
       checkRunName
     } = gitController.getAllInputs()
     const payloadCtx = gitController.getPayloadContext()
-
-    const dispatchesFilePath = `${firestartrFolderPath}/make_dispatches.yaml`
-    const appsConfigFolderPath = `${firestartrFolderPath}/apps`
-    const clustersConfigFolderPath = `${firestartrFolderPath}/clusters`
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent = await getDispatchesFileContent(
@@ -94,6 +92,8 @@ async function makeDispatches(gitController) {
       overwriteTenant,
       overwriteEnv
     )
+    const appConfig = configHelper.getAppsConfig(appsFolderPath)
+    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
 
     const groupedDispatches = {}
     for (const data of dispatchList) {
@@ -111,7 +111,7 @@ async function makeDispatches(gitController) {
           data.version,
           gitController
         )
-        const stateRepoName = data.state_repo.repo
+        const stateRepoName = appConfig[data.app].state_repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
 
         debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
@@ -126,8 +126,7 @@ async function makeDispatches(gitController) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
-            entry.registry ===
-              (data.state_repo.registry || defaultRegistries[data.type])
+            entry.registry === defaultRegistries[data.type]
         )[0]
 
         if (!imageData)

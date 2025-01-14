@@ -1,5 +1,15 @@
 [
   {
+    "build_args": [],
+    "flavor": "flavor99",
+    "image_repo": "my-org/my-repo",
+    "image_tag": "version99",
+    "image_type": "snapshots",
+    "registry": "default_registry_snap",
+    "repository": "service/my-org/my-repo",
+    "version": "version99"
+  },
+  {
     "build_args": [
       {
         "BACKEND_URL": "https://example.com"

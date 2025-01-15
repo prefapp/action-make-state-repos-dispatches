@@ -1,0 +1,3 @@
+name: cluster23
+tenants: [tenant23]
+envs: [env23]

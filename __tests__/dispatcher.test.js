@@ -43,6 +43,25 @@ const getAppConfig = folderPath => {
 
   return appsConfig
 }
+const getClustersConfig = folderPath => {
+  const clustersConfig = {}
+  const configFileList = fs.readdirSync(folderPath)
+
+  for (const configFileName of configFileList) {
+    const configFileContent = fs.readFileSync(
+      path.join(folderPath, configFileName),
+      'utf-8'
+    )
+    const configData = YAML.load(configFileContent, 'utf8')
+
+    clustersConfig[configData.name] = {
+      tenants: configData.tenants,
+      envs: configData.envs
+    }
+  }
+
+  return clustersConfig
+}
 const gitControllerMock = {
   getInput: (input, required) => {
     return `${input}_value`
@@ -112,7 +131,7 @@ describe('The dispatcher', () => {
     }
 
     expect(dispatches[0]).toEqual([
-      'default_registry_snap/service/my-org/my-repo:v1.1.0-pre published'
+      'registry1/service/my-org/my-repo:v1.1.0-pre published'
     ])
   })
 
@@ -135,7 +154,7 @@ describe('The dispatcher', () => {
     }
 
     expect(dispatches[0]).toEqual([
-      'default_registry_snap/service/my-org/my-repo:v1.1.0-pre published'
+      'registry1/service/my-org/my-repo:v1.1.0-pre published'
     ])
   })
 
@@ -171,12 +190,14 @@ describe('The dispatcher', () => {
       fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
     )
     const appConfig = getAppConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
 
     const result = dispatcher.createDispatchList(
       dispatches.deployments,
       [],
-      '',
-      appConfig
+      'test-repo-caller',
+      appConfig,
+      clusterConfig
     )
 
     expect(result.length).toEqual(7)
@@ -187,7 +208,8 @@ describe('The dispatcher', () => {
         repo: 'org/state-app-app1',
         tenant: 'tenant1',
         application: 'application1',
-        // registry: 'registry1',
+        registry: 'registry1',
+        image_repository: 'repo1',
         env: 'env1',
         version: 'version1'
       },
@@ -197,8 +219,68 @@ describe('The dispatcher', () => {
       env: 'env1',
       service_name_list: ['service1'],
       reviewers: [],
-      // base_folder: ''
+      repository_caller: 'test-repo-caller',
+      base_folder: ''
     })
+    expect(result[3]).toEqual({
+      type: 'releases',
+      flavor: 'flavor2',
+      state_repo: {
+        repo: 'org/state-app-app23',
+        tenant: 'tenant23',
+        application: 'application23',
+        registry: 'registry23',
+        image_repository: 'repo23',
+        env: 'env23',
+        version: 'version23'
+      },
+      version: 'version23',
+      tenant: 'tenant23',
+      app: 'application23',
+      env: 'env23',
+      service_name_list: ['service2', 'service3', 'service23'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      base_folder: 'test_bpath'
+    })
+  })
+
+  it("correctly throws an error when a deployment doesn't match the cluster configuration", async () => {
+    const dispatches = YAML.load(
+      fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
+    )
+    const dispatchToTest = dispatches.deployments[0]
+    dispatches.deployments = [dispatchToTest]
+
+    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    clusterConfig[dispatchToTest.cluster].envs = ['another_env1']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatches.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${dispatchToTest.cluster} cluster configuration does not include ${dispatchToTest.env}`
+    )
+
+    clusterConfig[dispatchToTest.cluster].tenants = ['another_tenant1']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatches.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${dispatchToTest.cluster} cluster configuration does not include ${dispatchToTest.tenant}`
+    )
   })
 
   it('can filter by dispatch type', async () => {

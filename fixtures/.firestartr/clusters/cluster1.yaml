@@ -1,0 +1,3 @@
+name: cluster1
+tenants: [tenant1]
+envs: [env1]

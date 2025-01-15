@@ -91,6 +91,7 @@ async function makeDispatches(gitController) {
       reviewersList,
       payloadCtx.repo,
       appConfig,
+      clusterConfig,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -127,7 +128,8 @@ async function makeDispatches(gitController) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
-            entry.registry === defaultRegistries[data.type]
+            entry.registry ===
+              (data.state_repo.registry || defaultRegistries[data.type])
         )[0]
 
         if (!imageData)
@@ -190,6 +192,7 @@ function createDispatchList(
   reviewersList,
   repo,
   appConfig,
+  clusterConfig,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
@@ -197,6 +200,20 @@ function createDispatchList(
   const dispatchList = []
 
   for (const deployment of deployments) {
+    if (
+      !clusterConfig[deployment.cluster].tenants.includes(deployment.tenant)
+    ) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.cluster} cluster configuration does not include ${deployment.tenant}`
+      )
+    }
+
+    if (!clusterConfig[deployment.cluster].envs.includes(deployment.env)) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.cluster} cluster configuration does not include ${deployment.env}`
+      )
+    }
+
     const stateRepo = appConfig[deployment.application].state_repo
 
     for (const serviceData of appConfig[deployment.application].services) {
@@ -212,10 +229,14 @@ function createDispatchList(
           application: deployment.application,
           env: envOverride || deployment.env,
           repo: stateRepo,
+          registry: deployment.registry,
+          image_repository: deployment.image_repository,
           tenant: tenantOverride || deployment.tenant,
           version: versionOverride || deployment.version
         },
-        reviewers: reviewersList
+        reviewers: reviewersList,
+        repository_caller: repo,
+        base_folder: deployment.base_path || ''
       })
     }
   }

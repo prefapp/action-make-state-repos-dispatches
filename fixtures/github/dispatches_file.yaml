@@ -6,6 +6,8 @@ deployments:
     flavor: flavor1
     version: version1
     application: application1
+    registry: registry1
+    image_repository: repo1
 
   - tenant: tenant23
     cluster: cluster23
@@ -15,6 +17,7 @@ deployments:
     version: version23
     application: application23
     service_names: ['service2', 'service23']
+    image_repository: repo23
 
   - tenant: tenant23
     cluster: cluster23
@@ -24,15 +27,19 @@ deployments:
     version: version23
     application: application23
     service_names: ['service3', 'service23']
+    registry: registry23
 
   - tenant: tenant23
     cluster: cluster23
+    base_path: "test_bpath"
     env: env23
     type: releases
     flavor: flavor2
     version: version23
     application: application23
     service_names: ['service2', 'service23']
+    registry: registry23
+    image_repository: repo23
 
   - tenant: tenant23
     cluster: cluster23
@@ -53,9 +60,11 @@ deployments:
     service_names: ['service0']
 
   - tenant: tenant-releases1
+    base_path: "test_bpath_releases"
     cluster: cluster-releases1
     env: env-releases1
     type: releases 
     flavor: flavor1
     version: version-releases1
     application: application-releases1
+    registry: registry-releases1

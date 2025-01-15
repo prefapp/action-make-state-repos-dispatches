@@ -39,6 +39,15 @@
             },
             "minItems": 1,
             "additionalProperties": false
+          },
+          "registry": {
+            "type": "string"
+          },
+          "image_repository": {
+            "type": "string"
+          },
+          "base_path": {
+            "type": "string"
           }
         },
         "required": [

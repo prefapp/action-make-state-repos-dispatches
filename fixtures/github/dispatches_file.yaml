@@ -8,7 +8,6 @@ deployments:
     application: application1
     registry: registry1
     service_names: ['service1']
-    image_repository: repo1
 
   - tenant: tenant23
     cluster: cluster23

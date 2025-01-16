@@ -34,6 +34,9 @@ function getAllInputs() {
   const clustersFolderPath = core.getInput('clusters_folder', {
     required: true
   })
+  const registriesFolderPath = core.getInput('registries_folder', {
+    required: true
+  })
   const imageType = core.getInput('image_type', { required: true })
   const stateRepoFilter = core.getInput('state_repo', { required: true })
   const defaultReleasesRegistry = core.getInput('default_releases_registry', {
@@ -57,6 +60,7 @@ function getAllInputs() {
     dispatchesFilePath,
     appsFolderPath,
     clustersFolderPath,
+    registriesFolderPath,
     imageType,
     stateRepoFilter,
     defaultReleasesRegistry,

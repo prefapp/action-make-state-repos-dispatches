@@ -3,6 +3,7 @@ const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
 const YAML = require('js-yaml')
 const path = require('path')
+const configHelper = require('../utils/config-helper')
 
 const defaultDispatchesFilePath = 'fixtures/github/dispatches_file.yaml'
 const allInputs = {
@@ -12,10 +13,14 @@ const allInputs = {
   ),
   appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
   clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
+  registriesFolderPath: path.join(
+    __dirname,
+    '../fixtures/.firestartr/docker_registries'
+  ),
   imageType: '*',
   stateRepoFilter: '*',
-  defaultReleasesRegistry: 'default_registry_rel',
-  defaultSnapshotsRegistry: 'default_registry_snap',
+  defaultReleasesRegistry: 'releases.reg',
+  defaultSnapshotsRegistry: 'snapshots.reg',
   buildSummary: fs.readFileSync('fixtures/build_summary.json', 'utf-8'),
   flavorFilter: '*',
   envFilter: '*',
@@ -39,44 +44,6 @@ const getSingleDispatch = (
   dispatches.deployments = [dispatchToReturn]
 
   return { dispatchesFileObj: dispatches, singleDispatch: dispatchToReturn }
-}
-const getAppConfig = folderPath => {
-  const appsConfig = {}
-  const configFileList = fs.readdirSync(folderPath)
-
-  for (const configFileName of configFileList) {
-    const configFileContent = fs.readFileSync(
-      path.join(folderPath, configFileName),
-      'utf-8'
-    )
-    const configData = YAML.load(configFileContent, 'utf8')
-
-    appsConfig[configData.name] = {
-      state_repo: configData.state_repo,
-      services: configData.services
-    }
-  }
-
-  return appsConfig
-}
-const getClustersConfig = folderPath => {
-  const clustersConfig = {}
-  const configFileList = fs.readdirSync(folderPath)
-
-  for (const configFileName of configFileList) {
-    const configFileContent = fs.readFileSync(
-      path.join(folderPath, configFileName),
-      'utf-8'
-    )
-    const configData = YAML.load(configFileContent, 'utf8')
-
-    clustersConfig[configData.name] = {
-      tenants: configData.tenants,
-      envs: configData.envs
-    }
-  }
-
-  return clustersConfig
 }
 const gitControllerMock = {
   getInput: (input, required) => {
@@ -203,15 +170,23 @@ describe('The dispatcher', () => {
 
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = getAllDispatches()
-    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
 
     const result = dispatcher.createDispatchList(
       dispatches.deployments,
       [],
       'test-repo-caller',
       appConfig,
-      clusterConfig
+      clusterConfig,
+      registriesConfig
     )
 
     expect(result.length).toEqual(7)
@@ -223,7 +198,7 @@ describe('The dispatcher', () => {
         tenant: 'tenant1',
         application: 'application1',
         registry: 'registry1',
-        image_repository: 'repo1',
+        image_repository: 'wips/org/repo1',
         env: 'env1',
         version: 'version1'
       },
@@ -261,8 +236,15 @@ describe('The dispatcher', () => {
 
   it("correctly processes deployments even when its configuration doesn't exactly match the app configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
-    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
     appConfig[singleDispatch.application].services[0].service_names = [
       'another_service2',
       'another_service3',
@@ -274,7 +256,8 @@ describe('The dispatcher', () => {
       [],
       'test-repo-caller',
       appConfig,
-      clusterConfig
+      clusterConfig,
+      registriesConfig
     )
     expect(result.length).toEqual(1)
     expect(result[0]).toEqual({
@@ -285,7 +268,7 @@ describe('The dispatcher', () => {
         tenant: 'tenant1',
         application: 'application1',
         registry: 'registry1',
-        image_repository: 'repo1',
+        image_repository: 'wips/org/repo1',
         env: 'env1',
         version: 'version1'
       },
@@ -302,8 +285,15 @@ describe('The dispatcher', () => {
 
   it("correctly throws an error when a deployment's service doesn't follow the app configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
-    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
     appConfig[singleDispatch.application].services[0].service_names = [
       'another_service1'
     ]
@@ -314,7 +304,8 @@ describe('The dispatcher', () => {
         [],
         'test-repo-caller',
         appConfig,
-        clusterConfig
+        clusterConfig,
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.application} application configuration does not include service ${singleDispatch.service_names[0]}`
@@ -323,8 +314,15 @@ describe('The dispatcher', () => {
 
   it("correctly processes deployments even when its configuration doesn't exactly match the cluster configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
-    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
     clusterConfig[singleDispatch.cluster].envs = [
       'another_env2',
       'another_env3',
@@ -342,7 +340,8 @@ describe('The dispatcher', () => {
       [],
       'test-repo-caller',
       appConfig,
-      clusterConfig
+      clusterConfig,
+      registriesConfig
     )
     expect(result.length).toEqual(1)
     expect(result[0]).toEqual({
@@ -353,7 +352,7 @@ describe('The dispatcher', () => {
         tenant: 'tenant1',
         application: 'application1',
         registry: 'registry1',
-        image_repository: 'repo1',
+        image_repository: 'wips/org/repo1',
         env: 'env1',
         version: 'version1'
       },
@@ -370,8 +369,15 @@ describe('The dispatcher', () => {
 
   it("correctly throws an error when a deployment's enviroment or tenant doesn't follow the cluster configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
-    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
     clusterConfig[singleDispatch.cluster].envs = ['another_env1']
 
     expect(() => {
@@ -380,7 +386,8 @@ describe('The dispatcher', () => {
         [],
         'test-repo-caller',
         appConfig,
-        clusterConfig
+        clusterConfig,
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.cluster} cluster configuration does not include ${singleDispatch.env}`
@@ -394,7 +401,8 @@ describe('The dispatcher', () => {
         [],
         'test-repo-caller',
         appConfig,
-        clusterConfig
+        clusterConfig,
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.cluster} cluster configuration does not include ${singleDispatch.tenant}`

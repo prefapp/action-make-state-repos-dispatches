@@ -81,7 +81,46 @@ function getClustersConfig(clustersFolderPath) {
     return clustersConfig
   } catch (err) {
     throw new Error(
-      `Error getting app configs from folder ${clustersFolderPath}: ${err.message}`
+      `Error getting cluster configs from folder ` +
+        `${clustersFolderPath}: ${err.message}`
+    )
+  }
+}
+
+function getRegistriesConfig(
+  registriesFolderPath,
+  snapshotsRegistry,
+  releasesRegistry
+) {
+  try {
+    const registriesConfig = {}
+    const configFileList = fs.readdirSync(registriesFolderPath)
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(registriesFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent, 'utf8')
+
+        if (configData.registry === snapshotsRegistry) {
+          registriesConfig['snapshots'] = configData
+        }
+
+        if (configData.registry === releasesRegistry) {
+          registriesConfig['releases'] = configData
+        }
+
+        if (registriesConfig.snapshots && registriesConfig.releases) break
+      }
+    }
+
+    return registriesConfig
+  } catch (err) {
+    throw new Error(
+      `Error getting registry configs from folder ` +
+        `${registriesFolderPath}: ${err.message}`
     )
   }
 }
@@ -89,5 +128,6 @@ function getClustersConfig(clustersFolderPath) {
 module.exports = {
   configParse,
   getAppsConfig,
-  getClustersConfig
+  getClustersConfig,
+  getRegistriesConfig
 }

@@ -157,6 +157,7 @@ describe('github-helper', () => {
     expect(result).toEqual({
       appsFolderPath: 'apps_folder-value',
       clustersFolderPath: 'clusters_folder-value',
+      registriesFolderPath: 'registries_folder-value',
       dispatchesFilePath: 'dispatches_file-value',
       imageType: 'image_type-value',
       stateRepoFilter: 'state_repo-value',

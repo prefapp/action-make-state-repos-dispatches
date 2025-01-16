@@ -32,6 +32,7 @@ async function makeDispatches(gitController) {
       dispatchesFilePath,
       appsFolderPath,
       clustersFolderPath,
+      registriesFolderPath,
       imageType,
       stateRepoFilter,
       defaultReleasesRegistry,
@@ -86,12 +87,19 @@ async function makeDispatches(gitController) {
 
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
     const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
+    const registriesConfig = configHelper.getRegistriesConfig(
+      registriesFolderPath,
+      defaultSnapshotsRegistry,
+      defaultReleasesRegistry
+    )
+
     const dispatchList = createDispatchList(
       dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
       appConfig,
       clusterConfig,
+      registriesConfig,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -199,6 +207,7 @@ function createDispatchList(
   repo,
   appConfig,
   clusterConfig,
+  registriesConfig,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
@@ -236,6 +245,11 @@ function createDispatchList(
         }
       }
 
+      const imageRepo =
+        deployment.image_repository ||
+        `${registriesConfig[deployment.type].base_paths['services']}/` +
+          `${serviceData.repo}`
+
       dispatchList.push({
         type: deployment.type,
         flavor: deployment.flavor,
@@ -249,8 +263,9 @@ function createDispatchList(
           application: deployment.application,
           env: envOverride || deployment.env,
           repo: stateRepo,
-          registry: deployment.registry,
-          image_repository: deployment.image_repository,
+          registry:
+            deployment.registry || registriesConfig[deployment.type].registry,
+          image_repository: imageRepo,
           tenant: tenantOverride || deployment.tenant,
           version: versionOverride || deployment.version
         },

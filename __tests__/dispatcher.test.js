@@ -4,6 +4,7 @@ const fs = require('fs')
 const YAML = require('js-yaml')
 const path = require('path')
 
+const defaultDispatchesFilePath = 'fixtures/github/dispatches_file.yaml'
 const allInputs = {
   dispatchesFilePath: path.join(
     __dirname,
@@ -23,6 +24,21 @@ const allInputs = {
   overwriteEnv: '',
   overwriteTenant: '',
   reviewers: 'juanjosevazquezgil,test-reviewer'
+}
+const getAllDispatches = (dispatchesFilePath = defaultDispatchesFilePath) => {
+  const dispatches = YAML.load(fs.readFileSync(dispatchesFilePath, 'utf-8'))
+
+  return dispatches
+}
+const getSingleDispatch = (
+  dispatchesFilePath = defaultDispatchesFilePath,
+  dispatchIndex = 0
+) => {
+  const dispatches = YAML.load(fs.readFileSync(dispatchesFilePath, 'utf-8'))
+  const dispatchToReturn = dispatches.deployments[dispatchIndex]
+  dispatches.deployments = [dispatchToReturn]
+
+  return { dispatchesFileObj: dispatches, singleDispatch: dispatchToReturn }
 }
 const getAppConfig = folderPath => {
   const appsConfig = {}
@@ -186,9 +202,7 @@ describe('The dispatcher', () => {
   })
 
   it('can get a dispatch object from a YAML config', async () => {
-    const dispatches = YAML.load(
-      fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
-    )
+    const dispatches = getAllDispatches()
     const appConfig = getAppConfig('fixtures/.firestartr/apps/')
     const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
 
@@ -238,48 +252,152 @@ describe('The dispatcher', () => {
       tenant: 'tenant23',
       app: 'application23',
       env: 'env23',
-      service_name_list: ['service2', 'service3', 'service23'],
+      service_name_list: ['service2', 'service23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
       base_folder: 'test_bpath'
     })
   })
 
-  it("correctly throws an error when a deployment doesn't match the cluster configuration", async () => {
-    const dispatches = YAML.load(
-      fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
-    )
-    const dispatchToTest = dispatches.deployments[0]
-    dispatches.deployments = [dispatchToTest]
-
+  it("correctly processes deployments even when its configuration doesn't exactly match the app configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const appConfig = getAppConfig('fixtures/.firestartr/apps/')
     const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
-    clusterConfig[dispatchToTest.cluster].envs = ['another_env1']
+    appConfig[singleDispatch.application].services[0].service_names = [
+      'another_service2',
+      'another_service3',
+      'service1',
+      'another_service4'
+    ]
+    const result = dispatcher.createDispatchList(
+      dispatchesFileObj.deployments,
+      [],
+      'test-repo-caller',
+      appConfig,
+      clusterConfig
+    )
+    expect(result.length).toEqual(1)
+    expect(result[0]).toEqual({
+      type: 'snapshots',
+      flavor: 'flavor1',
+      state_repo: {
+        repo: 'org/state-app-app1',
+        tenant: 'tenant1',
+        application: 'application1',
+        registry: 'registry1',
+        image_repository: 'repo1',
+        env: 'env1',
+        version: 'version1'
+      },
+      version: 'version1',
+      tenant: 'tenant1',
+      app: 'application1',
+      env: 'env1',
+      service_name_list: ['service1'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      base_folder: ''
+    })
+  })
+
+  it("correctly throws an error when a deployment's service doesn't follow the app configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    appConfig[singleDispatch.application].services[0].service_names = [
+      'another_service1'
+    ]
 
     expect(() => {
       dispatcher.createDispatchList(
-        dispatches.deployments,
+        dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
         appConfig,
         clusterConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${dispatchToTest.cluster} cluster configuration does not include ${dispatchToTest.env}`
+      `Error when creating dispatch list: ${singleDispatch.application} application configuration does not include service ${singleDispatch.service_names[0]}`
+    )
+  })
+
+  it("correctly processes deployments even when its configuration doesn't exactly match the cluster configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    clusterConfig[singleDispatch.cluster].envs = [
+      'another_env2',
+      'another_env3',
+      'env1',
+      'another_env4'
+    ]
+    clusterConfig[singleDispatch.cluster].tenants = [
+      'another_tenant2',
+      'another_tenant3',
+      'tenant1',
+      'another_tenant4'
+    ]
+    const result = dispatcher.createDispatchList(
+      dispatchesFileObj.deployments,
+      [],
+      'test-repo-caller',
+      appConfig,
+      clusterConfig
+    )
+    expect(result.length).toEqual(1)
+    expect(result[0]).toEqual({
+      type: 'snapshots',
+      flavor: 'flavor1',
+      state_repo: {
+        repo: 'org/state-app-app1',
+        tenant: 'tenant1',
+        application: 'application1',
+        registry: 'registry1',
+        image_repository: 'repo1',
+        env: 'env1',
+        version: 'version1'
+      },
+      version: 'version1',
+      tenant: 'tenant1',
+      app: 'application1',
+      env: 'env1',
+      service_name_list: ['service1'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      base_folder: ''
+    })
+  })
+
+  it("correctly throws an error when a deployment's enviroment or tenant doesn't follow the cluster configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const appConfig = getAppConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = getClustersConfig('fixtures/.firestartr/clusters/')
+    clusterConfig[singleDispatch.cluster].envs = ['another_env1']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${singleDispatch.cluster} cluster configuration does not include ${singleDispatch.env}`
     )
 
-    clusterConfig[dispatchToTest.cluster].tenants = ['another_tenant1']
+    clusterConfig[singleDispatch.cluster].tenants = ['another_tenant1']
 
     expect(() => {
       dispatcher.createDispatchList(
-        dispatches.deployments,
+        dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
         appConfig,
         clusterConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${dispatchToTest.cluster} cluster configuration does not include ${dispatchToTest.tenant}`
+      `Error when creating dispatch list: ${singleDispatch.cluster} cluster configuration does not include ${singleDispatch.tenant}`
     )
   })
 

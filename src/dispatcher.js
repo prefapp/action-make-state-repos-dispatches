@@ -120,7 +120,9 @@ async function makeDispatches(gitController) {
 
         debug(
           '🔍 Filtering by:',
-          `flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+          `flavor: ${data.flavor}, ` +
+            `version: ${resolvedVersion}, ` +
+            `image_type: ${data.type}`
         )
 
         const imageData = buildSummaryObj.filter(
@@ -134,12 +136,15 @@ async function makeDispatches(gitController) {
 
         if (!imageData)
           throw new Error(
-            `Build summary not found for flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+            `Build summary not found for flavor: ${data.flavor}, ` +
+              `version: ${resolvedVersion}, image_type: ${data.type}`
           )
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
-        data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
+        data.image =
+          `${imageData.registry}/` +
+          `${imageData.repository}:${imageData.image_tag}`
 
         const dispatchStatus = '✔ Dispatching'
 
@@ -151,7 +156,8 @@ async function makeDispatches(gitController) {
         )
 
         gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} for services ${data.service_name_list.join(', ')}`
+          `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
+            `for services ${data.service_name_list.join(', ')}`
         )
 
         data.message = dispatchStatus
@@ -204,19 +210,32 @@ function createDispatchList(
       !clusterConfig[deployment.cluster].tenants.includes(deployment.tenant)
     ) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.cluster} cluster configuration does not include ${deployment.tenant}`
+        `Error when creating dispatch list: ${deployment.cluster} ` +
+          `cluster configuration does not include ${deployment.tenant}`
       )
     }
 
     if (!clusterConfig[deployment.cluster].envs.includes(deployment.env)) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.cluster} cluster configuration does not include ${deployment.env}`
+        `Error when creating dispatch list: ${deployment.cluster} ` +
+          `cluster configuration does not include ${deployment.env}`
       )
     }
 
     const stateRepo = appConfig[deployment.application].state_repo
 
     for (const serviceData of appConfig[deployment.application].services) {
+      if (deployment.service_names) {
+        for (const serviceName of deployment.service_names) {
+          if (!serviceData.service_names.includes(serviceName)) {
+            throw new Error(
+              `Error when creating dispatch list: ${deployment.application} ` +
+                `application configuration does not include service ${serviceName}`
+            )
+          }
+        }
+      }
+
       dispatchList.push({
         type: deployment.type,
         flavor: deployment.flavor,
@@ -224,7 +243,8 @@ function createDispatchList(
         tenant: tenantOverride || deployment.tenant,
         app: deployment.application,
         env: envOverride || deployment.env,
-        service_name_list: serviceData.service_names || [],
+        service_name_list:
+          deployment.service_names || serviceData.service_names,
         state_repo: {
           application: deployment.application,
           env: envOverride || deployment.env,

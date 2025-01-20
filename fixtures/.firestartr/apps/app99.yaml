@@ -1,5 +1,5 @@
 name: application99
-state_repo: "org/app99"
+state_repo: 'org/app99'
 services:
   - repo: org/app99
     service_names: [app99-client]

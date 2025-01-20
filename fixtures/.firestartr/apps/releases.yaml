@@ -1,6 +1,5 @@
 name: application-releases1
-state_repo: "org/state-app-app-releases1"
+state_repo: 'org/state-app-app-releases1'
 services:
   - repo: org/repo1
     service_names: [service1-releases1]
-

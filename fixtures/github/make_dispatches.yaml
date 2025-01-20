@@ -18,6 +18,7 @@ deployments:
     dispatch_event_type: 'dispatch-image' # (optional)
     application: my-app2 # (mandatory)
 
+
   # APIS
   # - type: snapshots # MANDATORY
   #   flavors: # MANDATORY

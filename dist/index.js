@@ -40052,6 +40052,9 @@ async function makeDispatches(gitController) {
 
     const {
       dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
+      registriesFolderPath,
       imageType,
       stateRepoFilter,
       defaultReleasesRegistry,
@@ -40104,10 +40107,21 @@ async function makeDispatches(gitController) {
     const tenantFilterList =
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
+    const appConfig = configHelper.getAppsConfig(appsFolderPath)
+    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
+    const registriesConfig = configHelper.getRegistriesConfig(
+      registriesFolderPath,
+      defaultSnapshotsRegistry,
+      defaultReleasesRegistry
+    )
+
     const dispatchList = createDispatchList(
-      dispatchesData.dispatches,
+      dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
+      appConfig,
+      clusterConfig,
+      registriesConfig,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -40129,14 +40143,16 @@ async function makeDispatches(gitController) {
           data.version,
           gitController
         )
-        const stateRepoName = data.state_repo.repo
+        const stateRepoName = appConfig[data.app].state_repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
 
         debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
 
         debug(
           '🔍 Filtering by:',
-          `flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+          `flavor: ${data.flavor}, ` +
+            `version: ${resolvedVersion}, ` +
+            `image_type: ${data.type}`
         )
 
         const imageData = buildSummaryObj.filter(
@@ -40150,12 +40166,15 @@ async function makeDispatches(gitController) {
 
         if (!imageData)
           throw new Error(
-            `Build summary not found for flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+            `Build summary not found for flavor: ${data.flavor}, ` +
+              `version: ${resolvedVersion}, image_type: ${data.type}`
           )
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
-        data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
+        data.image =
+          `${imageData.registry}/` +
+          `${imageData.repository}:${imageData.image_tag}`
 
         const dispatchStatus = '✔ Dispatching'
 
@@ -40167,7 +40186,8 @@ async function makeDispatches(gitController) {
         )
 
         gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} for services ${data.service_name_list.join(', ')}`
+          `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
+            `for services ${data.service_name_list.join(', ')}`
         )
 
         data.message = dispatchStatus
@@ -40204,32 +40224,81 @@ async function getDispatchesFileContent(filePath, gitController) {
 }
 
 function createDispatchList(
-  dispatches,
+  deployments,
   reviewersList,
   repo,
+  appConfig,
+  clusterConfig,
+  registriesConfig,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
 ) {
-  return dispatches.flatMap(({ type, flavors, state_repos }) =>
-    flavors.flatMap(flavor =>
-      state_repos.flatMap(({ service_names, ...state_repo }) => {
-        return {
-          type,
-          flavor,
-          state_repo,
-          version: versionOverride || state_repo.version,
-          tenant: tenantOverride || state_repo.tenant,
-          app: state_repo.application,
-          env: envOverride || state_repo.env,
-          service_name_list: service_names,
-          repository_caller: repo,
-          reviewers: reviewersList,
-          base_folder: state_repo.base_path || ''
+  const dispatchList = []
+
+  for (const deployment of deployments) {
+    if (
+      !clusterConfig[deployment.platform].tenants.includes(deployment.tenant)
+    ) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.platform} ` +
+          `cluster configuration does not include ${deployment.tenant}`
+      )
+    }
+
+    if (!clusterConfig[deployment.platform].envs.includes(deployment.env)) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.platform} ` +
+          `cluster configuration does not include ${deployment.env}`
+      )
+    }
+
+    const stateRepo = appConfig[deployment.application].state_repo
+
+    for (const serviceData of appConfig[deployment.application].services) {
+      if (deployment.service_names) {
+        for (const serviceName of deployment.service_names) {
+          if (!serviceData.service_names.includes(serviceName)) {
+            throw new Error(
+              `Error when creating dispatch list: ${deployment.application} ` +
+                `application configuration does not include service ${serviceName}`
+            )
+          }
         }
+      }
+
+      const imageRepo =
+        deployment.image_repository ||
+        `${registriesConfig[deployment.type].base_paths['services']}/` +
+          `${serviceData.repo}`
+
+      dispatchList.push({
+        type: deployment.type,
+        flavor: deployment.flavor,
+        version: versionOverride || deployment.version,
+        tenant: tenantOverride || deployment.tenant,
+        app: deployment.application,
+        env: envOverride || deployment.env,
+        service_name_list:
+          deployment.service_names || serviceData.service_names,
+        state_repo: {
+          application: deployment.application,
+          env: envOverride || deployment.env,
+          repo: stateRepo,
+          registry:
+            deployment.registry || registriesConfig[deployment.type].registry,
+          image_repository: imageRepo,
+          tenant: tenantOverride || deployment.tenant,
+          version: versionOverride || deployment.version
+        },
+        reviewers: reviewersList,
+        repository_caller: repo,
+        base_folder: deployment.base_path || ''
       })
-    )
-  )
+    }
+  }
+
+  return dispatchList
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {
@@ -40340,8 +40409,8 @@ function configParse(fileContent, encoding = '') {
 
     const yamlData = YAML.parse(fileContent, 'utf8')
 
-    const schemaFilePath = __nccwpck_require__.ab + "jsonschema.json"
-    const schema = JSON.parse(fs.readFileSync(__nccwpck_require__.ab + "jsonschema.json", 'utf8'))
+    const schemaFilePath = __nccwpck_require__.ab + "config.schema.json"
+    const schema = JSON.parse(fs.readFileSync(__nccwpck_require__.ab + "config.schema.json", 'utf8'))
 
     const ajv = new Ajv()
     const validate = ajv.compile(schema)
@@ -40359,8 +40428,106 @@ function configParse(fileContent, encoding = '') {
   }
 }
 
+function getAppsConfig(appFolderPath) {
+  try {
+    const appsConfig = {}
+    const configFileList = fs.readdirSync(appFolderPath)
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(appFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent, 'utf8')
+
+        appsConfig[configData.name] = {
+          state_repo: configData.state_repo,
+          services: configData.services
+        }
+      }
+    }
+
+    return appsConfig
+  } catch (err) {
+    throw new Error(
+      `Error getting app configs from folder ${appFolderPath}: ${err.message}`
+    )
+  }
+}
+
+function getClustersConfig(clustersFolderPath) {
+  try {
+    const clustersConfig = {}
+    const configFileList = fs.readdirSync(clustersFolderPath)
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(clustersFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent, 'utf8')
+
+        clustersConfig[configData.name] = {
+          tenants: configData.tenants,
+          envs: configData.envs
+        }
+      }
+    }
+
+    return clustersConfig
+  } catch (err) {
+    throw new Error(
+      `Error getting cluster configs from folder ` +
+        `${clustersFolderPath}: ${err.message}`
+    )
+  }
+}
+
+function getRegistriesConfig(
+  registriesFolderPath,
+  snapshotsRegistry,
+  releasesRegistry
+) {
+  try {
+    const registriesConfig = {}
+    const configFileList = fs.readdirSync(registriesFolderPath)
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(registriesFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent, 'utf8')
+
+        if (configData.registry === snapshotsRegistry) {
+          registriesConfig['snapshots'] = configData
+        }
+
+        if (configData.registry === releasesRegistry) {
+          registriesConfig['releases'] = configData
+        }
+
+        if (registriesConfig.snapshots && registriesConfig.releases) break
+      }
+    }
+
+    return registriesConfig
+  } catch (err) {
+    throw new Error(
+      `Error getting registry configs from folder ` +
+        `${registriesFolderPath}: ${err.message}`
+    )
+  }
+}
+
 module.exports = {
-  configParse
+  configParse,
+  getAppsConfig,
+  getClustersConfig,
+  getRegistriesConfig
 }
 
 
@@ -40401,6 +40568,13 @@ function getAllInputs() {
   const dispatchesFilePath = core.getInput('dispatches_file', {
     required: true
   })
+  const appsFolderPath = core.getInput('apps_folder', { required: true })
+  const clustersFolderPath = core.getInput('clusters_folder', {
+    required: true
+  })
+  const registriesFolderPath = core.getInput('registries_folder', {
+    required: true
+  })
   const imageType = core.getInput('image_type', { required: true })
   const stateRepoFilter = core.getInput('state_repo', { required: true })
   const defaultReleasesRegistry = core.getInput('default_releases_registry', {
@@ -40422,6 +40596,9 @@ function getAllInputs() {
 
   return {
     dispatchesFilePath,
+    appsFolderPath,
+    clustersFolderPath,
+    registriesFolderPath,
     imageType,
     stateRepoFilter,
     defaultReleasesRegistry,

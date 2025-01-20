@@ -16,6 +16,10 @@ inputs:
     description: 'Path to the cluster folder of your repo'
     required: true
     default: '.firestartr/clusters'
+  registries_folder:
+    description: 'Path to the registries folder of your repo'
+    required: true
+    default: '.firestartr/clusters'
   token:
     description: GitHub token
     required: false

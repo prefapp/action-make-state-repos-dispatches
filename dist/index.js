@@ -40289,7 +40289,8 @@ function createDispatchList(
             deployment.registry || registriesConfig[deployment.type].registry,
           image_repository: imageRepo,
           tenant: tenantOverride || deployment.tenant,
-          version: versionOverride || deployment.version
+          version: versionOverride || deployment.version,
+          dispatch_event_type: deployment.dispatch_event_type
         },
         reviewers: reviewersList,
         repository_caller: repo,

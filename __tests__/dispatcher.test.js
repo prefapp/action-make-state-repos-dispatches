@@ -323,13 +323,13 @@ describe('The dispatcher', () => {
     const clusterConfig = configHelper.getClustersConfig(
       'fixtures/.firestartr/clusters/'
     )
-    clusterConfig[singleDispatch.cluster].envs = [
+    clusterConfig[singleDispatch.platform].envs = [
       'another_env2',
       'another_env3',
       'env1',
       'another_env4'
     ]
-    clusterConfig[singleDispatch.cluster].tenants = [
+    clusterConfig[singleDispatch.platform].tenants = [
       'another_tenant2',
       'another_tenant3',
       'tenant1',
@@ -378,7 +378,7 @@ describe('The dispatcher', () => {
     const clusterConfig = configHelper.getClustersConfig(
       'fixtures/.firestartr/clusters/'
     )
-    clusterConfig[singleDispatch.cluster].envs = ['another_env1']
+    clusterConfig[singleDispatch.platform].envs = ['another_env1']
 
     expect(() => {
       dispatcher.createDispatchList(
@@ -390,10 +390,10 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.cluster} cluster configuration does not include ${singleDispatch.env}`
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include ${singleDispatch.env}`
     )
 
-    clusterConfig[singleDispatch.cluster].tenants = ['another_tenant1']
+    clusterConfig[singleDispatch.platform].tenants = ['another_tenant1']
 
     expect(() => {
       dispatcher.createDispatchList(
@@ -405,7 +405,7 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.cluster} cluster configuration does not include ${singleDispatch.tenant}`
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include ${singleDispatch.tenant}`
     )
   })
 

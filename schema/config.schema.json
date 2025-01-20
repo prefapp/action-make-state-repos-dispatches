@@ -13,7 +13,7 @@
           "tenant": {
             "type": "string"
           },
-          "cluster": {
+          "platform": {
             "type": "string"
           },
           "env": {
@@ -52,7 +52,7 @@
         },
         "required": [
           "tenant",
-          "cluster",
+          "platform",
           "env",
           "type",
           "flavor",

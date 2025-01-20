@@ -1,6 +1,6 @@
 deployments:
   - tenant: mytenant1 # (mandatory)
-    cluster: mycluster1 # (mandatory)
+    platform: mycluster1 # (mandatory)
     env: dev # (mandatory)
     type: snapshots # MANDATORY
     flavor: default # (mandatory)
@@ -10,7 +10,7 @@ deployments:
     service_names: ['controller'] # (optional)
 
   - tenant: mytenant2 # (mandatory)
-    cluster: mycluster2 # (mandatory)
+    platform: mycluster2 # (mandatory)
     env: pre # (mandatory)
     type: snapshots # MANDATORY
     flavor: default # (mandatory)

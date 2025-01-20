@@ -1,6 +1,6 @@
 deployments:
   - tenant: tenant1
-    cluster: cluster1
+    platform: cluster1
     env: env1
     type: snapshots
     flavor: flavor1
@@ -10,7 +10,7 @@ deployments:
     service_names: ['service1']
 
   - tenant: tenant23
-    cluster: cluster23
+    platform: cluster23
     env: env23
     type: snapshots
     flavor: flavor2
@@ -19,7 +19,7 @@ deployments:
     image_repository: repo23
 
   - tenant: tenant23
-    cluster: cluster23
+    platform: cluster23
     env: env23
     type: snapshots
     flavor: flavor3
@@ -29,7 +29,7 @@ deployments:
     registry: registry23
 
   - tenant: tenant23
-    cluster: cluster23
+    platform: cluster23
     base_path: "test_bpath"
     env: env23
     type: releases
@@ -41,7 +41,7 @@ deployments:
     image_repository: repo23
 
   - tenant: tenant23
-    cluster: cluster23
+    platform: cluster23
     env: env23
     type: releases 
     flavor: flavor3
@@ -50,7 +50,7 @@ deployments:
     service_names: ['service3', 'service23']
 
   - tenant: tenant4
-    cluster: cluster4
+    platform: cluster4
     env: env4
     type: snapshots
     flavor: flavor4
@@ -60,7 +60,7 @@ deployments:
 
   - tenant: tenant-releases1
     base_path: "test_bpath_releases"
-    cluster: cluster-releases1
+    platform: cluster-releases1
     env: env-releases1
     type: releases 
     flavor: flavor1

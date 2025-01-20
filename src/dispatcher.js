@@ -216,17 +216,17 @@ function createDispatchList(
 
   for (const deployment of deployments) {
     if (
-      !clusterConfig[deployment.cluster].tenants.includes(deployment.tenant)
+      !clusterConfig[deployment.platform].tenants.includes(deployment.tenant)
     ) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.cluster} ` +
+        `Error when creating dispatch list: ${deployment.platform} ` +
           `cluster configuration does not include ${deployment.tenant}`
       )
     }
 
-    if (!clusterConfig[deployment.cluster].envs.includes(deployment.env)) {
+    if (!clusterConfig[deployment.platform].envs.includes(deployment.env)) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.cluster} ` +
+        `Error when creating dispatch list: ${deployment.platform} ` +
           `cluster configuration does not include ${deployment.env}`
       )
     }

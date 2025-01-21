@@ -220,14 +220,14 @@ function createDispatchList(
     ) {
       throw new Error(
         `Error when creating dispatch list: ${deployment.platform} ` +
-          `cluster configuration does not include ${deployment.tenant}`
+          `cluster configuration does not include tenant ${deployment.tenant}`
       )
     }
 
     if (!clusterConfig[deployment.platform].envs.includes(deployment.env)) {
       throw new Error(
         `Error when creating dispatch list: ${deployment.platform} ` +
-          `cluster configuration does not include ${deployment.env}`
+          `cluster configuration does not include env ${deployment.env}`
       )
     }
 

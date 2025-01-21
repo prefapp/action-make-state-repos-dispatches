@@ -1,0 +1,7 @@
+name: myreleasesreg
+registry: releases.reg
+default: true
+image_types: [releases]
+base_paths:
+  services: 'projects'
+  charts: 'charts'

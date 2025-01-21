@@ -1,6 +1,7 @@
 const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
+const path = require('path')
 const fs = require('fs')
 const minimatch = require('minimatch')
 const configHelper = require('../utils/config-helper')
@@ -30,6 +31,9 @@ async function makeDispatches(gitController) {
 
     const {
       dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
+      registriesFolderPath,
       imageType,
       stateRepoFilter,
       defaultReleasesRegistry,
@@ -82,10 +86,21 @@ async function makeDispatches(gitController) {
     const tenantFilterList =
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
 
+    const appConfig = configHelper.getAppsConfig(appsFolderPath)
+    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
+    const registriesConfig = configHelper.getRegistriesConfig(
+      registriesFolderPath,
+      defaultSnapshotsRegistry,
+      defaultReleasesRegistry
+    )
+
     const dispatchList = createDispatchList(
-      dispatchesData.dispatches,
+      dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
+      appConfig,
+      clusterConfig,
+      registriesConfig,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -107,14 +122,16 @@ async function makeDispatches(gitController) {
           data.version,
           gitController
         )
-        const stateRepoName = data.state_repo.repo
+        const stateRepoName = appConfig[data.app].state_repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
 
         debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
 
         debug(
           '🔍 Filtering by:',
-          `flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+          `flavor: ${data.flavor}, ` +
+            `version: ${resolvedVersion}, ` +
+            `image_type: ${data.type}`
         )
 
         const imageData = buildSummaryObj.filter(
@@ -128,12 +145,15 @@ async function makeDispatches(gitController) {
 
         if (!imageData)
           throw new Error(
-            `Build summary not found for flavor: ${data.flavor}, version: ${resolvedVersion}, image_type: ${data.type}`
+            `Build summary not found for flavor: ${data.flavor}, ` +
+              `version: ${resolvedVersion}, image_type: ${data.type}`
           )
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
-        data.image = `${imageData.registry}/${imageData.repository}:${imageData.image_tag}`
+        data.image =
+          `${imageData.registry}/` +
+          `${imageData.repository}:${imageData.image_tag}`
 
         const dispatchStatus = '✔ Dispatching'
 
@@ -145,7 +165,9 @@ async function makeDispatches(gitController) {
         )
 
         gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} for services ${data.service_name_list.join(', ')}`
+          `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
+            `for services ${data.service_name_list.join(', ')} with dispatch ` +
+            `event type ${data.state_repo.dispatch_event_type}`
         )
 
         data.message = dispatchStatus
@@ -182,32 +204,89 @@ async function getDispatchesFileContent(filePath, gitController) {
 }
 
 function createDispatchList(
-  dispatches,
+  deployments,
   reviewersList,
   repo,
+  appConfig,
+  clusterConfig,
+  registriesConfig,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
 ) {
-  return dispatches.flatMap(({ type, flavors, state_repos }) =>
-    flavors.flatMap(flavor =>
-      state_repos.flatMap(({ service_names, ...state_repo }) => {
-        return {
-          type,
-          flavor,
-          state_repo,
-          version: versionOverride || state_repo.version,
-          tenant: tenantOverride || state_repo.tenant,
-          app: state_repo.application,
-          env: envOverride || state_repo.env,
-          service_name_list: service_names,
-          repository_caller: repo,
-          reviewers: reviewersList,
-          base_folder: state_repo.base_path || ''
+  const dispatchList = []
+
+  for (const deployment of deployments) {
+    if (
+      !clusterConfig[deployment.platform].tenants.includes(deployment.tenant)
+    ) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.platform} ` +
+          `cluster configuration does not include tenant ${deployment.tenant}`
+      )
+    }
+
+    if (!clusterConfig[deployment.platform].envs.includes(deployment.env)) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.platform} ` +
+          `cluster configuration does not include env ${deployment.env}`
+      )
+    }
+
+    const stateRepo = appConfig[deployment.application].state_repo
+
+    for (const serviceData of appConfig[deployment.application].services) {
+      if (deployment.service_names) {
+        for (const serviceName of deployment.service_names) {
+          if (!serviceData.service_names.includes(serviceName)) {
+            throw new Error(
+              `Error when creating dispatch list: ${deployment.application} ` +
+                `application configuration does not include service ${serviceName}`
+            )
+          }
         }
+      }
+
+      const imageRepo =
+        deployment.image_repository ||
+        `${registriesConfig[deployment.type].base_paths['services']}/` +
+          `${serviceData.repo}`
+
+      const basePath = path.join(
+        clusterConfig[deployment.platform].type,
+        deployment.platform
+      )
+
+      dispatchList.push({
+        type: deployment.type,
+        flavor: deployment.flavor,
+        version: versionOverride || deployment.version,
+        tenant: tenantOverride || deployment.tenant,
+        app: deployment.application,
+        env: envOverride || deployment.env,
+        service_name_list:
+          deployment.service_names || serviceData.service_names,
+        state_repo: {
+          application: deployment.application,
+          env: envOverride || deployment.env,
+          repo: stateRepo,
+          registry:
+            deployment.registry || registriesConfig[deployment.type].registry,
+          image_repository: imageRepo,
+          tenant: tenantOverride || deployment.tenant,
+          version: versionOverride || deployment.version,
+          dispatch_event_type:
+            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+            `${clusterConfig[deployment.platform].type}`
+        },
+        reviewers: reviewersList,
+        repository_caller: repo,
+        base_folder: basePath
       })
-    )
-  )
+    }
+  }
+
+  return dispatchList
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {

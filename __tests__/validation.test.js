@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const yaml = require('yaml')
-const { configParse } = require('./utils/config-helper')
+const { configParse } = require('../utils/config-helper')
 
 describe('Yaml validation against Json schema', () => {
   let yamlFilePath
@@ -9,8 +9,8 @@ describe('Yaml validation against Json schema', () => {
   let yamlData
 
   beforeAll(() => {
-    yamlFilePath = path.join(__dirname, '/fixtures/github/make_dispatches.yaml')
-    schemaFilePath = path.join(__dirname, 'schema/jsonschema.json')
+    yamlFilePath = path.join(__dirname, '../fixtures/dispatches_file.yaml')
+    schemaFilePath = path.join(__dirname, '../schema/jsonschema.json')
 
     const yamlContent = fs.readFileSync(yamlFilePath, 'utf8')
     yamlData = configParse(yamlContent)
@@ -23,7 +23,7 @@ describe('Yaml validation against Json schema', () => {
   test('should fail if Yaml data does not match the schema', () => {
     const invalidYamlData = {
       ...yamlData,
-      dispatches: [...yamlData.dispatches]
+      dispatches: [...yamlData.deployments]
     }
 
     invalidYamlData.dispatches[0].extraField = 'invalid'
@@ -34,14 +34,10 @@ describe('Yaml validation against Json schema', () => {
   test('should fail if a required field is missing in Yaml', () => {
     const yamlWithoutRequiredField = {
       ...yamlData,
-      dispatches: [...yamlData.dispatches]
+      dispatches: [...yamlData.deployments]
     }
 
-    yamlWithoutRequiredField.dispatches[0].state_repos =
-      yamlWithoutRequiredField.dispatches[0].state_repos.map(repo => {
-        const { repo: removedRepo, ...rest } = repo
-        return rest
-      })
+    delete yamlWithoutRequiredField.dispatches[0].tenant
 
     expect(() =>
       configParse(yaml.stringify(yamlWithoutRequiredField))

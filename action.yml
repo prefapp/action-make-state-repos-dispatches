@@ -8,6 +8,18 @@ inputs:
     description: 'Path to the make_dispatches.yaml file of your repo'
     required: true
     default: '.github/make_dispatches.yaml'
+  apps_folder:
+    description: 'Path to the apps folder of your repo'
+    required: true
+    default: '.firestartr/apps'
+  platform_folder:
+    description: 'Path to the cluster folder of your repo'
+    required: true
+    default: '.firestartr/clusters'
+  registries_folder:
+    description: 'Path to the registries folder of your repo'
+    required: true
+    default: '.firestartr/docker_registries'
   token:
     description: GitHub token
     required: false

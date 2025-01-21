@@ -1,12 +1,67 @@
-dispatches:
-  - type: snapshots
-    flavors:
-      - flavor99
-    state_repos:
-      - repo: repo99
-        tenant: tenant99
-        application: application99
-        env: env99
-        service_names: ['service99']
-        version: version99
-        registry: registry99
+deployments:
+  - tenant: tenant1
+    platform: cluster1
+    env: env1
+    type: snapshots
+    flavor: flavor1
+    version: version1
+    application: application1
+    registry: registry1
+    service_names: ['service1']
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: snapshots
+    flavor: flavor2
+    version: version23
+    application: application23
+    image_repository: repo23
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: snapshots
+    flavor: flavor3
+    version: version23
+    application: application23
+    service_names: ['service3', 'service23']
+    registry: registry23
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: releases
+    flavor: flavor2
+    version: version23
+    application: application23
+    service_names: ['service2', 'service23']
+    registry: registry23
+    image_repository: repo23
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: releases
+    flavor: flavor3
+    version: version23
+    application: application23
+    service_names: ['service3', 'service23']
+
+  - tenant: tenant4
+    platform: cluster4
+    env: env4
+    type: snapshots
+    flavor: flavor4
+    version: version4
+    application: application4
+    service_names: ['service0']
+
+  - tenant: tenant-releases1
+    platform: cluster-releases1
+    env: env-releases1
+    type: releases
+    flavor: flavor1
+    version: version-releases1
+    application: application-releases1
+    registry: registry-releases1

@@ -155,6 +155,9 @@ describe('github-helper', () => {
     const result = ghHelper.getAllInputs()
 
     expect(result).toEqual({
+      appsFolderPath: 'apps_folder-value',
+      clustersFolderPath: 'platform_folder-value',
+      registriesFolderPath: 'registries_folder-value',
       dispatchesFilePath: 'dispatches_file-value',
       imageType: 'image_type-value',
       stateRepoFilter: 'state_repo-value',
@@ -403,12 +406,9 @@ describe('github-helper', () => {
   })
 
   it('when making dispatches, throws an error if any happen', async () => {
-    const ctx = ghHelper.getPayloadContext()
-
-    await expect(
-      ghHelper.dispatch({ repo: 'throw' }, 'dispatch-matrix')
-    ).rejects.toThrow(
-      `Error creating dispatch event for repo throw. Context: ${ctx}. Dispatch matrix: dispatch-matrix`
+    const repoObj = { repo: 'org/throw' }
+    await expect(ghHelper.dispatch(repoObj, 'dispatch-matrix')).rejects.toThrow(
+      `Error creating dispatch event for repo org/throw. Repo data: ${repoObj}. Dispatch matrix: dispatch-matrix`
     )
   })
 

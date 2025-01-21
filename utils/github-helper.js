@@ -30,6 +30,13 @@ function getAllInputs() {
   const dispatchesFilePath = core.getInput('dispatches_file', {
     required: true
   })
+  const appsFolderPath = core.getInput('apps_folder', { required: true })
+  const clustersFolderPath = core.getInput('platform_folder', {
+    required: true
+  })
+  const registriesFolderPath = core.getInput('registries_folder', {
+    required: true
+  })
   const imageType = core.getInput('image_type', { required: true })
   const stateRepoFilter = core.getInput('state_repo', { required: true })
   const defaultReleasesRegistry = core.getInput('default_releases_registry', {
@@ -51,6 +58,9 @@ function getAllInputs() {
 
   return {
     dispatchesFilePath,
+    appsFolderPath,
+    clustersFolderPath,
+    registriesFolderPath,
     imageType,
     stateRepoFilter,
     defaultReleasesRegistry,
@@ -269,15 +279,16 @@ async function getSummaryDataForRef(ref, workflowName) {
 }
 
 async function dispatch(repoData, dispatchMatrix) {
-  const ctx = getPayloadContext()
-
   try {
     const octokit = getOctokit()
+    const ownerAndRepo = repoData.repo.split('/')
+    const owner = ownerAndRepo[0]
+    const repo = ownerAndRepo[1]
 
     await octokit.rest.repos.createDispatchEvent({
-      owner: ctx.owner,
-      repo: repoData.repo,
-      event_type: repoData.dispatch_event_type || 'dispatch-image',
+      owner,
+      repo,
+      event_type: repoData.dispatch_event_type,
       client_payload: {
         images: dispatchMatrix,
         version: 4
@@ -289,7 +300,7 @@ async function dispatch(repoData, dispatchMatrix) {
     console.error(e)
 
     throw new Error(
-      `Error creating dispatch event for repo ${repoData.repo}. Context: ${ctx}. Dispatch matrix: ${dispatchMatrix}`
+      `Error creating dispatch event for repo ${repoData.repo}. Repo data: ${repoData}. Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

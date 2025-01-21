@@ -1,0 +1,4 @@
+type: aks-cluster
+name: cluster-releases1
+tenants: [tenant-releases1]
+envs: [env-releases1]

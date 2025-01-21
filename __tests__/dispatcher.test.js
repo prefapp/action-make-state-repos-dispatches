@@ -3,13 +3,21 @@ const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
 const YAML = require('js-yaml')
 const path = require('path')
+const configHelper = require('../utils/config-helper')
 
+const defaultDispatchesFilePath = 'fixtures/dispatches_file.yaml'
 const allInputs = {
-  dispatchesFilePath: 'dispatches_file.yaml',
+  dispatchesFilePath: path.join(__dirname, '../fixtures/dispatches_file.yaml'),
+  appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
+  clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
+  registriesFolderPath: path.join(
+    __dirname,
+    '../fixtures/.firestartr/docker_registries'
+  ),
   imageType: '*',
   stateRepoFilter: '*',
-  defaultReleasesRegistry: 'default_registry_rel',
-  defaultSnapshotsRegistry: 'default_registry_snap',
+  defaultReleasesRegistry: 'releases.reg',
+  defaultSnapshotsRegistry: 'snapshots.reg',
   buildSummary: fs.readFileSync('fixtures/build_summary.json', 'utf-8'),
   flavorFilter: '*',
   envFilter: '*',
@@ -18,6 +26,21 @@ const allInputs = {
   overwriteEnv: '',
   overwriteTenant: '',
   reviewers: 'juanjosevazquezgil,test-reviewer'
+}
+const getAllDispatches = (dispatchesFilePath = defaultDispatchesFilePath) => {
+  const dispatches = YAML.load(fs.readFileSync(dispatchesFilePath, 'utf-8'))
+
+  return dispatches
+}
+const getSingleDispatch = (
+  dispatchesFilePath = defaultDispatchesFilePath,
+  dispatchIndex = 0
+) => {
+  const dispatches = YAML.load(fs.readFileSync(dispatchesFilePath, 'utf-8'))
+  const dispatchToReturn = dispatches.deployments[dispatchIndex]
+  dispatches.deployments = [dispatchToReturn]
+
+  return { dispatchesFileObj: dispatches, singleDispatch: dispatchToReturn }
 }
 const gitControllerMock = {
   getInput: (input, required) => {
@@ -28,7 +51,7 @@ const gitControllerMock = {
   },
   getFileContent: filePath => {
     return Buffer.from(
-      fs.readFileSync(path.join('fixtures/github', filePath))
+      fs.readFileSync(path.join('fixtures', filePath))
     ).toString('base64')
   },
   getPayloadContext: () => {
@@ -143,21 +166,37 @@ describe('The dispatcher', () => {
   })
 
   it('can get a dispatch object from a YAML config', async () => {
-    const dispatches = YAML.load(
-      fs.readFileSync('fixtures/github/dispatches_file.yaml', 'utf-8')
+    const dispatches = getAllDispatches()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
     )
 
-    const result = dispatcher.createDispatchList(dispatches.dispatches, [])
+    const result = dispatcher.createDispatchList(
+      dispatches.deployments,
+      [],
+      'test-repo-caller',
+      appConfig,
+      clusterConfig,
+      registriesConfig
+    )
 
     expect(result.length).toEqual(7)
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
       state_repo: {
-        repo: 'repo1',
+        repo: 'org/state-app-app1',
         tenant: 'tenant1',
         application: 'application1',
         registry: 'registry1',
+        image_repository: 'wips/org/repo1',
+        dispatch_event_type: 'dispatch-image-aks-cluster',
         env: 'env1',
         version: 'version1'
       },
@@ -167,8 +206,208 @@ describe('The dispatcher', () => {
       env: 'env1',
       service_name_list: ['service1'],
       reviewers: [],
-      base_folder: ''
+      repository_caller: 'test-repo-caller',
+      base_folder: 'aks-cluster/cluster1'
     })
+    expect(result[3]).toEqual({
+      type: 'releases',
+      flavor: 'flavor2',
+      state_repo: {
+        repo: 'org/state-app-app23',
+        tenant: 'tenant23',
+        application: 'application23',
+        registry: 'registry23',
+        image_repository: 'repo23',
+        dispatch_event_type: 'dispatch-image-vmss',
+        env: 'env23',
+        version: 'version23'
+      },
+      version: 'version23',
+      tenant: 'tenant23',
+      app: 'application23',
+      env: 'env23',
+      service_name_list: ['service2', 'service23'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      base_folder: 'vmss/cluster23'
+    })
+  })
+
+  it("correctly processes deployments even when its configuration doesn't exactly match the app configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+    appConfig[singleDispatch.application].services[0].service_names = [
+      'another_service2',
+      'another_service3',
+      'service1',
+      'another_service4'
+    ]
+    const result = dispatcher.createDispatchList(
+      dispatchesFileObj.deployments,
+      [],
+      'test-repo-caller',
+      appConfig,
+      clusterConfig,
+      registriesConfig
+    )
+    expect(result.length).toEqual(1)
+    expect(result[0]).toEqual({
+      type: 'snapshots',
+      flavor: 'flavor1',
+      state_repo: {
+        repo: 'org/state-app-app1',
+        tenant: 'tenant1',
+        application: 'application1',
+        registry: 'registry1',
+        image_repository: 'wips/org/repo1',
+        dispatch_event_type: 'dispatch-image-aks-cluster',
+        env: 'env1',
+        version: 'version1'
+      },
+      version: 'version1',
+      tenant: 'tenant1',
+      app: 'application1',
+      env: 'env1',
+      service_name_list: ['service1'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      base_folder: 'aks-cluster/cluster1'
+    })
+  })
+
+  it("correctly throws an error when a deployment's service doesn't follow the app configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+    appConfig[singleDispatch.application].services[0].service_names = [
+      'another_service1'
+    ]
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${singleDispatch.application} application configuration does not include service ${singleDispatch.service_names[0]}`
+    )
+  })
+
+  it("correctly processes deployments even when its configuration doesn't exactly match the cluster configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+    clusterConfig[singleDispatch.platform].envs = [
+      'another_env2',
+      'another_env3',
+      'env1',
+      'another_env4'
+    ]
+    clusterConfig[singleDispatch.platform].tenants = [
+      'another_tenant2',
+      'another_tenant3',
+      'tenant1',
+      'another_tenant4'
+    ]
+    const result = dispatcher.createDispatchList(
+      dispatchesFileObj.deployments,
+      [],
+      'test-repo-caller',
+      appConfig,
+      clusterConfig,
+      registriesConfig
+    )
+    expect(result.length).toEqual(1)
+    expect(result[0]).toEqual({
+      type: 'snapshots',
+      flavor: 'flavor1',
+      state_repo: {
+        repo: 'org/state-app-app1',
+        tenant: 'tenant1',
+        application: 'application1',
+        registry: 'registry1',
+        image_repository: 'wips/org/repo1',
+        dispatch_event_type: 'dispatch-image-aks-cluster',
+        env: 'env1',
+        version: 'version1'
+      },
+      version: 'version1',
+      tenant: 'tenant1',
+      app: 'application1',
+      env: 'env1',
+      service_name_list: ['service1'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      base_folder: 'aks-cluster/cluster1'
+    })
+  })
+
+  it("correctly throws an error when a deployment's enviroment or tenant doesn't follow the cluster configuration", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+    clusterConfig[singleDispatch.platform].envs = ['another_env1']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include env ${singleDispatch.env}`
+    )
+
+    clusterConfig[singleDispatch.platform].tenants = ['another_tenant1']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include tenant ${singleDispatch.tenant}`
+    )
   })
 
   it('can filter by dispatch type', async () => {
@@ -474,7 +713,7 @@ describe('The dispatcher', () => {
 
     const remoteFilePath = 'dispatches_file.yaml'
     const expectedRemoteResult = fs
-      .readFileSync(path.join('fixtures/github', remoteFilePath))
+      .readFileSync(path.join('fixtures', remoteFilePath))
       .toString('base64')
     const remoteFileContent = await dispatcher.getDispatchesFileContent(
       remoteFilePath,

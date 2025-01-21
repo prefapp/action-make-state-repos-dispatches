@@ -12,14 +12,14 @@ inputs:
     description: 'Path to the apps folder of your repo'
     required: true
     default: '.firestartr/apps'
-  clusters_folder:
+  platform_folder:
     description: 'Path to the cluster folder of your repo'
     required: true
     default: '.firestartr/clusters'
   registries_folder:
     description: 'Path to the registries folder of your repo'
     required: true
-    default: '.firestartr/clusters'
+    default: '.firestartr/docker_registries'
   token:
     description: GitHub token
     required: false

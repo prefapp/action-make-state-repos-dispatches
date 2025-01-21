@@ -31,7 +31,7 @@ function getAllInputs() {
     required: true
   })
   const appsFolderPath = core.getInput('apps_folder', { required: true })
-  const clustersFolderPath = core.getInput('clusters_folder', {
+  const clustersFolderPath = core.getInput('platform_folder', {
     required: true
   })
   const registriesFolderPath = core.getInput('registries_folder', {

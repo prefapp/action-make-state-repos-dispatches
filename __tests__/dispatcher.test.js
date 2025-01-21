@@ -387,7 +387,7 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include ${singleDispatch.env}`
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include env ${singleDispatch.env}`
     )
 
     clusterConfig[singleDispatch.platform].tenants = ['another_tenant1']
@@ -402,7 +402,7 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include ${singleDispatch.tenant}`
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include tenant ${singleDispatch.tenant}`
     )
   })
 

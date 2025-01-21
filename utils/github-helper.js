@@ -279,14 +279,15 @@ async function getSummaryDataForRef(ref, workflowName) {
 }
 
 async function dispatch(repoData, dispatchMatrix) {
-  const ctx = getPayloadContext()
-
   try {
     const octokit = getOctokit()
+    const ownerAndRepo = repoData.repo.split('/')
+    const owner = ownerAndRepo[0]
+    const repo = ownerAndRepo[1]
 
     await octokit.rest.repos.createDispatchEvent({
-      owner: ctx.owner,
-      repo: repoData.repo,
+      owner,
+      repo,
       event_type: repoData.dispatch_event_type || 'dispatch-image',
       client_payload: {
         images: dispatchMatrix,
@@ -299,7 +300,7 @@ async function dispatch(repoData, dispatchMatrix) {
     console.error(e)
 
     throw new Error(
-      `Error creating dispatch event for repo ${repoData.repo}. Context: ${ctx}. Dispatch matrix: ${dispatchMatrix}`
+      `Error creating dispatch event for repo ${repoData.repo}. Repo data: ${repoData}. Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

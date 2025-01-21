@@ -288,7 +288,7 @@ async function dispatch(repoData, dispatchMatrix) {
     await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
-      event_type: repoData.dispatch_event_type || 'dispatch-image',
+      event_type: repoData.dispatch_event_type,
       client_payload: {
         images: dispatchMatrix,
         version: 4

@@ -40290,7 +40290,9 @@ function createDispatchList(
           image_repository: imageRepo,
           tenant: tenantOverride || deployment.tenant,
           version: versionOverride || deployment.version,
-          dispatch_event_type: deployment.dispatch_event_type
+          dispatch_event_type:
+            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+            `${clusterConfig[deployment.platform].type}`
         },
         reviewers: reviewersList,
         repository_caller: repo,
@@ -40471,6 +40473,7 @@ function getClustersConfig(clustersFolderPath) {
         const configData = YAML.parse(configFileContent, 'utf8')
 
         clustersConfig[configData.name] = {
+          type: configData.type,
           tenants: configData.tenants,
           envs: configData.envs
         }
@@ -40827,7 +40830,7 @@ async function dispatch(repoData, dispatchMatrix) {
     await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
-      event_type: repoData.dispatch_event_type || 'dispatch-image',
+      event_type: repoData.dispatch_event_type,
       client_payload: {
         images: dispatchMatrix,
         version: 4

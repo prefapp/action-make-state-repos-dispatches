@@ -1,3 +1,4 @@
+type: vmss
 name: cluster99
 tenants: [tenant99, tenant2, tenant3]
 envs: [dev, pre, flavor99]

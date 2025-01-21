@@ -196,6 +196,7 @@ describe('The dispatcher', () => {
         application: 'application1',
         registry: 'registry1',
         image_repository: 'wips/org/repo1',
+        dispatch_event_type: 'dispatch-image-aks-cluster',
         env: 'env1',
         version: 'version1'
       },
@@ -217,6 +218,7 @@ describe('The dispatcher', () => {
         application: 'application23',
         registry: 'registry23',
         image_repository: 'repo23',
+        dispatch_event_type: 'dispatch-image-vmss',
         env: 'env23',
         version: 'version23'
       },
@@ -266,6 +268,7 @@ describe('The dispatcher', () => {
         application: 'application1',
         registry: 'registry1',
         image_repository: 'wips/org/repo1',
+        dispatch_event_type: 'dispatch-image-aks-cluster',
         env: 'env1',
         version: 'version1'
       },
@@ -350,6 +353,7 @@ describe('The dispatcher', () => {
         application: 'application1',
         registry: 'registry1',
         image_repository: 'wips/org/repo1',
+        dispatch_event_type: 'dispatch-image-aks-cluster',
         env: 'env1',
         version: 'version1'
       },

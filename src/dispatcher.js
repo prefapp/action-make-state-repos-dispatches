@@ -268,7 +268,9 @@ function createDispatchList(
           image_repository: imageRepo,
           tenant: tenantOverride || deployment.tenant,
           version: versionOverride || deployment.version,
-          dispatch_event_type: deployment.dispatch_event_type
+          dispatch_event_type:
+            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+            `${clusterConfig[deployment.platform].type}`
         },
         reviewers: reviewersList,
         repository_caller: repo,

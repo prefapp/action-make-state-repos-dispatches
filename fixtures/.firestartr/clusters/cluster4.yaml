@@ -1,3 +1,4 @@
+type: kind-cluster
 name: cluster4
 tenants: [tenant4]
 envs: [env4]

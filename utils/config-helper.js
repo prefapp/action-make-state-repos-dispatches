@@ -72,6 +72,7 @@ function getClustersConfig(clustersFolderPath) {
         const configData = YAML.parse(configFileContent, 'utf8')
 
         clustersConfig[configData.name] = {
+          type: configData.type,
           tenants: configData.tenants,
           envs: configData.envs
         }

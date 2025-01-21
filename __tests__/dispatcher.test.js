@@ -572,69 +572,21 @@ describe('The dispatcher', () => {
     ).toEqual(false)
   })
 
-  it('can filter by repos', async () => {
-    const stateRepo1Dispatch = { type: 'any', state_repo: { repo: 'repo1' } }
-    const stateRepo2Dispatch = { type: 'any', state_repo: { repo: 'repo2' } }
-
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo1Dispatch,
-        ['any'],
-        '*',
-        ['repo1'],
-        '*',
-        '*'
-      )
-    ).toEqual(true)
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo2Dispatch,
-        ['any'],
-        '*',
-        ['repo1'],
-        '*',
-        '*'
-      )
-    ).toEqual(false)
-
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo1Dispatch,
-        ['any'],
-        '*',
-        ['repo1', 'repo2'],
-        '*',
-        '*'
-      )
-    ).toEqual(true)
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo2Dispatch,
-        ['any'],
-        '*',
-        ['repo1', 'repo2'],
-        '*',
-        '*'
-      )
-    ).toEqual(true)
-  })
-
   it('can filter by environment', async () => {
     const env1Dispatch = { type: 'any', state_repo: { env: 'env1' } }
     const env2Dispatch = { type: 'any', state_repo: { env: 'env2' } }
 
     expect(
-      dispatcher.isDispatchValid(env1Dispatch, ['any'], '*', '*', ['env1'], '*')
+      dispatcher.isDispatchValid(env1Dispatch, ['any'], '*', ['env1'], '*')
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(env2Dispatch, ['any'], '*', '*', ['env1'], '*')
+      dispatcher.isDispatchValid(env2Dispatch, ['any'], '*', ['env1'], '*')
     ).toEqual(false)
 
     expect(
       dispatcher.isDispatchValid(
         env1Dispatch,
         ['any'],
-        '*',
         '*',
         ['env1', 'env2'],
         '*'
@@ -644,7 +596,6 @@ describe('The dispatcher', () => {
       dispatcher.isDispatchValid(
         env2Dispatch,
         ['any'],
-        '*',
         '*',
         ['env1', 'env2'],
         '*'
@@ -657,24 +608,24 @@ describe('The dispatcher', () => {
     const tenant2Dispatch = { type: 'any', state_repo: { tenant: 'tenant2' } }
 
     expect(
-      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', '*', [
+      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', [
         'tenant1'
       ])
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', '*', [
+      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', [
         'tenant1'
       ])
     ).toEqual(false)
 
     expect(
-      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', '*', [
+      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', [
         'tenant1',
         'tenant2'
       ])
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', '*', [
+      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', [
         'tenant1',
         'tenant2'
       ])

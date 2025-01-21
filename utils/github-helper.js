@@ -38,7 +38,6 @@ function getAllInputs() {
     required: true
   })
   const imageType = core.getInput('image_type', { required: true })
-  const stateRepoFilter = core.getInput('state_repo', { required: true })
   const defaultReleasesRegistry = core.getInput('default_releases_registry', {
     required: true
   })
@@ -62,7 +61,6 @@ function getAllInputs() {
     clustersFolderPath,
     registriesFolderPath,
     imageType,
-    stateRepoFilter,
     defaultReleasesRegistry,
     defaultSnapshotsRegistry,
     buildSummary,

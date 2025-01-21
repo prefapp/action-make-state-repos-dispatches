@@ -35,7 +35,6 @@ async function makeDispatches(gitController) {
       clustersFolderPath,
       registriesFolderPath,
       imageType,
-      stateRepoFilter,
       defaultReleasesRegistry,
       defaultSnapshotsRegistry,
       buildSummary,
@@ -78,8 +77,6 @@ async function makeDispatches(gitController) {
     const reviewersList = getListFromInput(reviewers)
     const imageTypesList =
       imageType === '*' ? ['releases', 'snapshots'] : [imageType]
-    const stateReposList =
-      stateRepoFilter === '*' ? '*' : getListFromInput(stateRepoFilter)
     const flavorsList =
       flavorFilter === '*' ? '*' : getListFromInput(flavorFilter)
     const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
@@ -113,7 +110,6 @@ async function makeDispatches(gitController) {
           data,
           imageTypesList,
           flavorsList,
-          stateReposList,
           envFilterList,
           tenantFilterList
         )
@@ -313,7 +309,6 @@ function isDispatchValid(
   dispatch,
   imageTypesList,
   flavorsList,
-  stateReposList,
   envFilterList,
   tenantFilterList
 ) {
@@ -323,7 +318,6 @@ function isDispatchValid(
     imageTypesList.includes(dispatch.type) &&
     (flavorsList === '*' ||
       flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
-    (stateReposList === '*' || stateReposList.includes(stateRepo.repo)) &&
     (envFilterList === '*' || envFilterList.includes(stateRepo.env)) &&
     (tenantFilterList === '*' || tenantFilterList.includes(stateRepo.tenant))
   )

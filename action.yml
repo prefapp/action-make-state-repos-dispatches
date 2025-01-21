@@ -35,13 +35,6 @@ inputs:
       Filter dispatches by flavor, can be multiple values separated by commas.
     required: false
     default: default
-  state_repo:
-    description:
-      Filter dispatches by state repo, can be multiple values separated by
-      commas (use "*" to target all state repos listed in the corresponding
-      dispatches section)
-    required: false
-    default: '*'
   filter_by_env:
     description:
       Dispatch only to state repos whose environment is included in this filter,

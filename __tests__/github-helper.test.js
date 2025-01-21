@@ -160,7 +160,6 @@ describe('github-helper', () => {
       registriesFolderPath: 'registries_folder-value',
       dispatchesFilePath: 'dispatches_file-value',
       imageType: 'image_type-value',
-      stateRepoFilter: 'state_repo-value',
       defaultReleasesRegistry: 'default_releases_registry-value',
       defaultSnapshotsRegistry: 'default_snapshots_registry-value',
       buildSummary: 'build_summary-value',

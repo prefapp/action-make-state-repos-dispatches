@@ -40057,7 +40057,6 @@ async function makeDispatches(gitController) {
       clustersFolderPath,
       registriesFolderPath,
       imageType,
-      stateRepoFilter,
       defaultReleasesRegistry,
       defaultSnapshotsRegistry,
       buildSummary,
@@ -40100,8 +40099,6 @@ async function makeDispatches(gitController) {
     const reviewersList = getListFromInput(reviewers)
     const imageTypesList =
       imageType === '*' ? ['releases', 'snapshots'] : [imageType]
-    const stateReposList =
-      stateRepoFilter === '*' ? '*' : getListFromInput(stateRepoFilter)
     const flavorsList =
       flavorFilter === '*' ? '*' : getListFromInput(flavorFilter)
     const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
@@ -40135,7 +40132,6 @@ async function makeDispatches(gitController) {
           data,
           imageTypesList,
           flavorsList,
-          stateReposList,
           envFilterList,
           tenantFilterList
         )
@@ -40335,7 +40331,6 @@ function isDispatchValid(
   dispatch,
   imageTypesList,
   flavorsList,
-  stateReposList,
   envFilterList,
   tenantFilterList
 ) {
@@ -40345,7 +40340,6 @@ function isDispatchValid(
     imageTypesList.includes(dispatch.type) &&
     (flavorsList === '*' ||
       flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
-    (stateReposList === '*' || stateReposList.includes(stateRepo.repo)) &&
     (envFilterList === '*' || envFilterList.includes(stateRepo.env)) &&
     (tenantFilterList === '*' || tenantFilterList.includes(stateRepo.tenant))
   )
@@ -40587,7 +40581,6 @@ function getAllInputs() {
     required: true
   })
   const imageType = core.getInput('image_type', { required: true })
-  const stateRepoFilter = core.getInput('state_repo', { required: true })
   const defaultReleasesRegistry = core.getInput('default_releases_registry', {
     required: true
   })
@@ -40611,7 +40604,6 @@ function getAllInputs() {
     clustersFolderPath,
     registriesFolderPath,
     imageType,
-    stateRepoFilter,
     defaultReleasesRegistry,
     defaultSnapshotsRegistry,
     buildSummary,

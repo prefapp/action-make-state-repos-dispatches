@@ -5,12 +5,9 @@ const YAML = require('js-yaml')
 const path = require('path')
 const configHelper = require('../utils/config-helper')
 
-const defaultDispatchesFilePath = 'fixtures/github/dispatches_file.yaml'
+const defaultDispatchesFilePath = 'fixtures/dispatches_file.yaml'
 const allInputs = {
-  dispatchesFilePath: path.join(
-    __dirname,
-    '../fixtures/github/dispatches_file.yaml'
-  ),
+  dispatchesFilePath: path.join(__dirname, '../fixtures/dispatches_file.yaml'),
   appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
   clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
   registriesFolderPath: path.join(
@@ -54,7 +51,7 @@ const gitControllerMock = {
   },
   getFileContent: filePath => {
     return Buffer.from(
-      fs.readFileSync(path.join('fixtures/github', filePath))
+      fs.readFileSync(path.join('fixtures', filePath))
     ).toString('base64')
   },
   getPayloadContext: () => {
@@ -712,7 +709,7 @@ describe('The dispatcher', () => {
 
     const remoteFilePath = 'dispatches_file.yaml'
     const expectedRemoteResult = fs
-      .readFileSync(path.join('fixtures/github', remoteFilePath))
+      .readFileSync(path.join('fixtures', remoteFilePath))
       .toString('base64')
     const remoteFileContent = await dispatcher.getDispatchesFileContent(
       remoteFilePath,

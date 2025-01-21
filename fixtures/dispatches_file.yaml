@@ -1,10 +1,69 @@
 deployments:
-  - tenant: tenant99
-    cluster: cluster99
-    env: env99
+  - tenant: tenant1
+    platform: cluster1
+    env: env1
     type: snapshots
-    flavor: flavor99
-    version: version99
-    application: application99
-    service_names: ['service99']
-    dispatch_event_type: 'dispatch-image' # (optional)
+    flavor: flavor1
+    version: version1
+    application: application1
+    registry: registry1
+    service_names: ['service1']
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: snapshots
+    flavor: flavor2
+    version: version23
+    application: application23
+    image_repository: repo23
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: snapshots
+    flavor: flavor3
+    version: version23
+    application: application23
+    service_names: ['service3', 'service23']
+    registry: registry23
+
+  - tenant: tenant23
+    platform: cluster23
+    base_path: 'test_bpath'
+    env: env23
+    type: releases
+    flavor: flavor2
+    version: version23
+    application: application23
+    service_names: ['service2', 'service23']
+    registry: registry23
+    image_repository: repo23
+
+  - tenant: tenant23
+    platform: cluster23
+    env: env23
+    type: releases
+    flavor: flavor3
+    version: version23
+    application: application23
+    service_names: ['service3', 'service23']
+
+  - tenant: tenant4
+    platform: cluster4
+    env: env4
+    type: snapshots
+    flavor: flavor4
+    version: version4
+    application: application4
+    service_names: ['service0']
+
+  - tenant: tenant-releases1
+    base_path: 'test_bpath_releases'
+    platform: cluster-releases1
+    env: env-releases1
+    type: releases
+    flavor: flavor1
+    version: version-releases1
+    application: application-releases1
+    registry: registry-releases1

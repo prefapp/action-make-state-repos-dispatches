@@ -9,10 +9,7 @@ describe('Yaml validation against Json schema', () => {
   let yamlData
 
   beforeAll(() => {
-    yamlFilePath = path.join(
-      __dirname,
-      '../fixtures/github/make_dispatches.yaml'
-    )
+    yamlFilePath = path.join(__dirname, '../fixtures/dispatches_file.yaml')
     schemaFilePath = path.join(__dirname, '../schema/jsonschema.json')
 
     const yamlContent = fs.readFileSync(yamlFilePath, 'utf8')

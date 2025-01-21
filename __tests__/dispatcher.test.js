@@ -207,7 +207,7 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
-      base_folder: ''
+      base_folder: 'aks-cluster/cluster1'
     })
     expect(result[3]).toEqual({
       type: 'releases',
@@ -229,7 +229,7 @@ describe('The dispatcher', () => {
       service_name_list: ['service2', 'service23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
-      base_folder: 'test_bpath'
+      base_folder: 'vmss/cluster23'
     })
   })
 
@@ -279,7 +279,7 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
-      base_folder: ''
+      base_folder: 'aks-cluster/cluster1'
     })
   })
 
@@ -364,7 +364,7 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
-      base_folder: ''
+      base_folder: 'aks-cluster/cluster1'
     })
   })
 

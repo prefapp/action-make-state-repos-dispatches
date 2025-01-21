@@ -30,7 +30,6 @@ deployments:
 
   - tenant: tenant23
     platform: cluster23
-    base_path: 'test_bpath'
     env: env23
     type: releases
     flavor: flavor2
@@ -59,7 +58,6 @@ deployments:
     service_names: ['service0']
 
   - tenant: tenant-releases1
-    base_path: 'test_bpath_releases'
     platform: cluster-releases1
     env: env-releases1
     type: releases

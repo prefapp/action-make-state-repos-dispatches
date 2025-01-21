@@ -1,6 +1,7 @@
 const debug = require('debug')('make-state-repos-dispatches')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
+const path = require('path')
 const fs = require('fs')
 const minimatch = require('minimatch')
 const configHelper = require('../utils/config-helper')
@@ -251,6 +252,11 @@ function createDispatchList(
         `${registriesConfig[deployment.type].base_paths['services']}/` +
           `${serviceData.repo}`
 
+      const basePath = path.join(
+        clusterConfig[deployment.platform].type,
+        deployment.platform
+      )
+
       dispatchList.push({
         type: deployment.type,
         flavor: deployment.flavor,
@@ -275,7 +281,7 @@ function createDispatchList(
         },
         reviewers: reviewersList,
         repository_caller: repo,
-        base_folder: deployment.base_path || ''
+        base_folder: basePath
       })
     }
   }

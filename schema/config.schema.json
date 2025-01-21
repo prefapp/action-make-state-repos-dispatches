@@ -45,9 +45,6 @@
           },
           "image_repository": {
             "type": "string"
-          },
-          "base_path": {
-            "type": "string"
           }
         },
         "required": [

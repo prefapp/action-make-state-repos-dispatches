@@ -40023,6 +40023,7 @@ function wrappy (fn, cb) {
 const debug = __nccwpck_require__(8237)('make-state-repos-dispatches')
 const refHelper = __nccwpck_require__(9978)
 const textHelper = __nccwpck_require__(5276)
+const path = __nccwpck_require__(1017)
 const fs = __nccwpck_require__(7147)
 const minimatch = __nccwpck_require__(3973)
 const configHelper = __nccwpck_require__(8841)
@@ -40273,6 +40274,11 @@ function createDispatchList(
         `${registriesConfig[deployment.type].base_paths['services']}/` +
           `${serviceData.repo}`
 
+      const basePath = path.join(
+        clusterConfig[deployment.platform].type,
+        deployment.platform
+      )
+
       dispatchList.push({
         type: deployment.type,
         flavor: deployment.flavor,
@@ -40297,7 +40303,7 @@ function createDispatchList(
         },
         reviewers: reviewersList,
         repository_caller: repo,
-        base_folder: deployment.base_path || ''
+        base_folder: basePath
       })
     }
   }

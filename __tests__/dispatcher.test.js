@@ -22,9 +22,11 @@ const allInputs = {
   flavorFilter: '*',
   envFilter: '*',
   tenantFilter: '*',
+  clusterFilter: '*',
   overwriteVersion: '',
   overwriteEnv: '',
   overwriteTenant: '',
+  overwriteCluster: '',
   reviewers: 'juanjosevazquezgil,test-reviewer'
 }
 const getAllDispatches = (dispatchesFilePath = defaultDispatchesFilePath) => {
@@ -553,10 +555,10 @@ describe('The dispatcher', () => {
     const env2Dispatch = { type: 'any', env: 'env2' }
 
     expect(
-      dispatcher.isDispatchValid(env1Dispatch, ['any'], '*', ['env1'], '*')
+      dispatcher.isDispatchValid(env1Dispatch, ['any'], '*', ['env1'], '*', '*')
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(env2Dispatch, ['any'], '*', ['env1'], '*')
+      dispatcher.isDispatchValid(env2Dispatch, ['any'], '*', ['env1'], '*', '*')
     ).toEqual(false)
 
     expect(
@@ -565,6 +567,7 @@ describe('The dispatcher', () => {
         ['any'],
         '*',
         ['env1', 'env2'],
+        '*',
         '*'
       )
     ).toEqual(true)
@@ -574,6 +577,7 @@ describe('The dispatcher', () => {
         ['any'],
         '*',
         ['env1', 'env2'],
+        '*',
         '*'
       )
     ).toEqual(true)
@@ -584,26 +588,73 @@ describe('The dispatcher', () => {
     const tenant2Dispatch = { type: 'any', tenant: 'tenant2' }
 
     expect(
-      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', [
-        'tenant1'
+      dispatcher.isDispatchValid(
+        tenant1Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1'],
+        '*'
+      )
+    ).toEqual(true)
+    expect(
+      dispatcher.isDispatchValid(
+        tenant2Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1'],
+        '*'
+      )
+    ).toEqual(false)
+
+    expect(
+      dispatcher.isDispatchValid(
+        tenant1Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1', 'tenant2'],
+        '*'
+      )
+    ).toEqual(true)
+    expect(
+      dispatcher.isDispatchValid(
+        tenant2Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1', 'tenant2'],
+        '*'
+      )
+    ).toEqual(true)
+  })
+
+  it('can filter by platform', async () => {
+    const plat1Dispatch = { type: 'any', platform: 'cluster1' }
+    const plat2Dispatch = { type: 'any', platform: 'cluster2' }
+
+    expect(
+      dispatcher.isDispatchValid(plat1Dispatch, ['any'], '*', '*', '*', [
+        'cluster1'
       ])
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', [
-        'tenant1'
+      dispatcher.isDispatchValid(plat2Dispatch, ['any'], '*', '*', '*', [
+        'cluster1'
       ])
     ).toEqual(false)
 
     expect(
-      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', [
-        'tenant1',
-        'tenant2'
+      dispatcher.isDispatchValid(plat1Dispatch, ['any'], '*', '*', '*', [
+        'cluster1',
+        'cluster2'
       ])
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', [
-        'tenant1',
-        'tenant2'
+      dispatcher.isDispatchValid(plat2Dispatch, ['any'], '*', '*', '*', [
+        'cluster1',
+        'cluster2'
       ])
     ).toEqual(true)
   })

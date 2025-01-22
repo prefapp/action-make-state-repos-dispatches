@@ -166,9 +166,11 @@ describe('github-helper', () => {
       flavorFilter: 'flavors-value',
       envFilter: 'filter_by_env-value',
       tenantFilter: 'filter_by_tenant-value',
+      clusterFilter: 'filter_by_platform-value',
       overwriteVersion: 'overwrite_version-value',
       overwriteEnv: 'overwrite_env-value',
       overwriteTenant: 'overwrite_tenant-value',
+      overwriteCluster: 'overwrite_platform-value',
       reviewers: 'reviewers-value',
       checkRunName: 'check_run_name-value'
     })

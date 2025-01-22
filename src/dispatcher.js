@@ -194,6 +194,7 @@ async function makeDispatches(gitController) {
 
     return resultList
   } catch (error) {
+    console.log(error)
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {
@@ -322,7 +323,7 @@ function isDispatchValid(
       flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
     (envFilterList === '*' || envFilterList.includes(dispatch.env)) &&
     (tenantFilterList === '*' || tenantFilterList.includes(dispatch.tenant)) &&
-    (clusterFilterList === '*' || clusterFilterList.includes(dispatch.cluster))
+    (clusterFilterList === '*' || clusterFilterList.includes(dispatch.platform))
   )
 }
 

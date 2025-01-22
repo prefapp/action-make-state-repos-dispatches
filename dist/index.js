@@ -40157,8 +40157,7 @@ async function makeDispatches(gitController) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
-            entry.registry ===
-              (data.state_repo.registry || defaultRegistries[data.type])
+            entry.registry === (data.registry || defaultRegistries[data.type])
         )[0]
 
         if (!imageData)
@@ -40185,23 +40184,28 @@ async function makeDispatches(gitController) {
         gitController.handleNotice(
           `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
             `for services ${data.service_name_list.join(', ')} with dispatch ` +
-            `event type ${data.state_repo.dispatch_event_type}`
+            `event type ${data.dispatch_event_type}`
         )
 
         data.message = dispatchStatus
         groupedDispatches[stateRepoName] =
-          groupedDispatches[stateRepoName] ?? [] // Initialize as an empty array if the property doesn't exist
-        groupedDispatches[stateRepoName].push(data)
+          groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
+        groupedDispatches[stateRepoName][data.dispatch_event_type] =
+          groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
+        groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
       }
     }
 
     const resultList = []
-    for (const key in groupedDispatches) {
-      const result = await gitController.dispatch(
-        groupedDispatches[key][0].state_repo, // They all belong to the same repo
-        groupedDispatches[key]
-      )
-      resultList.push(result)
+    for (const stateRepo in groupedDispatches) {
+      for (const dispatchEventType in groupedDispatches[stateRepo]) {
+        const result = await gitController.dispatch(
+          stateRepo, // They all belong to the same repo
+          dispatchEventType, // They all have the same dispatch_event_type
+          groupedDispatches[stateRepo][dispatchEventType]
+        )
+        resultList.push(result)
+      }
     }
 
     return resultList
@@ -40251,8 +40255,6 @@ function createDispatchList(
       )
     }
 
-    const stateRepo = appConfig[deployment.application].state_repo
-
     for (const serviceData of appConfig[deployment.application].services) {
       if (deployment.service_names) {
         for (const serviceName of deployment.service_names) {
@@ -40284,21 +40286,15 @@ function createDispatchList(
         env: envOverride || deployment.env,
         service_name_list:
           deployment.service_names || serviceData.service_names,
-        state_repo: {
-          application: deployment.application,
-          env: envOverride || deployment.env,
-          repo: stateRepo,
-          registry:
-            deployment.registry || registriesConfig[deployment.type].registry,
-          image_repository: imageRepo,
-          tenant: tenantOverride || deployment.tenant,
-          version: versionOverride || deployment.version,
-          dispatch_event_type:
-            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
-            `${clusterConfig[deployment.platform].type}`
-        },
+        registry:
+          deployment.registry || registriesConfig[deployment.type].registry,
+        dispatch_event_type:
+          `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+          `${clusterConfig[deployment.platform].type}`,
         reviewers: reviewersList,
         repository_caller: repo,
+        technology: clusterConfig[deployment.platform].type,
+        platform: deployment.platform,
         base_folder: basePath
       })
     }
@@ -40334,14 +40330,12 @@ function isDispatchValid(
   envFilterList,
   tenantFilterList
 ) {
-  const stateRepo = dispatch.state_repo
-
   return (
     imageTypesList.includes(dispatch.type) &&
     (flavorsList === '*' ||
       flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
-    (envFilterList === '*' || envFilterList.includes(stateRepo.env)) &&
-    (tenantFilterList === '*' || tenantFilterList.includes(stateRepo.tenant))
+    (envFilterList === '*' || envFilterList.includes(dispatch.env)) &&
+    (tenantFilterList === '*' || tenantFilterList.includes(dispatch.tenant))
   )
 }
 
@@ -40819,17 +40813,17 @@ async function getSummaryDataForRef(ref, workflowName) {
   }
 }
 
-async function dispatch(repoData, dispatchMatrix) {
+async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
   try {
     const octokit = getOctokit()
-    const ownerAndRepo = repoData.repo.split('/')
+    const ownerAndRepo = stateRepoName.split('/')
     const owner = ownerAndRepo[0]
     const repo = ownerAndRepo[1]
 
     await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
-      event_type: repoData.dispatch_event_type,
+      event_type: dispatchEventType,
       client_payload: {
         images: dispatchMatrix,
         version: 4
@@ -40841,7 +40835,8 @@ async function dispatch(repoData, dispatchMatrix) {
     console.error(e)
 
     throw new Error(
-      `Error creating dispatch event for repo ${repoData.repo}. Repo data: ${repoData}. Dispatch matrix: ${dispatchMatrix}`
+      `Error creating dispatch event for repo ${stateRepoName}. ` +
+        `Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

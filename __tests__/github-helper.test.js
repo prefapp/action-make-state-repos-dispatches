@@ -399,15 +399,18 @@ describe('github-helper', () => {
   })
 
   it('can make dispatches', async () => {
-    const result = await ghHelper.dispatch({ repo: '' }, '')
+    const result = await ghHelper.dispatch('', '', { repo: '' })
 
     expect(result).toEqual(true)
   })
 
   it('when making dispatches, throws an error if any happen', async () => {
     const repoObj = { repo: 'org/throw' }
-    await expect(ghHelper.dispatch(repoObj, 'dispatch-matrix')).rejects.toThrow(
-      `Error creating dispatch event for repo org/throw. Repo data: ${repoObj}. Dispatch matrix: dispatch-matrix`
+    await expect(
+      ghHelper.dispatch('org/throw', 'event', 'dispatch-matrix')
+    ).rejects.toThrow(
+      `Error creating dispatch event for repo org/throw. ` +
+        `Dispatch matrix: dispatch-matrix`
     )
   })
 

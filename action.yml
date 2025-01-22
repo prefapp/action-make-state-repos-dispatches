@@ -37,14 +37,20 @@ inputs:
     default: default
   filter_by_env:
     description:
-      Dispatch only to state repos whose environment is included in this filter,
+      Dispatch only to dispatches whose environment is included in this filter,
       if specified. Can be a comma separated list of environments or * (all)
     required: true
     default: '*'
   filter_by_tenant:
     description:
-      Dispatch only to state repos whose tenant is included in this filter, if
+      Dispatch only to dispatches whose tenant is included in this filter, if
       specified. Can be a comma separated list of tenants or * (all)
+    required: true
+    default: '*'
+  filter_by_cluster:
+    description:
+      Dispatch only to dispatches whose cluster is included in this filter, if
+      specified. Can be a comma separated list of clusters or * (all)
     required: true
     default: '*'
   overwrite_version:
@@ -62,6 +68,12 @@ inputs:
   overwrite_env:
     description:
       Dispatch using this environment instead of using the one defined in the
+      dispatches file, related to the flavor to deploy.
+    required: false
+    default: ''
+  overwrite_cluster:
+    description:
+      Dispatch using this cluster instead of using the one defined in the
       dispatches file, related to the flavor to deploy.
     required: false
     default: ''

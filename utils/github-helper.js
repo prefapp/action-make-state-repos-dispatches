@@ -49,9 +49,11 @@ function getAllInputs() {
   const flavorFilter = core.getInput('flavors')
   const envFilter = core.getInput('filter_by_env')
   const tenantFilter = core.getInput('filter_by_tenant')
+  const clusterFilter = core.getInput('filter_by_platform')
   const overwriteVersion = core.getInput('overwrite_version')
   const overwriteEnv = core.getInput('overwrite_env')
   const overwriteTenant = core.getInput('overwrite_tenant')
+  const overwriteCluster = core.getInput('overwrite_platform')
   const reviewers = core.getInput('reviewers')
   const checkRunName = core.getInput('check_run_name')
 
@@ -67,9 +69,11 @@ function getAllInputs() {
     flavorFilter,
     envFilter,
     tenantFilter,
+    clusterFilter,
     overwriteVersion,
     overwriteEnv,
     overwriteTenant,
+    overwriteCluster,
     reviewers,
     checkRunName
   }

@@ -41,9 +41,11 @@ async function makeDispatches(gitController) {
       flavorFilter,
       envFilter,
       tenantFilter,
+      clusterFilter,
       overwriteVersion,
       overwriteEnv,
       overwriteTenant,
+      overwriteCluster,
       reviewers,
       checkRunName
     } = gitController.getAllInputs()
@@ -82,6 +84,8 @@ async function makeDispatches(gitController) {
     const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
     const tenantFilterList =
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
+    const clusterFilterList =
+      clusterFilter === '*' ? '*' : getListFromInput(clusterFilter)
 
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
     const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
@@ -100,7 +104,8 @@ async function makeDispatches(gitController) {
       registriesConfig,
       overwriteVersion,
       overwriteTenant,
-      overwriteEnv
+      overwriteEnv,
+      overwriteCluster
     )
 
     const groupedDispatches = {}
@@ -111,7 +116,8 @@ async function makeDispatches(gitController) {
           imageTypesList,
           flavorsList,
           envFilterList,
-          tenantFilterList
+          tenantFilterList,
+          clusterFilterList
         )
       ) {
         const resolvedVersion = await refHelper.getLatestRef(
@@ -212,23 +218,24 @@ function createDispatchList(
   registriesConfig,
   versionOverride = '',
   tenantOverride = '',
-  envOverride = ''
+  envOverride = '',
+  clusterOverride = ''
 ) {
   const dispatchList = []
 
   for (const deployment of deployments) {
-    if (
-      !clusterConfig[deployment.platform].tenants.includes(deployment.tenant)
-    ) {
+    const chosenCluster = clusterOverride || deployment.platform
+
+    if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.platform} ` +
+        `Error when creating dispatch list: ${chosenCluster} ` +
           `cluster configuration does not include tenant ${deployment.tenant}`
       )
     }
 
-    if (!clusterConfig[deployment.platform].envs.includes(deployment.env)) {
+    if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.platform} ` +
+        `Error when creating dispatch list: ${chosenCluster} ` +
           `cluster configuration does not include env ${deployment.env}`
       )
     }
@@ -251,8 +258,8 @@ function createDispatchList(
           `${serviceData.repo}`
 
       const basePath = path.join(
-        clusterConfig[deployment.platform].type,
-        deployment.platform
+        clusterConfig[chosenCluster].type,
+        chosenCluster
       )
 
       dispatchList.push({
@@ -268,11 +275,11 @@ function createDispatchList(
           deployment.registry || registriesConfig[deployment.type].registry,
         dispatch_event_type:
           `${deployment.dispatch_event_type || 'dispatch-image'}-` +
-          `${clusterConfig[deployment.platform].type}`,
+          `${clusterConfig[chosenCluster].type}`,
         reviewers: reviewersList,
         repository_caller: repo,
-        technology: clusterConfig[deployment.platform].type,
-        platform: deployment.platform,
+        technology: clusterConfig[chosenCluster].type,
+        platform: chosenCluster,
         base_folder: basePath
       })
     }
@@ -306,14 +313,16 @@ function isDispatchValid(
   imageTypesList,
   flavorsList,
   envFilterList,
-  tenantFilterList
+  tenantFilterList,
+  clusterFilterList
 ) {
   return (
     imageTypesList.includes(dispatch.type) &&
     (flavorsList === '*' ||
       flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
     (envFilterList === '*' || envFilterList.includes(dispatch.env)) &&
-    (tenantFilterList === '*' || tenantFilterList.includes(dispatch.tenant))
+    (tenantFilterList === '*' || tenantFilterList.includes(dispatch.tenant)) &&
+    (clusterFilterList === '*' || clusterFilterList.includes(dispatch.cluster))
   )
 }
 

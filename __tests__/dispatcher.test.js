@@ -22,9 +22,11 @@ const allInputs = {
   flavorFilter: '*',
   envFilter: '*',
   tenantFilter: '*',
+  clusterFilter: '*',
   overwriteVersion: '',
   overwriteEnv: '',
   overwriteTenant: '',
+  overwriteCluster: '',
   reviewers: 'juanjosevazquezgil,test-reviewer'
 }
 const getAllDispatches = (dispatchesFilePath = defaultDispatchesFilePath) => {
@@ -71,7 +73,7 @@ const gitControllerMock = {
       summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
     }
   },
-  dispatch: (dispatchObj, matrix) => {
+  dispatch: (stateRepoName, eventTypeName, matrix) => {
     const result = []
     for (const dispatch of matrix) {
       result.push(`${dispatch.image} published`)
@@ -190,16 +192,8 @@ describe('The dispatcher', () => {
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
-      state_repo: {
-        repo: 'org/state-app-app1',
-        tenant: 'tenant1',
-        application: 'application1',
-        registry: 'registry1',
-        image_repository: 'wips/org/repo1',
-        dispatch_event_type: 'dispatch-image-aks-cluster',
-        env: 'env1',
-        version: 'version1'
-      },
+      registry: 'registry1',
+      dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version1',
       tenant: 'tenant1',
       app: 'application1',
@@ -207,21 +201,15 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      technology: 'aks-cluster',
+      platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'
     })
     expect(result[3]).toEqual({
       type: 'releases',
       flavor: 'flavor2',
-      state_repo: {
-        repo: 'org/state-app-app23',
-        tenant: 'tenant23',
-        application: 'application23',
-        registry: 'registry23',
-        image_repository: 'repo23',
-        dispatch_event_type: 'dispatch-image-vmss',
-        env: 'env23',
-        version: 'version23'
-      },
+      registry: 'registry23',
+      dispatch_event_type: 'dispatch-image-vmss',
       version: 'version23',
       tenant: 'tenant23',
       app: 'application23',
@@ -229,6 +217,8 @@ describe('The dispatcher', () => {
       service_name_list: ['service2', 'service23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      technology: 'vmss',
+      platform: 'cluster23',
       base_folder: 'vmss/cluster23'
     })
   })
@@ -262,16 +252,8 @@ describe('The dispatcher', () => {
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
-      state_repo: {
-        repo: 'org/state-app-app1',
-        tenant: 'tenant1',
-        application: 'application1',
-        registry: 'registry1',
-        image_repository: 'wips/org/repo1',
-        dispatch_event_type: 'dispatch-image-aks-cluster',
-        env: 'env1',
-        version: 'version1'
-      },
+      registry: 'registry1',
+      dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version1',
       tenant: 'tenant1',
       app: 'application1',
@@ -279,6 +261,8 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      technology: 'aks-cluster',
+      platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'
     })
   })
@@ -347,16 +331,8 @@ describe('The dispatcher', () => {
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
-      state_repo: {
-        repo: 'org/state-app-app1',
-        tenant: 'tenant1',
-        application: 'application1',
-        registry: 'registry1',
-        image_repository: 'wips/org/repo1',
-        dispatch_event_type: 'dispatch-image-aks-cluster',
-        env: 'env1',
-        version: 'version1'
-      },
+      registry: 'registry1',
+      dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version1',
       tenant: 'tenant1',
       app: 'application1',
@@ -364,6 +340,8 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      technology: 'aks-cluster',
+      platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'
     })
   })
@@ -572,62 +550,15 @@ describe('The dispatcher', () => {
     ).toEqual(false)
   })
 
-  it('can filter by repos', async () => {
-    const stateRepo1Dispatch = { type: 'any', state_repo: { repo: 'repo1' } }
-    const stateRepo2Dispatch = { type: 'any', state_repo: { repo: 'repo2' } }
-
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo1Dispatch,
-        ['any'],
-        '*',
-        ['repo1'],
-        '*',
-        '*'
-      )
-    ).toEqual(true)
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo2Dispatch,
-        ['any'],
-        '*',
-        ['repo1'],
-        '*',
-        '*'
-      )
-    ).toEqual(false)
-
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo1Dispatch,
-        ['any'],
-        '*',
-        ['repo1', 'repo2'],
-        '*',
-        '*'
-      )
-    ).toEqual(true)
-    expect(
-      dispatcher.isDispatchValid(
-        stateRepo2Dispatch,
-        ['any'],
-        '*',
-        ['repo1', 'repo2'],
-        '*',
-        '*'
-      )
-    ).toEqual(true)
-  })
-
   it('can filter by environment', async () => {
-    const env1Dispatch = { type: 'any', state_repo: { env: 'env1' } }
-    const env2Dispatch = { type: 'any', state_repo: { env: 'env2' } }
+    const env1Dispatch = { type: 'any', env: 'env1' }
+    const env2Dispatch = { type: 'any', env: 'env2' }
 
     expect(
-      dispatcher.isDispatchValid(env1Dispatch, ['any'], '*', '*', ['env1'], '*')
+      dispatcher.isDispatchValid(env1Dispatch, ['any'], '*', ['env1'], '*', '*')
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(env2Dispatch, ['any'], '*', '*', ['env1'], '*')
+      dispatcher.isDispatchValid(env2Dispatch, ['any'], '*', ['env1'], '*', '*')
     ).toEqual(false)
 
     expect(
@@ -635,8 +566,8 @@ describe('The dispatcher', () => {
         env1Dispatch,
         ['any'],
         '*',
-        '*',
         ['env1', 'env2'],
+        '*',
         '*'
       )
     ).toEqual(true)
@@ -645,38 +576,85 @@ describe('The dispatcher', () => {
         env2Dispatch,
         ['any'],
         '*',
-        '*',
         ['env1', 'env2'],
+        '*',
         '*'
       )
     ).toEqual(true)
   })
 
   it('can filter by tenant', async () => {
-    const tenant1Dispatch = { type: 'any', state_repo: { tenant: 'tenant1' } }
-    const tenant2Dispatch = { type: 'any', state_repo: { tenant: 'tenant2' } }
+    const tenant1Dispatch = { type: 'any', tenant: 'tenant1' }
+    const tenant2Dispatch = { type: 'any', tenant: 'tenant2' }
 
     expect(
-      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', '*', [
-        'tenant1'
+      dispatcher.isDispatchValid(
+        tenant1Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1'],
+        '*'
+      )
+    ).toEqual(true)
+    expect(
+      dispatcher.isDispatchValid(
+        tenant2Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1'],
+        '*'
+      )
+    ).toEqual(false)
+
+    expect(
+      dispatcher.isDispatchValid(
+        tenant1Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1', 'tenant2'],
+        '*'
+      )
+    ).toEqual(true)
+    expect(
+      dispatcher.isDispatchValid(
+        tenant2Dispatch,
+        ['any'],
+        '*',
+        '*',
+        ['tenant1', 'tenant2'],
+        '*'
+      )
+    ).toEqual(true)
+  })
+
+  it('can filter by platform', async () => {
+    const plat1Dispatch = { type: 'any', platform: 'cluster1' }
+    const plat2Dispatch = { type: 'any', platform: 'cluster2' }
+
+    expect(
+      dispatcher.isDispatchValid(plat1Dispatch, ['any'], '*', '*', '*', [
+        'cluster1'
       ])
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', '*', [
-        'tenant1'
+      dispatcher.isDispatchValid(plat2Dispatch, ['any'], '*', '*', '*', [
+        'cluster1'
       ])
     ).toEqual(false)
 
     expect(
-      dispatcher.isDispatchValid(tenant1Dispatch, ['any'], '*', '*', '*', [
-        'tenant1',
-        'tenant2'
+      dispatcher.isDispatchValid(plat1Dispatch, ['any'], '*', '*', '*', [
+        'cluster1',
+        'cluster2'
       ])
     ).toEqual(true)
     expect(
-      dispatcher.isDispatchValid(tenant2Dispatch, ['any'], '*', '*', '*', [
-        'tenant1',
-        'tenant2'
+      dispatcher.isDispatchValid(plat2Dispatch, ['any'], '*', '*', '*', [
+        'cluster1',
+        'cluster2'
       ])
     ).toEqual(true)
   })

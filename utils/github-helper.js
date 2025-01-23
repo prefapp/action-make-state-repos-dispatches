@@ -38,7 +38,6 @@ function getAllInputs() {
     required: true
   })
   const imageType = core.getInput('image_type', { required: true })
-  const stateRepoFilter = core.getInput('state_repo', { required: true })
   const defaultReleasesRegistry = core.getInput('default_releases_registry', {
     required: true
   })
@@ -50,6 +49,7 @@ function getAllInputs() {
   const flavorFilter = core.getInput('flavors')
   const envFilter = core.getInput('filter_by_env')
   const tenantFilter = core.getInput('filter_by_tenant')
+  const clusterFilter = core.getInput('filter_by_platform')
   const overwriteVersion = core.getInput('overwrite_version')
   const overwriteEnv = core.getInput('overwrite_env')
   const overwriteTenant = core.getInput('overwrite_tenant')
@@ -62,13 +62,13 @@ function getAllInputs() {
     clustersFolderPath,
     registriesFolderPath,
     imageType,
-    stateRepoFilter,
     defaultReleasesRegistry,
     defaultSnapshotsRegistry,
     buildSummary,
     flavorFilter,
     envFilter,
     tenantFilter,
+    clusterFilter,
     overwriteVersion,
     overwriteEnv,
     overwriteTenant,
@@ -278,17 +278,17 @@ async function getSummaryDataForRef(ref, workflowName) {
   }
 }
 
-async function dispatch(repoData, dispatchMatrix) {
+async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
   try {
     const octokit = getOctokit()
-    const ownerAndRepo = repoData.repo.split('/')
+    const ownerAndRepo = stateRepoName.split('/')
     const owner = ownerAndRepo[0]
     const repo = ownerAndRepo[1]
 
     await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
-      event_type: repoData.dispatch_event_type,
+      event_type: dispatchEventType,
       client_payload: {
         images: dispatchMatrix,
         version: 4
@@ -300,7 +300,8 @@ async function dispatch(repoData, dispatchMatrix) {
     console.error(e)
 
     throw new Error(
-      `Error creating dispatch event for repo ${repoData.repo}. Repo data: ${repoData}. Dispatch matrix: ${dispatchMatrix}`
+      `Error creating dispatch event for repo ${stateRepoName}. ` +
+        `Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

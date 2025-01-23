@@ -35,13 +35,13 @@ async function makeDispatches(gitController) {
       clustersFolderPath,
       registriesFolderPath,
       imageType,
-      stateRepoFilter,
       defaultReleasesRegistry,
       defaultSnapshotsRegistry,
       buildSummary,
       flavorFilter,
       envFilter,
       tenantFilter,
+      clusterFilter,
       overwriteVersion,
       overwriteEnv,
       overwriteTenant,
@@ -78,13 +78,13 @@ async function makeDispatches(gitController) {
     const reviewersList = getListFromInput(reviewers)
     const imageTypesList =
       imageType === '*' ? ['releases', 'snapshots'] : [imageType]
-    const stateReposList =
-      stateRepoFilter === '*' ? '*' : getListFromInput(stateRepoFilter)
     const flavorsList =
       flavorFilter === '*' ? '*' : getListFromInput(flavorFilter)
     const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
     const tenantFilterList =
       tenantFilter === '*' ? '*' : getListFromInput(tenantFilter)
+    const clusterFilterList =
+      clusterFilter === '*' ? '*' : getListFromInput(clusterFilter)
 
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
     const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
@@ -113,9 +113,9 @@ async function makeDispatches(gitController) {
           data,
           imageTypesList,
           flavorsList,
-          stateReposList,
           envFilterList,
-          tenantFilterList
+          tenantFilterList,
+          clusterFilterList
         )
       ) {
         const resolvedVersion = await refHelper.getLatestRef(
@@ -139,8 +139,7 @@ async function makeDispatches(gitController) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
-            entry.registry ===
-              (data.state_repo.registry || defaultRegistries[data.type])
+            entry.registry === (data.registry || defaultRegistries[data.type])
         )[0]
 
         if (!imageData)
@@ -167,27 +166,33 @@ async function makeDispatches(gitController) {
         gitController.handleNotice(
           `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
             `for services ${data.service_name_list.join(', ')} with dispatch ` +
-            `event type ${data.state_repo.dispatch_event_type}`
+            `event type ${data.dispatch_event_type}`
         )
 
         data.message = dispatchStatus
         groupedDispatches[stateRepoName] =
-          groupedDispatches[stateRepoName] ?? [] // Initialize as an empty array if the property doesn't exist
-        groupedDispatches[stateRepoName].push(data)
+          groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
+        groupedDispatches[stateRepoName][data.dispatch_event_type] =
+          groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
+        groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
       }
     }
 
     const resultList = []
-    for (const key in groupedDispatches) {
-      const result = await gitController.dispatch(
-        groupedDispatches[key][0].state_repo, // They all belong to the same repo
-        groupedDispatches[key]
-      )
-      resultList.push(result)
+    for (const stateRepo in groupedDispatches) {
+      for (const dispatchEventType in groupedDispatches[stateRepo]) {
+        const result = await gitController.dispatch(
+          stateRepo, // They all belong to the same repo
+          dispatchEventType, // They all have the same dispatch_event_type
+          groupedDispatches[stateRepo][dispatchEventType]
+        )
+        resultList.push(result)
+      }
     }
 
     return resultList
   } catch (error) {
+    console.log(error)
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {
@@ -217,23 +222,21 @@ function createDispatchList(
   const dispatchList = []
 
   for (const deployment of deployments) {
-    if (
-      !clusterConfig[deployment.platform].tenants.includes(deployment.tenant)
-    ) {
+    const chosenCluster = deployment.platform
+
+    if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.platform} ` +
+        `Error when creating dispatch list: ${chosenCluster} ` +
           `cluster configuration does not include tenant ${deployment.tenant}`
       )
     }
 
-    if (!clusterConfig[deployment.platform].envs.includes(deployment.env)) {
+    if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
       throw new Error(
-        `Error when creating dispatch list: ${deployment.platform} ` +
+        `Error when creating dispatch list: ${chosenCluster} ` +
           `cluster configuration does not include env ${deployment.env}`
       )
     }
-
-    const stateRepo = appConfig[deployment.application].state_repo
 
     for (const serviceData of appConfig[deployment.application].services) {
       if (deployment.service_names) {
@@ -253,8 +256,8 @@ function createDispatchList(
           `${serviceData.repo}`
 
       const basePath = path.join(
-        clusterConfig[deployment.platform].type,
-        deployment.platform
+        clusterConfig[chosenCluster].type,
+        chosenCluster
       )
 
       dispatchList.push({
@@ -266,21 +269,15 @@ function createDispatchList(
         env: envOverride || deployment.env,
         service_name_list:
           deployment.service_names || serviceData.service_names,
-        state_repo: {
-          application: deployment.application,
-          env: envOverride || deployment.env,
-          repo: stateRepo,
-          registry:
-            deployment.registry || registriesConfig[deployment.type].registry,
-          image_repository: imageRepo,
-          tenant: tenantOverride || deployment.tenant,
-          version: versionOverride || deployment.version,
-          dispatch_event_type:
-            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
-            `${clusterConfig[deployment.platform].type}`
-        },
+        registry:
+          deployment.registry || registriesConfig[deployment.type].registry,
+        dispatch_event_type:
+          `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+          `${clusterConfig[chosenCluster].type}`,
         reviewers: reviewersList,
         repository_caller: repo,
+        technology: clusterConfig[chosenCluster].type,
+        platform: chosenCluster,
         base_folder: basePath
       })
     }
@@ -313,19 +310,17 @@ function isDispatchValid(
   dispatch,
   imageTypesList,
   flavorsList,
-  stateReposList,
   envFilterList,
-  tenantFilterList
+  tenantFilterList,
+  clusterFilterList
 ) {
-  const stateRepo = dispatch.state_repo
-
   return (
     imageTypesList.includes(dispatch.type) &&
     (flavorsList === '*' ||
       flavorsList.filter(f => minimatch(dispatch.flavor, f)).length === 1) &&
-    (stateReposList === '*' || stateReposList.includes(stateRepo.repo)) &&
-    (envFilterList === '*' || envFilterList.includes(stateRepo.env)) &&
-    (tenantFilterList === '*' || tenantFilterList.includes(stateRepo.tenant))
+    (envFilterList === '*' || envFilterList.includes(dispatch.env)) &&
+    (tenantFilterList === '*' || tenantFilterList.includes(dispatch.tenant)) &&
+    (clusterFilterList === '*' || clusterFilterList.includes(dispatch.platform))
   )
 }
 

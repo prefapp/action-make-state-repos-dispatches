@@ -170,7 +170,6 @@ describe('github-helper', () => {
       overwriteVersion: 'overwrite_version-value',
       overwriteEnv: 'overwrite_env-value',
       overwriteTenant: 'overwrite_tenant-value',
-      overwriteCluster: 'overwrite_platform-value',
       reviewers: 'reviewers-value',
       checkRunName: 'check_run_name-value'
     })

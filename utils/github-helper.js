@@ -53,7 +53,6 @@ function getAllInputs() {
   const overwriteVersion = core.getInput('overwrite_version')
   const overwriteEnv = core.getInput('overwrite_env')
   const overwriteTenant = core.getInput('overwrite_tenant')
-  const overwriteCluster = core.getInput('overwrite_platform')
   const reviewers = core.getInput('reviewers')
   const checkRunName = core.getInput('check_run_name')
 
@@ -73,7 +72,6 @@ function getAllInputs() {
     overwriteVersion,
     overwriteEnv,
     overwriteTenant,
-    overwriteCluster,
     reviewers,
     checkRunName
   }

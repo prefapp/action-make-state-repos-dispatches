@@ -45,7 +45,6 @@ async function makeDispatches(gitController) {
       overwriteVersion,
       overwriteEnv,
       overwriteTenant,
-      overwriteCluster,
       reviewers,
       checkRunName
     } = gitController.getAllInputs()
@@ -104,8 +103,7 @@ async function makeDispatches(gitController) {
       registriesConfig,
       overwriteVersion,
       overwriteTenant,
-      overwriteEnv,
-      overwriteCluster
+      overwriteEnv
     )
 
     const groupedDispatches = {}
@@ -219,13 +217,12 @@ function createDispatchList(
   registriesConfig,
   versionOverride = '',
   tenantOverride = '',
-  envOverride = '',
-  clusterOverride = ''
+  envOverride = ''
 ) {
   const dispatchList = []
 
   for (const deployment of deployments) {
-    const chosenCluster = clusterOverride || deployment.platform
+    const chosenCluster = deployment.platform
 
     if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
       throw new Error(

@@ -47,9 +47,9 @@ inputs:
       specified. Can be a comma separated list of tenants or * (all)
     required: true
     default: '*'
-  filter_by_cluster:
+  filter_by_platform:
     description:
-      Dispatch only to dispatches whose cluster is included in this filter, if
+      Dispatch only to dispatches whose platform is included in this filter, if
       specified. Can be a comma separated list of clusters or * (all)
     required: true
     default: '*'
@@ -68,12 +68,6 @@ inputs:
   overwrite_env:
     description:
       Dispatch using this environment instead of using the one defined in the
-      dispatches file, related to the flavor to deploy.
-    required: false
-    default: ''
-  overwrite_cluster:
-    description:
-      Dispatch using this cluster instead of using the one defined in the
       dispatches file, related to the flavor to deploy.
     required: false
     default: ''

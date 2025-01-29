@@ -2,10 +2,11 @@
 
 ## [3.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.0...v3.0.1) (2025-01-23)
 
-
 ### Bug Fixes
 
-* Removed unused parameter ([#74](https://github.com/prefapp/action-make-state-repos-dispatches/issues/74)) ([fba153c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/fba153cd108aa9620102f5d46a28a8534b3694fc))
+- Removed unused parameter
+  ([#74](https://github.com/prefapp/action-make-state-repos-dispatches/issues/74))
+  ([fba153c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/fba153cd108aa9620102f5d46a28a8534b3694fc))
 
 ## [3.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v2.0.1...v3.0.0) (2025-01-21)
 

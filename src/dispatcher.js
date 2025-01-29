@@ -224,6 +224,13 @@ function createDispatchList(
   for (const deployment of deployments) {
     const chosenCluster = deployment.platform
 
+    if (!clusterConfig[chosenCluster]) {
+      throw new Error(
+        `Error when creating dispatch list: ${chosenCluster} ` +
+          `cluster configuration does not exist`
+      )
+    }
+
     if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
       throw new Error(
         `Error when creating dispatch list: ${chosenCluster} ` +
@@ -235,6 +242,13 @@ function createDispatchList(
       throw new Error(
         `Error when creating dispatch list: ${chosenCluster} ` +
           `cluster configuration does not include env ${deployment.env}`
+      )
+    }
+
+    if (!appConfig[deployment.application]) {
+      throw new Error(
+        `Error when creating dispatch list: ${deployment.application} ` +
+          `application configuration does not exist`
       )
     }
 

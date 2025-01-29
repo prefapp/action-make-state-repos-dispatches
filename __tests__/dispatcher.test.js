@@ -296,6 +296,31 @@ describe('The dispatcher', () => {
     )
   })
 
+  it("correctly throws an error when an app doesn't have a configuration file", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        {},
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${singleDispatch.application} application configuration does not exist`
+    )
+  })
+
   it("correctly processes deployments even when its configuration doesn't exactly match the cluster configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const registriesConfig = configHelper.getRegistriesConfig(

@@ -40243,7 +40243,9 @@ function createDispatchList(
 ) {
   const dispatchList = []
 
+  debug('Creating dispatch list')
   for (const deployment of deployments) {
+    debug('Validating deployment >', deployment)
     const chosenCluster = deployment.platform
 
     if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {

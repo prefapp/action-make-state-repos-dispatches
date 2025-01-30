@@ -23,57 +23,66 @@ function _resolveSemver(version) {
 }
 
 function getInput(inputName, isRequired = false) {
-  return core.getInput(inputName, { required: isRequired })
+  try {
+    return core.getInput(inputName, { required: isRequired })
+  } catch (e) {
+    throw new Error(`Error trying to get Github input ${inputName}: ${e}`)
+  }
 }
 
 function getAllInputs() {
-  const dispatchesFilePath = core.getInput('dispatches_file', {
-    required: true
-  })
-  const appsFolderPath = core.getInput('apps_folder', { required: true })
-  const clustersFolderPath = core.getInput('platform_folder', {
-    required: true
-  })
-  const registriesFolderPath = core.getInput('registries_folder', {
-    required: true
-  })
-  const imageType = core.getInput('image_type', { required: true })
-  const defaultReleasesRegistry = core.getInput('default_releases_registry', {
-    required: true
-  })
-  const defaultSnapshotsRegistry = core.getInput('default_snapshots_registry', {
-    required: true
-  })
+  try {
+    const dispatchesFilePath = core.getInput('dispatches_file', {
+      required: true
+    })
+    const appsFolderPath = core.getInput('apps_folder', { required: true })
+    const clustersFolderPath = core.getInput('platform_folder', {
+      required: true
+    })
+    const registriesFolderPath = core.getInput('registries_folder', {
+      required: true
+    })
+    const imageType = core.getInput('image_type', { required: true })
+    const defaultReleasesRegistry = core.getInput('default_releases_registry', {
+      required: true
+    })
+    const defaultSnapshotsRegistry = core.getInput(
+      'default_snapshots_registry',
+      { required: true }
+    )
 
-  const buildSummary = core.getInput('build_summary')
-  const flavorFilter = core.getInput('flavors')
-  const envFilter = core.getInput('filter_by_env')
-  const tenantFilter = core.getInput('filter_by_tenant')
-  const clusterFilter = core.getInput('filter_by_platform')
-  const overwriteVersion = core.getInput('overwrite_version')
-  const overwriteEnv = core.getInput('overwrite_env')
-  const overwriteTenant = core.getInput('overwrite_tenant')
-  const reviewers = core.getInput('reviewers')
-  const checkRunName = core.getInput('check_run_name')
+    const buildSummary = core.getInput('build_summary')
+    const flavorFilter = core.getInput('flavors')
+    const envFilter = core.getInput('filter_by_env')
+    const tenantFilter = core.getInput('filter_by_tenant')
+    const clusterFilter = core.getInput('filter_by_platform')
+    const overwriteVersion = core.getInput('overwrite_version')
+    const overwriteEnv = core.getInput('overwrite_env')
+    const overwriteTenant = core.getInput('overwrite_tenant')
+    const reviewers = core.getInput('reviewers')
+    const checkRunName = core.getInput('check_run_name')
 
-  return {
-    dispatchesFilePath,
-    appsFolderPath,
-    clustersFolderPath,
-    registriesFolderPath,
-    imageType,
-    defaultReleasesRegistry,
-    defaultSnapshotsRegistry,
-    buildSummary,
-    flavorFilter,
-    envFilter,
-    tenantFilter,
-    clusterFilter,
-    overwriteVersion,
-    overwriteEnv,
-    overwriteTenant,
-    reviewers,
-    checkRunName
+    return {
+      dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
+      registriesFolderPath,
+      imageType,
+      defaultReleasesRegistry,
+      defaultSnapshotsRegistry,
+      buildSummary,
+      flavorFilter,
+      envFilter,
+      tenantFilter,
+      clusterFilter,
+      overwriteVersion,
+      overwriteEnv,
+      overwriteTenant,
+      reviewers,
+      checkRunName
+    }
+  } catch (e) {
+    throw new Error(`Error while obtaining all Github inputs: ${e}`)
   }
 }
 

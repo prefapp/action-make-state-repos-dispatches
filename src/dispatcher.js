@@ -219,85 +219,89 @@ function createDispatchList(
   tenantOverride = '',
   envOverride = ''
 ) {
-  const dispatchList = []
+  try {
+    const dispatchList = []
 
-  for (const deployment of deployments) {
-    const chosenCluster = deployment.platform
+    for (const deployment of deployments) {
+      const chosenCluster = deployment.platform
 
-    if (!clusterConfig[chosenCluster]) {
-      throw new Error(
-        `Error when creating dispatch list: ${chosenCluster} ` +
-          `cluster configuration does not exist`
-      )
-    }
-
-    if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
-      throw new Error(
-        `Error when creating dispatch list: ${chosenCluster} ` +
-          `cluster configuration does not include tenant ${deployment.tenant}`
-      )
-    }
-
-    if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
-      throw new Error(
-        `Error when creating dispatch list: ${chosenCluster} ` +
-          `cluster configuration does not include env ${deployment.env}`
-      )
-    }
-
-    if (!appConfig[deployment.application]) {
-      throw new Error(
-        `Error when creating dispatch list: ${deployment.application} ` +
-          `application configuration does not exist`
-      )
-    }
-
-    for (const serviceData of appConfig[deployment.application].services) {
-      if (deployment.service_names) {
-        for (const serviceName of deployment.service_names) {
-          if (!serviceData.service_names.includes(serviceName)) {
-            throw new Error(
-              `Error when creating dispatch list: ${deployment.application} ` +
-                `application configuration does not include service ${serviceName}`
-            )
-          }
-        }
+      if (!clusterConfig[chosenCluster]) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration does not exist`
+        )
       }
 
-      const imageRepo =
-        deployment.image_repository ||
-        `${registriesConfig[deployment.type].base_paths['services']}/` +
-          `${serviceData.repo}`
+      if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration does not include tenant ${deployment.tenant}`
+        )
+      }
 
-      const basePath = path.join(
-        clusterConfig[chosenCluster].type,
-        chosenCluster
-      )
+      if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration does not include env ${deployment.env}`
+        )
+      }
 
-      dispatchList.push({
-        type: deployment.type,
-        flavor: deployment.flavor,
-        version: versionOverride || deployment.version,
-        tenant: tenantOverride || deployment.tenant,
-        app: deployment.application,
-        env: envOverride || deployment.env,
-        service_name_list:
-          deployment.service_names || serviceData.service_names,
-        registry:
-          deployment.registry || registriesConfig[deployment.type].registry,
-        dispatch_event_type:
-          `${deployment.dispatch_event_type || 'dispatch-image'}-` +
-          `${clusterConfig[chosenCluster].type}`,
-        reviewers: reviewersList,
-        repository_caller: repo,
-        technology: clusterConfig[chosenCluster].type,
-        platform: chosenCluster,
-        base_folder: basePath
-      })
+      if (!appConfig[deployment.application]) {
+        throw new Error(
+          `Error when creating dispatch list: ${deployment.application} ` +
+            `application configuration does not exist`
+        )
+      }
+
+      for (const serviceData of appConfig[deployment.application].services) {
+        if (deployment.service_names) {
+          for (const serviceName of deployment.service_names) {
+            if (!serviceData.service_names.includes(serviceName)) {
+              throw new Error(
+                `Error when creating dispatch list: ${deployment.application} ` +
+                  `application configuration does not include service ${serviceName}`
+              )
+            }
+          }
+        }
+
+        const imageRepo =
+          deployment.image_repository ||
+          `${registriesConfig[deployment.type].base_paths['services']}/` +
+            `${serviceData.repo}`
+
+        const basePath = path.join(
+          clusterConfig[chosenCluster].type,
+          chosenCluster
+        )
+
+        dispatchList.push({
+          type: deployment.type,
+          flavor: deployment.flavor,
+          version: versionOverride || deployment.version,
+          tenant: tenantOverride || deployment.tenant,
+          app: deployment.application,
+          env: envOverride || deployment.env,
+          service_name_list:
+            deployment.service_names || serviceData.service_names,
+          registry:
+            deployment.registry || registriesConfig[deployment.type].registry,
+          dispatch_event_type:
+            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+            `${clusterConfig[chosenCluster].type}`,
+          reviewers: reviewersList,
+          repository_caller: repo,
+          technology: clusterConfig[chosenCluster].type,
+          platform: chosenCluster,
+          base_folder: basePath
+        })
+      }
     }
-  }
 
-  return dispatchList
+    return dispatchList
+  } catch (e) {
+    throw new Error(`Error happened when trying to create dispatch list: ${e}`)
+  }
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {

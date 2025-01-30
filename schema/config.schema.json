@@ -37,8 +37,7 @@
             "items": {
               "type": "string"
             },
-            "minItems": 1,
-            "additionalProperties": false
+            "minItems": 1
           },
           "registry": {
             "type": "string"
@@ -57,9 +56,7 @@
           "application"
         ],
         "additionalProperties": false
-      },
-      "required": ["type", "flavors", "state_repos"],
-      "additionalProperties": false
+      }
     }
   },
   "required": ["deployments"],

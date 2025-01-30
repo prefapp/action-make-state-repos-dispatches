@@ -40241,85 +40241,89 @@ function createDispatchList(
   tenantOverride = '',
   envOverride = ''
 ) {
-  const dispatchList = []
+  try {
+    const dispatchList = []
 
-  for (const deployment of deployments) {
-    const chosenCluster = deployment.platform
+    for (const deployment of deployments) {
+      const chosenCluster = deployment.platform
 
-    if (!clusterConfig[chosenCluster]) {
-      throw new Error(
-        `Error when creating dispatch list: ${chosenCluster} ` +
-          `cluster configuration does not exist`
-      )
-    }
-
-    if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
-      throw new Error(
-        `Error when creating dispatch list: ${chosenCluster} ` +
-          `cluster configuration does not include tenant ${deployment.tenant}`
-      )
-    }
-
-    if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
-      throw new Error(
-        `Error when creating dispatch list: ${chosenCluster} ` +
-          `cluster configuration does not include env ${deployment.env}`
-      )
-    }
-
-    if (!appConfig[deployment.application]) {
-      throw new Error(
-        `Error when creating dispatch list: ${deployment.application} ` +
-          `application configuration does not exist`
-      )
-    }
-
-    for (const serviceData of appConfig[deployment.application].services) {
-      if (deployment.service_names) {
-        for (const serviceName of deployment.service_names) {
-          if (!serviceData.service_names.includes(serviceName)) {
-            throw new Error(
-              `Error when creating dispatch list: ${deployment.application} ` +
-                `application configuration does not include service ${serviceName}`
-            )
-          }
-        }
+      if (!clusterConfig[chosenCluster]) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration does not exist`
+        )
       }
 
-      const imageRepo =
-        deployment.image_repository ||
-        `${registriesConfig[deployment.type].base_paths['services']}/` +
-          `${serviceData.repo}`
+      if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration does not include tenant ${deployment.tenant}`
+        )
+      }
 
-      const basePath = path.join(
-        clusterConfig[chosenCluster].type,
-        chosenCluster
-      )
+      if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration does not include env ${deployment.env}`
+        )
+      }
 
-      dispatchList.push({
-        type: deployment.type,
-        flavor: deployment.flavor,
-        version: versionOverride || deployment.version,
-        tenant: tenantOverride || deployment.tenant,
-        app: deployment.application,
-        env: envOverride || deployment.env,
-        service_name_list:
-          deployment.service_names || serviceData.service_names,
-        registry:
-          deployment.registry || registriesConfig[deployment.type].registry,
-        dispatch_event_type:
-          `${deployment.dispatch_event_type || 'dispatch-image'}-` +
-          `${clusterConfig[chosenCluster].type}`,
-        reviewers: reviewersList,
-        repository_caller: repo,
-        technology: clusterConfig[chosenCluster].type,
-        platform: chosenCluster,
-        base_folder: basePath
-      })
+      if (!appConfig[deployment.application]) {
+        throw new Error(
+          `Error when creating dispatch list: ${deployment.application} ` +
+            `application configuration does not exist`
+        )
+      }
+
+      for (const serviceData of appConfig[deployment.application].services) {
+        if (deployment.service_names) {
+          for (const serviceName of deployment.service_names) {
+            if (!serviceData.service_names.includes(serviceName)) {
+              throw new Error(
+                `Error when creating dispatch list: ${deployment.application} ` +
+                  `application configuration does not include service ${serviceName}`
+              )
+            }
+          }
+        }
+
+        const imageRepo =
+          deployment.image_repository ||
+          `${registriesConfig[deployment.type].base_paths['services']}/` +
+            `${serviceData.repo}`
+
+        const basePath = path.join(
+          clusterConfig[chosenCluster].type,
+          chosenCluster
+        )
+
+        dispatchList.push({
+          type: deployment.type,
+          flavor: deployment.flavor,
+          version: versionOverride || deployment.version,
+          tenant: tenantOverride || deployment.tenant,
+          app: deployment.application,
+          env: envOverride || deployment.env,
+          service_name_list:
+            deployment.service_names || serviceData.service_names,
+          registry:
+            deployment.registry || registriesConfig[deployment.type].registry,
+          dispatch_event_type:
+            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
+            `${clusterConfig[chosenCluster].type}`,
+          reviewers: reviewersList,
+          repository_caller: repo,
+          technology: clusterConfig[chosenCluster].type,
+          platform: chosenCluster,
+          base_folder: basePath
+        })
+      }
     }
-  }
 
-  return dispatchList
+    return dispatchList
+  } catch (e) {
+    throw new Error(`Error happened when trying to create dispatch list: ${e}`)
+  }
 }
 
 async function getLatestBuildSummary(version, gitController, checkRunName) {
@@ -40581,57 +40585,66 @@ function _resolveSemver(version) {
 }
 
 function getInput(inputName, isRequired = false) {
-  return core.getInput(inputName, { required: isRequired })
+  try {
+    return core.getInput(inputName, { required: isRequired })
+  } catch (e) {
+    throw new Error(`Error trying to get Github input ${inputName}: ${e}`)
+  }
 }
 
 function getAllInputs() {
-  const dispatchesFilePath = core.getInput('dispatches_file', {
-    required: true
-  })
-  const appsFolderPath = core.getInput('apps_folder', { required: true })
-  const clustersFolderPath = core.getInput('platform_folder', {
-    required: true
-  })
-  const registriesFolderPath = core.getInput('registries_folder', {
-    required: true
-  })
-  const imageType = core.getInput('image_type', { required: true })
-  const defaultReleasesRegistry = core.getInput('default_releases_registry', {
-    required: true
-  })
-  const defaultSnapshotsRegistry = core.getInput('default_snapshots_registry', {
-    required: true
-  })
+  try {
+    const dispatchesFilePath = core.getInput('dispatches_file', {
+      required: true
+    })
+    const appsFolderPath = core.getInput('apps_folder', { required: true })
+    const clustersFolderPath = core.getInput('platform_folder', {
+      required: true
+    })
+    const registriesFolderPath = core.getInput('registries_folder', {
+      required: true
+    })
+    const imageType = core.getInput('image_type', { required: true })
+    const defaultReleasesRegistry = core.getInput('default_releases_registry', {
+      required: true
+    })
+    const defaultSnapshotsRegistry = core.getInput(
+      'default_snapshots_registry',
+      { required: true }
+    )
 
-  const buildSummary = core.getInput('build_summary')
-  const flavorFilter = core.getInput('flavors')
-  const envFilter = core.getInput('filter_by_env')
-  const tenantFilter = core.getInput('filter_by_tenant')
-  const clusterFilter = core.getInput('filter_by_platform')
-  const overwriteVersion = core.getInput('overwrite_version')
-  const overwriteEnv = core.getInput('overwrite_env')
-  const overwriteTenant = core.getInput('overwrite_tenant')
-  const reviewers = core.getInput('reviewers')
-  const checkRunName = core.getInput('check_run_name')
+    const buildSummary = core.getInput('build_summary')
+    const flavorFilter = core.getInput('flavors')
+    const envFilter = core.getInput('filter_by_env')
+    const tenantFilter = core.getInput('filter_by_tenant')
+    const clusterFilter = core.getInput('filter_by_platform')
+    const overwriteVersion = core.getInput('overwrite_version')
+    const overwriteEnv = core.getInput('overwrite_env')
+    const overwriteTenant = core.getInput('overwrite_tenant')
+    const reviewers = core.getInput('reviewers')
+    const checkRunName = core.getInput('check_run_name')
 
-  return {
-    dispatchesFilePath,
-    appsFolderPath,
-    clustersFolderPath,
-    registriesFolderPath,
-    imageType,
-    defaultReleasesRegistry,
-    defaultSnapshotsRegistry,
-    buildSummary,
-    flavorFilter,
-    envFilter,
-    tenantFilter,
-    clusterFilter,
-    overwriteVersion,
-    overwriteEnv,
-    overwriteTenant,
-    reviewers,
-    checkRunName
+    return {
+      dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
+      registriesFolderPath,
+      imageType,
+      defaultReleasesRegistry,
+      defaultSnapshotsRegistry,
+      buildSummary,
+      flavorFilter,
+      envFilter,
+      tenantFilter,
+      clusterFilter,
+      overwriteVersion,
+      overwriteEnv,
+      overwriteTenant,
+      reviewers,
+      checkRunName
+    }
+  } catch (e) {
+    throw new Error(`Error while obtaining all Github inputs: ${e}`)
   }
 }
 

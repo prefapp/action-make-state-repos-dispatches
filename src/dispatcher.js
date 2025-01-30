@@ -192,7 +192,6 @@ async function makeDispatches(gitController) {
 
     return resultList
   } catch (error) {
-    console.log(error)
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {

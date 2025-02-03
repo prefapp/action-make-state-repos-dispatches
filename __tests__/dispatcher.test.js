@@ -76,7 +76,7 @@ const gitControllerMock = {
   dispatch: (stateRepoName, eventTypeName, matrix) => {
     const result = []
     for (const dispatch of matrix) {
-      result.push(`${dispatch.image} published`)
+      result.push(`${dispatch.image} published in ${stateRepoName}`)
     }
     return result
   },
@@ -99,26 +99,31 @@ const imageHelperMock = {
 
 describe('The dispatcher', () => {
   it('can make dispatches', async () => {
-    const dispatchesExpectedLengths = [1, 4, 1, 1]
+    const dispatchesExpectedLengths = [1, 3, 1, 1, 1]
 
     const dispatches = await dispatcher.makeDispatches(
       gitControllerMock,
       imageHelperMock
     )
 
-    expect(dispatches.length).toEqual(4)
+    console.log(dispatches)
+
+    expect(dispatches.length).toEqual(5)
 
     for (const index in dispatches) {
       expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
     }
 
     expect(dispatches[0]).toEqual([
-      'registry1/service/my-org/my-repo:v1.1.0-pre published'
+      'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
+    ])
+    expect(dispatches[2]).toEqual([
+      'registry23/service/my-other-org/my-other-repo:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
   })
 
   it('can make dispatches without a build summary', async () => {
-    const dispatchesExpectedLengths = [1, 4, 1, 1]
+    const dispatchesExpectedLengths = [1, 3, 1, 1, 1]
     gitControllerMock.getAllInputs = () => {
       allInputs.buildSummary = ''
       return allInputs
@@ -129,14 +134,17 @@ describe('The dispatcher', () => {
       imageHelperMock
     )
 
-    expect(dispatches.length).toEqual(4)
+    expect(dispatches.length).toEqual(5)
 
     for (const index in dispatches) {
       expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
     }
 
     expect(dispatches[0]).toEqual([
-      'registry1/service/my-org/my-repo:v1.1.0-pre published'
+      'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
+    ])
+    expect(dispatches[2]).toEqual([
+      'registry23/service/my-other-org/my-other-repo:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
   })
 
@@ -210,6 +218,7 @@ describe('The dispatcher', () => {
       flavor: 'flavor2',
       registry: 'registry23',
       dispatch_event_type: 'dispatch-image-vmss',
+      state_repo: 'test-overwrite-state-repo',
       version: 'version23',
       tenant: 'tenant23',
       app: 'application23',

@@ -44,6 +44,9 @@
           },
           "image_repository": {
             "type": "string"
+          },
+          "state_repo": {
+            "type": "string"
           }
         },
         "required": [

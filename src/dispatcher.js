@@ -159,7 +159,7 @@ async function makeDispatches(gitController) {
         updateSummaryTable(
           data,
           dispatchStatus,
-          `${payloadCtx.owner}/${stateRepoName}`,
+          `${stateRepoName}`,
           summaryTable
         )
 
@@ -286,8 +286,8 @@ function createDispatchList(
           registry:
             deployment.registry || registriesConfig[deployment.type].registry,
           dispatch_event_type:
-            `${deployment.dispatch_event_type || 'dispatch-image'}-` +
-            `${clusterConfig[chosenCluster].type}`,
+            deployment.dispatch_event_type ||
+            `dispatch-image-${clusterConfig[chosenCluster].type}`,
           reviewers: reviewersList,
           repository_caller: repo,
           technology: clusterConfig[chosenCluster].type,

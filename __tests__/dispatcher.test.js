@@ -420,6 +420,56 @@ describe('The dispatcher', () => {
     )
   })
 
+  it("correctly throws an error when a cluster doesn't have a configuration file", async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        {},
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not exist`
+    )
+  })
+
+  it("correctly throws an error when a configuration file can't be read", async () => {
+    expect(() => {
+      configHelper.getRegistriesConfig(
+        'wrong-path',
+        'snapshots.reg',
+        'releases.reg'
+      )
+    }).toThrow(
+      'Error getting registry configs from folder wrong-path: ' +
+        "ENOENT: no such file or directory, scandir 'wrong-path'"
+    )
+
+    expect(() => {
+      configHelper.getAppsConfig('wrong-path')
+    }).toThrow(
+      'Error getting app configs from folder wrong-path: ' +
+        "ENOENT: no such file or directory, scandir 'wrong-path'"
+    )
+
+    expect(() => {
+      configHelper.getClustersConfig('wrong-path')
+    }).toThrow(
+      'Error getting cluster configs from folder wrong-path: ' +
+        "ENOENT: no such file or directory, scandir 'wrong-path'"
+    )
+  })
+
   it('can filter by dispatch type', async () => {
     const releasesDispatch = { type: 'releases' }
     const snapshotsDispatch = { type: 'snapshots' }
@@ -731,5 +781,11 @@ describe('The dispatcher', () => {
     )
 
     expect(remoteFileContent).toEqual(expectedRemoteResult)
+  })
+
+  it('correctly throws an error when one happens while obtaining the latest build summary', async () => {
+    await expect(
+      dispatcher.getLatestBuildSummary('a', {}, 'b')
+    ).rejects.toThrow(`Error while getting the latest build summary`)
   })
 })

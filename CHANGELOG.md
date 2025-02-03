@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.1...v3.0.2) (2025-02-03)
+
+
+### Bug Fixes
+
+* Added more descriptive 'no config found' errors ([#76](https://github.com/prefapp/action-make-state-repos-dispatches/issues/76)) ([a5c6939](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a5c69390a9a4b76fced51b2c4b72c15595a2466c))
+* Added try - catch blocks in functions where they were missing ([#78](https://github.com/prefapp/action-make-state-repos-dispatches/issues/78)) ([3156014](https://github.com/prefapp/action-make-state-repos-dispatches/commit/3156014ba7db7b523a03440984fa9383d2d0da75))
+* Do not concatenate platform when a dispatch_event_type is specified ([#80](https://github.com/prefapp/action-make-state-repos-dispatches/issues/80)) ([6b2816e](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6b2816ed0b6843ab9bdc2c34b195ff4e66a52c6d))
+* Fixed test warnings ([#79](https://github.com/prefapp/action-make-state-repos-dispatches/issues/79)) ([98c1dcc](https://github.com/prefapp/action-make-state-repos-dispatches/commit/98c1dcce3b03e4ff69b9c9d6c0999d3f2a1c7061))
+
 ## [3.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.0...v3.0.1) (2025-01-23)
 
 ### Bug Fixes

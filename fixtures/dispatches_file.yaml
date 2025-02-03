@@ -38,6 +38,7 @@ deployments:
     service_names: ['service2', 'service23']
     registry: registry23
     image_repository: repo23
+    state_repo: test-overwrite-state-repo
 
   - tenant: tenant23
     platform: cluster23

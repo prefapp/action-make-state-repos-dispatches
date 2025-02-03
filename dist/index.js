@@ -40144,7 +40144,7 @@ async function makeDispatches(gitController) {
           data.version,
           gitController
         )
-        const stateRepoName = appConfig[data.app].state_repo
+        const stateRepoName = data.state_repo || appConfig[data.app].state_repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
 
         debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
@@ -40303,6 +40303,7 @@ function createDispatchList(
           tenant: tenantOverride || deployment.tenant,
           app: deployment.application,
           env: envOverride || deployment.env,
+          state_repo: deployment.state_repo,
           service_name_list:
             deployment.service_names || serviceData.service_names,
           registry:

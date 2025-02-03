@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.2...v3.1.0) (2025-02-03)
+
+
+### Features
+
+* Added new state_repo config parameter ([#81](https://github.com/prefapp/action-make-state-repos-dispatches/issues/81)) ([aa5d78f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/aa5d78fabaea657587e8fa761242641c8b62d1ed))
+
 ## [3.0.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.1...v3.0.2) (2025-02-03)
 
 ### Bug Fixes

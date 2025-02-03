@@ -106,8 +106,6 @@ describe('The dispatcher', () => {
       imageHelperMock
     )
 
-    console.log(dispatches)
-
     expect(dispatches.length).toEqual(5)
 
     for (const index in dispatches) {

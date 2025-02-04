@@ -4,7 +4,12 @@ const debug = require('debug')('make-state-repos-dispatches')
 const ghHelper = require('../utils/github-helper')
 
 jest.mock('@actions/core', () => ({
-  getInput: inputName => `${inputName}-value`,
+  getInput: inputName => {
+    if (inputName === 'throw') {
+      throw new Error(`Not found`)
+    }
+    return `${inputName}-value`
+  },
   notice: jest.fn(),
   error: jest.fn(),
   setFailed: jest.fn(),
@@ -144,11 +149,30 @@ jest.mock('@actions/github', () => ({
   }
 }))
 
+beforeEach(() => {
+  jest.spyOn(console, 'error')
+  console.error.mockImplementation(() => null)
+
+  jest.spyOn(console, 'info')
+  console.info.mockImplementation(() => null)
+})
+
+afterEach(() => {
+  console.error.mockRestore()
+  console.info.mockRestore()
+})
+
 describe('github-helper', () => {
   it('can get an input using @actions/core', async () => {
     const inputValue = ghHelper.getInput('test-input')
 
     expect(inputValue).toEqual('test-input-value')
+  })
+
+  it('throws an error when an input is not found', async () => {
+    expect(() => {
+      ghHelper.getInput('throw')
+    }).toThrow('Error trying to get Github input throw')
   })
 
   it('can get all inputs via @actions/core', async () => {

@@ -8,7 +8,7 @@ function parseFile(fileContent, encoding = '') {
 
     return YAML.parse(fileContent, 'utf8')
   } catch (err) {
-    throw new Error(`Error parsing YAML file: {err.message}`)
+    throw new Error(`Error parsing YAML file: ${err.message}`)
   }
 }
 

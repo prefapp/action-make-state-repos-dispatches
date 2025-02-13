@@ -39,6 +39,13 @@
             },
             "minItems": 1
           },
+          "image_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
           "registry": {
             "type": "string"
           },

@@ -40187,8 +40187,9 @@ async function makeDispatches(gitController) {
 
         gitController.handleNotice(
           `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
-            `for services ${data.service_name_list.join(', ')} with dispatch ` +
-            `event type ${data.dispatch_event_type}`
+            `for services ` +
+            `${(data.service_name_list || data.image_keys).join(', ')} ` +
+            `with dispatch event type ${data.dispatch_event_type}`
         )
 
         data.message = dispatchStatus
@@ -40214,6 +40215,7 @@ async function makeDispatches(gitController) {
 
     return resultList
   } catch (error) {
+    console.log(error)
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {
@@ -40274,18 +40276,17 @@ function createDispatchList(
         )
       }
 
-      for (const serviceData of appConfig[deployment.application].services) {
-        if (deployment.service_names) {
-          for (const serviceName of deployment.service_names) {
-            if (!serviceData.service_names.includes(serviceName)) {
-              throw new Error(
-                `Error when creating dispatch list: ${deployment.application} ` +
-                  `application configuration does not include service ${serviceName}`
-              )
-            }
-          }
-        }
+      if (deployment.service_names && deployment.image_keys) {
+        throw new Error(
+          `Error when creating dispatch list: ${deployment.application} ` +
+            `for tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
+            `type ${deployment.type} and env ${deployment.env} ` +
+            `has values for both service_names and image_keys. ` +
+            `Unset one of them before continuing.`
+        )
+      }
 
+      for (const serviceData of appConfig[deployment.application].services) {
         const imageRepo =
           deployment.image_repository ||
           `${registriesConfig[deployment.type].base_paths['services']}/` +
@@ -40304,8 +40305,8 @@ function createDispatchList(
           app: deployment.application,
           env: envOverride || deployment.env,
           state_repo: deployment.state_repo,
-          service_name_list:
-            deployment.service_names || serviceData.service_names,
+          service_name_list: deployment.service_names,
+          image_keys: deployment.image_keys,
           registry:
             deployment.registry || registriesConfig[deployment.type].registry,
           dispatch_event_type:
@@ -40375,7 +40376,7 @@ function updateSummaryTable(
     dispatch.tenant,
     dispatch.app,
     dispatch.env,
-    dispatch.service_name_list.join(', '),
+    (dispatch.service_name_list || dispatch.image_keys).join(', '),
     dispatch.image,
     dispatch.reviewers.join(', '),
     dispatch.base_path || '',

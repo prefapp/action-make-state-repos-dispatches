@@ -211,6 +211,22 @@ describe('The dispatcher', () => {
       platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'
     })
+    expect(result[1]).toEqual({
+      type: 'snapshots',
+      flavor: 'flavor2',
+      registry: 'snapshots.reg',
+      dispatch_event_type: 'dispatch-image-vmss',
+      version: 'version23',
+      tenant: 'tenant23',
+      app: 'application23',
+      env: 'env23',
+      image_keys: ['image_key23'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      technology: 'vmss',
+      platform: 'cluster23',
+      base_folder: 'vmss/cluster23'
+    })
     expect(result[3]).toEqual({
       type: 'releases',
       flavor: 'flavor2',
@@ -274,7 +290,7 @@ describe('The dispatcher', () => {
     })
   })
 
-  it("correctly throws an error when a deployment's service doesn't follow the app configuration", async () => {
+  it("correctly throws an error when a deployment's service and image keys are both set", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const registriesConfig = configHelper.getRegistriesConfig(
       'fixtures/.firestartr/docker_registries/',
@@ -285,9 +301,7 @@ describe('The dispatcher', () => {
     const clusterConfig = configHelper.getClustersConfig(
       'fixtures/.firestartr/clusters/'
     )
-    appConfig[singleDispatch.application].services[0].service_names = [
-      'another_service1'
-    ]
+    dispatchesFileObj.deployments[0].image_keys = ['image_key']
 
     expect(() => {
       dispatcher.createDispatchList(
@@ -299,7 +313,10 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.application} application configuration does not include service ${singleDispatch.service_names[0]}`
+      `Error when creating dispatch list: ${singleDispatch.application} for ` +
+        `tenant tenant1, flavor flavor1 type snapshots and env env1 has ` +
+        `values for both service_names and image_keys. ` +
+        `Unset one of them before continuing.`
     )
   })
 

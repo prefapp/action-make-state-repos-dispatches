@@ -17,6 +17,7 @@ deployments:
     version: version23
     application: application23
     image_repository: repo23
+    image_keys: ['image_key23']
 
   - tenant: tenant23
     platform: cluster23
@@ -66,3 +67,4 @@ deployments:
     version: version-releases1
     application: application-releases1
     registry: registry-releases1
+    image_keys: ['image_key1']

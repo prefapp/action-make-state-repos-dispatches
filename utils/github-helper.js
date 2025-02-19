@@ -1,6 +1,7 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
 const debug = require('debug')('make-state-repos-dispatches')
+const semver = require('semver')
 
 const _payloadCtx = {
   owner: github.context.payload.repository.owner.login,
@@ -9,51 +10,79 @@ const _payloadCtx = {
 
 const _token = core.getInput('token', true)
 const _octokit = github.getOctokit(_token)
+const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/
+
+function _resolveSemver(version) {
+  try {
+    return version.match(regex).map(value => {
+      if (value) return value.replaceAll('.', '')
+    })
+  } catch (e) {
+    throw new Error(`${version} could not be parsed as a SemVer filter`)
+  }
+}
 
 function getInput(inputName, isRequired = false) {
-  return core.getInput(inputName, { required: isRequired })
+  try {
+    return core.getInput(inputName, { required: isRequired })
+  } catch (e) {
+    throw new Error(`Error trying to get Github input ${inputName}: ${e}`)
+  }
 }
 
 function getAllInputs() {
-  const dispatchesFilePath = core.getInput('dispatches_file', {
-    required: true
-  })
-  const imageType = core.getInput('image_type', { required: true })
-  const stateRepoFilter = core.getInput('state_repo', { required: true })
-  const defaultReleasesRegistry = core.getInput('default_releases_registry', {
-    required: true
-  })
-  const defaultSnapshotsRegistry = core.getInput('default_snapshots_registry', {
-    required: true
-  })
+  try {
+    const dispatchesFilePath = core.getInput('dispatches_file', {
+      required: true
+    })
+    const appsFolderPath = core.getInput('apps_folder', { required: true })
+    const clustersFolderPath = core.getInput('platform_folder', {
+      required: true
+    })
+    const registriesFolderPath = core.getInput('registries_folder', {
+      required: true
+    })
+    const imageType = core.getInput('image_type', { required: true })
+    const defaultReleasesRegistry = core.getInput('default_releases_registry', {
+      required: true
+    })
+    const defaultSnapshotsRegistry = core.getInput(
+      'default_snapshots_registry',
+      { required: true }
+    )
 
-  const buildSummary = core.getInput('build_summary')
-  const flavorFilter = core.getInput('flavors')
-  const envFilter = core.getInput('filter_by_env')
-  const tenantFilter = core.getInput('filter_by_tenant')
-  const overwriteVersion = core.getInput('overwrite_version')
-  const overwriteEnv = core.getInput('overwrite_env')
-  const overwriteTenant = core.getInput('overwrite_tenant')
-  const reviewers = core.getInput('reviewers')
-  const checkRunName = core.getInput('check_run_name')
-  const registryBasePaths = core.getInput('registry_base_paths')
+    const buildSummary = core.getInput('build_summary')
+    const flavorFilter = core.getInput('flavors')
+    const envFilter = core.getInput('filter_by_env')
+    const tenantFilter = core.getInput('filter_by_tenant')
+    const clusterFilter = core.getInput('filter_by_platform')
+    const overwriteVersion = core.getInput('overwrite_version')
+    const overwriteEnv = core.getInput('overwrite_env')
+    const overwriteTenant = core.getInput('overwrite_tenant')
+    const reviewers = core.getInput('reviewers')
+    const checkRunName = core.getInput('check_run_name')
 
-  return {
-    dispatchesFilePath,
-    imageType,
-    stateRepoFilter,
-    defaultReleasesRegistry,
-    defaultSnapshotsRegistry,
-    buildSummary,
-    flavorFilter,
-    envFilter,
-    tenantFilter,
-    overwriteVersion,
-    overwriteEnv,
-    overwriteTenant,
-    reviewers,
-    checkRunName,
-    registryBasePaths
+    return {
+      dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
+      registriesFolderPath,
+      imageType,
+      defaultReleasesRegistry,
+      defaultSnapshotsRegistry,
+      buildSummary,
+      flavorFilter,
+      envFilter,
+      tenantFilter,
+      clusterFilter,
+      overwriteVersion,
+      overwriteEnv,
+      overwriteTenant,
+      reviewers,
+      checkRunName
+    }
+  } catch (e) {
+    throw new Error(`Error while obtaining all Github inputs: ${e}`)
   }
 }
 
@@ -75,12 +104,66 @@ async function getLatestRelease(payload) {
   try {
     const octokit = getOctokit()
 
-    return await octokit.rest.repos.getLatestRelease(payload)
+    if (payload.tag) {
+      return await getLatestTaggedRelease(payload, octokit)
+    } else {
+      return await octokit.rest.repos.getLatestRelease(payload)
+    }
   } catch (e) {
     console.error(e)
 
     throw new Error(`Error getting latest release for ${payload}`)
   }
+}
+
+async function getLatestTaggedRelease(payload, octokit) {
+  try {
+    const response = await octokit.rest.repos.listReleases({
+      owner: payload.owner,
+      repo: payload.repo
+    })
+
+    const releases = response.data.filter(r => !r.prerelease)
+
+    return await getHighestSemVerTaggedRelease(payload.tag, releases)
+  } catch (e) {
+    console.error(e)
+
+    throw new Error(`Error getting latest release for ${payload}`)
+  }
+}
+
+async function getHighestSemVerTaggedRelease(tag_filter, releases) {
+  const [_, filterMajor, filterMinor, filterPatch] = _resolveSemver(tag_filter)
+
+  let highestSemverRelease = null
+  for (const currentRelease of releases) {
+    const [__, releaseMajor, releaseMinor, releasePatch] = _resolveSemver(
+      currentRelease.tag_name
+    )
+
+    if (
+      !releaseMajor ||
+      !releaseMinor ||
+      !releasePatch ||
+      filterMajor !== releaseMajor ||
+      (filterMinor && filterMinor !== releaseMinor) ||
+      (filterPatch && filterPatch !== releasePatch)
+    ) {
+      continue
+    }
+
+    if (
+      highestSemverRelease === null ||
+      semver.gte(currentRelease.tag_name, highestSemverRelease.tag_name)
+    )
+      highestSemverRelease = currentRelease
+  }
+
+  if (highestSemverRelease === null)
+    throw new Error(`No release matched filter ${tag_filter}`)
+
+  return highestSemverRelease
 }
 
 async function getLatestPrerelease(payload) {
@@ -89,9 +172,15 @@ async function getLatestPrerelease(payload) {
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
-    return sortReleasesByTime(
+    const sortedPrereleases = sortReleasesByTime(
       listReleasesResponse.data.filter(r => r.prerelease)
-    )[0]
+    )
+
+    if (payload.tag) {
+      return await getHighestSemVerTaggedRelease(payload.tag, sortedPrereleases)
+    } else {
+      return sortedPrereleases[0]
+    }
   } catch (e) {
     console.error(e)
 
@@ -133,12 +222,14 @@ async function getFileContent(filePath) {
       path: filePath
     })
 
-    if (fileResponse.status !== 200)
+    if (fileResponse.status !== 200) {
       throw new Error(
         `Got status code ${fileResponse.status}, please check the file path exists or the token permissions.`
       )
-    if (fileResponse.data.type !== 'file')
+    }
+    if (fileResponse.data.type !== 'file') {
       throw new Error(`The path ${filePath} is not a file.`)
+    }
 
     return fileResponse.data.content
   } catch (e) {
@@ -196,26 +287,30 @@ async function getSummaryDataForRef(ref, workflowName) {
   }
 }
 
-async function dispatch(repoData, dispatchMatrix) {
-  const ctx = getPayloadContext()
-
+async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
   try {
     const octokit = getOctokit()
+    const ownerAndRepo = stateRepoName.split('/')
+    const owner = ownerAndRepo[0]
+    const repo = ownerAndRepo[1]
 
     await octokit.rest.repos.createDispatchEvent({
-      owner: ctx.owner,
-      repo: repoData.repo,
-      event_type: repoData.dispatch_event_type || 'dispatch-image',
+      owner,
+      repo,
+      event_type: dispatchEventType,
       client_payload: {
         images: dispatchMatrix,
         version: 4
       }
     })
+
+    return true
   } catch (e) {
     console.error(e)
 
     throw new Error(
-      `Error creating dispatch event for repo ${repoData.repo}. Context: ${ctx}. Dispatch matrix: ${dispatchMatrix}`
+      `Error creating dispatch event for repo ${stateRepoName}. ` +
+        `Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }
@@ -243,6 +338,7 @@ module.exports = {
   getOctokit,
   getLatestRelease,
   getLatestPrerelease,
+  sortReleasesByTime,
   getLastBranchCommit,
   getFileContent,
   dispatch,
@@ -251,5 +347,7 @@ module.exports = {
   handleError,
   handleFailure,
   getAllInputs,
-  getSummaryDataForRef
+  getSummaryDataForRef,
+  getHighestSemVerTaggedRelease,
+  _resolveSemver // Exported for testing purpouses
 }

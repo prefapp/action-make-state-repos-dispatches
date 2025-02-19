@@ -13,13 +13,19 @@ async function getLatestRef(version, gitController, shortSha = true) {
 
       break
     default:
-      if (version.match(/^\$branch_/)) {
-        ref = await __last_branch_commit(version, gitController, shortSha)
+      if (version.match(/^\$highest_semver_release_/)) {
+        ref = await __highest_semver_release(version, gitController)
+      } else if (version.match(/^\$highest_semver_prerelease_/)) {
+        ref = await __highest_semver_prerelease(version, gitController)
       } else {
-        if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
-          ref = version.substring(0, 7)
+        if (version.match(/^\$branch_/)) {
+          ref = await __last_branch_commit(version, gitController, shortSha)
         } else {
-          ref = version
+          if (version.match(/\b[0-9a-f]{40}/g) && shortSha) {
+            ref = version.substring(0, 7)
+          } else {
+            ref = version
+          }
         }
       }
   }
@@ -32,6 +38,18 @@ async function __last_release(gitController) {
     const latestReleaseResponse = await gitController.getLatestRelease(
       gitController.getPayloadContext()
     )
+    return latestReleaseResponse.data.tag_name
+  } catch (err) {
+    throw new Error(`calculating last release: ${err}`)
+  }
+}
+
+async function __highest_semver_release(release, gitController) {
+  try {
+    const payload = gitController.getPayloadContext()
+    payload.tag = release.replace(/^\$highest_semver_release_/, '')
+
+    const latestReleaseResponse = await gitController.getLatestRelease(payload)
     return latestReleaseResponse.data.tag_name
   } catch (err) {
     throw new Error(`calculating last release: ${err}`)
@@ -52,10 +70,25 @@ async function __last_prerelease(gitController) {
   }
 }
 
+async function __highest_semver_prerelease(prerelease, gitController) {
+  try {
+    const payload = gitController.getPayloadContext()
+    payload.tag = prerelease.replace(/^\$highest_semver_prerelease_/, '')
+
+    const latestPrerelease = await gitController.getLatestPrerelease(payload)
+
+    if (latestPrerelease) return latestPrerelease.tag_name
+
+    return null
+  } catch (err) {
+    throw new Error(`calculating last pre-release: ${err}`)
+  }
+}
+
 async function __last_branch_commit(branch, gitController, shortSha = true) {
   try {
     const payload = gitController.getPayloadContext()
-    payload['branch'] = branch.replace(/^\$branch_/, '')
+    payload.branch = branch.replace(/^\$branch_/, '')
 
     return await gitController.getLastBranchCommit(payload, shortSha)
   } catch (err) {

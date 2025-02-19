@@ -1,0 +1,110 @@
+[
+  {
+    "build_args": [],
+    "flavor": "flavor99",
+    "image_repo": "my-org/my-repo",
+    "image_tag": "version99",
+    "image_type": "snapshots",
+    "registry": "",
+    "repository": "service/my-org/my-repo",
+    "version": "version99"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor1",
+    "image_repo": "wips/org/repo1",
+    "image_tag": "v1.1.0-pre",
+    "image_type": "snapshots",
+    "registry": "registry1",
+    "repository": "service/my-org/my-repo",
+    "version": "version1"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor4",
+    "image_repo": "wips/org/repo4",
+    "image_tag": "v444",
+    "image_type": "snapshots",
+    "registry": "snapshots.reg",
+    "repository": "service/org/repo",
+    "version": "version4"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor2",
+    "image_repo": "repo23",
+    "image_tag": "v2.3-flavor2-dev",
+    "image_type": "snapshots",
+    "registry": "snapshots.reg",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor3",
+    "image_repo": "wips/org/repo23",
+    "image_tag": "v2.3-flavor3-dev",
+    "image_type": "snapshots",
+    "registry": "registry23",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor1",
+    "image_repo": "my-org/my-repo",
+    "image_tag": "v1.1.0-pro",
+    "image_type": "releases",
+    "registry": "registry-releases1",
+    "repository": "service/my-org/my-repo",
+    "version": "version-releases1"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor2",
+    "image_repo": "repo23",
+    "image_tag": "v2.3-flavor2-pro",
+    "image_type": "releases",
+    "registry": "registry23",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  },
+  {
+    "build_args": [
+      {
+        "BACKEND_URL": "https://example.com"
+      }
+    ],
+    "flavor": "flavor3",
+    "image_repo": "wips/org/repo23",
+    "image_tag": "v2.3-flavor3-pro",
+    "image_type": "releases",
+    "registry": "releases.reg",
+    "repository": "service/my-other-org/my-other-repo",
+    "version": "version23"
+  }
+]

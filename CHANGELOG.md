@@ -2,10 +2,11 @@
 
 ## [3.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.0...v3.1.1) (2025-02-04)
 
-
 ### Bug Fixes
 
-* Improve tests and code coverage ([#83](https://github.com/prefapp/action-make-state-repos-dispatches/issues/83)) ([a38eec4](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a38eec4f85478e8108c5c9faeb75d41af663d348))
+- Improve tests and code coverage
+  ([#83](https://github.com/prefapp/action-make-state-repos-dispatches/issues/83))
+  ([a38eec4](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a38eec4f85478e8108c5c9faeb75d41af663d348))
 
 ## [3.1.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.2...v3.1.0) (2025-02-03)
 

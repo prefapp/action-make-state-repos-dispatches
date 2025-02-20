@@ -69,8 +69,8 @@
     "@actions/github": "^6.0.0",
     "ajv": "^8.17.1",
     "debug": "^4.3.5",
-    "semver": "^7.6.3",
-    "yaml": "^2.4.5"
+    "yaml": "^2.5.0",
+    "semver": "^7.6.3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

@@ -1,6 +1,11 @@
 # Changelog
 
-## [3.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.0...v3.1.1) (2025-02-04)
+## [3.2.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.0...v3.2.0) (2025-02-13)
+
+
+### Features
+
+* Added support for image_keys configuration parameter ([#86](https://github.com/prefapp/action-make-state-repos-dispatches/issues/86)) ([85a9f52](https://github.com/prefapp/action-make-state-repos-dispatches/commit/85a9f52d9e36df4293016b41e60e47259cdb149f))
 
 ### Bug Fixes
 

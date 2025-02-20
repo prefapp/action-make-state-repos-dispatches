@@ -4,7 +4,12 @@ const debug = require('debug')('make-state-repos-dispatches')
 const ghHelper = require('../utils/github-helper')
 
 jest.mock('@actions/core', () => ({
-  getInput: inputName => `${inputName}-value`,
+  getInput: inputName => {
+    if (inputName === 'throw') {
+      throw new Error(`Not found`)
+    }
+    return `${inputName}-value`
+  },
   notice: jest.fn(),
   error: jest.fn(),
   setFailed: jest.fn(),
@@ -144,6 +149,19 @@ jest.mock('@actions/github', () => ({
   }
 }))
 
+beforeEach(() => {
+  jest.spyOn(console, 'error')
+  console.error.mockImplementation(() => null)
+
+  jest.spyOn(console, 'info')
+  console.info.mockImplementation(() => null)
+})
+
+afterEach(() => {
+  console.error.mockRestore()
+  console.info.mockRestore()
+})
+
 describe('github-helper', () => {
   it('can get an input using @actions/core', async () => {
     const inputValue = ghHelper.getInput('test-input')
@@ -151,19 +169,28 @@ describe('github-helper', () => {
     expect(inputValue).toEqual('test-input-value')
   })
 
+  it('throws an error when an input is not found', async () => {
+    expect(() => {
+      ghHelper.getInput('throw')
+    }).toThrow('Error trying to get Github input throw')
+  })
+
   it('can get all inputs via @actions/core', async () => {
     const result = ghHelper.getAllInputs()
 
     expect(result).toEqual({
+      appsFolderPath: 'apps_folder-value',
+      clustersFolderPath: 'platform_folder-value',
+      registriesFolderPath: 'registries_folder-value',
       dispatchesFilePath: 'dispatches_file-value',
       imageType: 'image_type-value',
-      stateRepoFilter: 'state_repo-value',
       defaultReleasesRegistry: 'default_releases_registry-value',
       defaultSnapshotsRegistry: 'default_snapshots_registry-value',
       buildSummary: 'build_summary-value',
       flavorFilter: 'flavors-value',
       envFilter: 'filter_by_env-value',
       tenantFilter: 'filter_by_tenant-value',
+      clusterFilter: 'filter_by_platform-value',
       overwriteVersion: 'overwrite_version-value',
       overwriteEnv: 'overwrite_env-value',
       overwriteTenant: 'overwrite_tenant-value',
@@ -397,18 +424,18 @@ describe('github-helper', () => {
   })
 
   it('can make dispatches', async () => {
-    const result = await ghHelper.dispatch({ repo: '' }, '')
+    const result = await ghHelper.dispatch('', '', { repo: '' })
 
     expect(result).toEqual(true)
   })
 
   it('when making dispatches, throws an error if any happen', async () => {
-    const ctx = ghHelper.getPayloadContext()
-
+    const repoObj = { repo: 'org/throw' }
     await expect(
-      ghHelper.dispatch({ repo: 'throw' }, 'dispatch-matrix')
+      ghHelper.dispatch('org/throw', 'event', 'dispatch-matrix')
     ).rejects.toThrow(
-      `Error creating dispatch event for repo throw. Context: ${ctx}. Dispatch matrix: dispatch-matrix`
+      `Error creating dispatch event for repo org/throw. ` +
+        `Dispatch matrix: dispatch-matrix`
     )
   })
 

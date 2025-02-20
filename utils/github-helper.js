@@ -23,47 +23,66 @@ function _resolveSemver(version) {
 }
 
 function getInput(inputName, isRequired = false) {
-  return core.getInput(inputName, { required: isRequired })
+  try {
+    return core.getInput(inputName, { required: isRequired })
+  } catch (e) {
+    throw new Error(`Error trying to get Github input ${inputName}: ${e}`)
+  }
 }
 
 function getAllInputs() {
-  const dispatchesFilePath = core.getInput('dispatches_file', {
-    required: true
-  })
-  const imageType = core.getInput('image_type', { required: true })
-  const stateRepoFilter = core.getInput('state_repo', { required: true })
-  const defaultReleasesRegistry = core.getInput('default_releases_registry', {
-    required: true
-  })
-  const defaultSnapshotsRegistry = core.getInput('default_snapshots_registry', {
-    required: true
-  })
+  try {
+    const dispatchesFilePath = core.getInput('dispatches_file', {
+      required: true
+    })
+    const appsFolderPath = core.getInput('apps_folder', { required: true })
+    const clustersFolderPath = core.getInput('platform_folder', {
+      required: true
+    })
+    const registriesFolderPath = core.getInput('registries_folder', {
+      required: true
+    })
+    const imageType = core.getInput('image_type', { required: true })
+    const defaultReleasesRegistry = core.getInput('default_releases_registry', {
+      required: true
+    })
+    const defaultSnapshotsRegistry = core.getInput(
+      'default_snapshots_registry',
+      { required: true }
+    )
 
-  const buildSummary = core.getInput('build_summary')
-  const flavorFilter = core.getInput('flavors')
-  const envFilter = core.getInput('filter_by_env')
-  const tenantFilter = core.getInput('filter_by_tenant')
-  const overwriteVersion = core.getInput('overwrite_version')
-  const overwriteEnv = core.getInput('overwrite_env')
-  const overwriteTenant = core.getInput('overwrite_tenant')
-  const reviewers = core.getInput('reviewers')
-  const checkRunName = core.getInput('check_run_name')
+    const buildSummary = core.getInput('build_summary')
+    const flavorFilter = core.getInput('flavors')
+    const envFilter = core.getInput('filter_by_env')
+    const tenantFilter = core.getInput('filter_by_tenant')
+    const clusterFilter = core.getInput('filter_by_platform')
+    const overwriteVersion = core.getInput('overwrite_version')
+    const overwriteEnv = core.getInput('overwrite_env')
+    const overwriteTenant = core.getInput('overwrite_tenant')
+    const reviewers = core.getInput('reviewers')
+    const checkRunName = core.getInput('check_run_name')
 
-  return {
-    dispatchesFilePath,
-    imageType,
-    stateRepoFilter,
-    defaultReleasesRegistry,
-    defaultSnapshotsRegistry,
-    buildSummary,
-    flavorFilter,
-    envFilter,
-    tenantFilter,
-    overwriteVersion,
-    overwriteEnv,
-    overwriteTenant,
-    reviewers,
-    checkRunName
+    return {
+      dispatchesFilePath,
+      appsFolderPath,
+      clustersFolderPath,
+      registriesFolderPath,
+      imageType,
+      defaultReleasesRegistry,
+      defaultSnapshotsRegistry,
+      buildSummary,
+      flavorFilter,
+      envFilter,
+      tenantFilter,
+      clusterFilter,
+      overwriteVersion,
+      overwriteEnv,
+      overwriteTenant,
+      reviewers,
+      checkRunName
+    }
+  } catch (e) {
+    throw new Error(`Error while obtaining all Github inputs: ${e}`)
   }
 }
 
@@ -268,16 +287,17 @@ async function getSummaryDataForRef(ref, workflowName) {
   }
 }
 
-async function dispatch(repoData, dispatchMatrix) {
-  const ctx = getPayloadContext()
-
+async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
   try {
     const octokit = getOctokit()
+    const ownerAndRepo = stateRepoName.split('/')
+    const owner = ownerAndRepo[0]
+    const repo = ownerAndRepo[1]
 
     await octokit.rest.repos.createDispatchEvent({
-      owner: ctx.owner,
-      repo: repoData.repo,
-      event_type: repoData.dispatch_event_type || 'dispatch-image',
+      owner,
+      repo,
+      event_type: dispatchEventType,
       client_payload: {
         images: dispatchMatrix,
         version: 4
@@ -289,7 +309,8 @@ async function dispatch(repoData, dispatchMatrix) {
     console.error(e)
 
     throw new Error(
-      `Error creating dispatch event for repo ${repoData.repo}. Context: ${ctx}. Dispatch matrix: ${dispatchMatrix}`
+      `Error creating dispatch event for repo ${stateRepoName}. ` +
+        `Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

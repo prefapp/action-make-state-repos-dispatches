@@ -1,17 +1,116 @@
 # Changelog
 
-## [1.9.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.1...v1.9.0) (2024-08-30)
-
-
-### Features
-
-* Added highest_semver_[prerelease/release]_[tag] filter ([ca5e208](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ca5e2080e95040dc9eed90d7691f57b62268c665))
-* Added tests and final filter functionality ([6cd2780](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6cd2780cdbf0ea3716306a9116e91e9e71d79e44))
-
+## [3.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.0...v3.1.1) (2025-02-04)
 
 ### Bug Fixes
 
-* Merge errors ([12ea281](https://github.com/prefapp/action-make-state-repos-dispatches/commit/12ea2812b586946bbc2f15f27a6d14ac8cd39778))
+- Improve tests and code coverage
+  ([#83](https://github.com/prefapp/action-make-state-repos-dispatches/issues/83))
+  ([a38eec4](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a38eec4f85478e8108c5c9faeb75d41af663d348))
+
+## [3.1.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.2...v3.1.0) (2025-02-03)
+
+### Features
+
+- Added new state_repo config parameter
+  ([#81](https://github.com/prefapp/action-make-state-repos-dispatches/issues/81))
+  ([aa5d78f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/aa5d78fabaea657587e8fa761242641c8b62d1ed))
+
+## [3.0.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.1...v3.0.2) (2025-02-03)
+
+### Bug Fixes
+
+- Added more descriptive 'no config found' errors
+  ([#76](https://github.com/prefapp/action-make-state-repos-dispatches/issues/76))
+  ([a5c6939](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a5c69390a9a4b76fced51b2c4b72c15595a2466c))
+- Added try - catch blocks in functions where they were missing
+  ([#78](https://github.com/prefapp/action-make-state-repos-dispatches/issues/78))
+  ([3156014](https://github.com/prefapp/action-make-state-repos-dispatches/commit/3156014ba7db7b523a03440984fa9383d2d0da75))
+- Do not concatenate platform when a dispatch_event_type is specified
+  ([#80](https://github.com/prefapp/action-make-state-repos-dispatches/issues/80))
+  ([6b2816e](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6b2816ed0b6843ab9bdc2c34b195ff4e66a52c6d))
+- Fixed test warnings
+  ([#79](https://github.com/prefapp/action-make-state-repos-dispatches/issues/79))
+  ([98c1dcc](https://github.com/prefapp/action-make-state-repos-dispatches/commit/98c1dcce3b03e4ff69b9c9d6c0999d3f2a1c7061))
+
+## [3.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.0.0...v3.0.1) (2025-01-23)
+
+### Bug Fixes
+
+- Removed unused parameter
+  ([#74](https://github.com/prefapp/action-make-state-repos-dispatches/issues/74))
+  ([fba153c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/fba153cd108aa9620102f5d46a28a8534b3694fc))
+
+## [3.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v2.0.1...v3.0.0) (2025-01-21)
+
+### ⚠ BREAKING CHANGES
+
+- New config format
+  ([#72](https://github.com/prefapp/action-make-state-repos-dispatches/issues/72))
+
+### Features
+
+- New config format
+  ([#72](https://github.com/prefapp/action-make-state-repos-dispatches/issues/72))
+  ([34d71f7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/34d71f7dca925e030e72f320304246bb6d866911))
+
+## [2.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v2.0.0...v2.0.1) (2024-11-21)
+
+### Bug Fixes
+
+- add repo to payload
+  ([#70](https://github.com/prefapp/action-make-state-repos-dispatches/issues/70))
+  ([60817f9](https://github.com/prefapp/action-make-state-repos-dispatches/commit/60817f9ad771c5ee5defd101bf4dc6461c47473a))
+
+## [2.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.11.0...v2.0.0) (2024-10-29)
+
+### ⚠ BREAKING CHANGES
+
+- Updated action so it works with new input of the update state repo images
+  action
+  ([#68](https://github.com/prefapp/action-make-state-repos-dispatches/issues/68))
+
+### Features
+
+- Updated action so it works with new input of the update state repo images
+  action
+  ([#68](https://github.com/prefapp/action-make-state-repos-dispatches/issues/68))
+  ([43641b1](https://github.com/prefapp/action-make-state-repos-dispatches/commit/43641b131eeaab49c5c083cf220f2e67ec80190b))
+
+## [1.11.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.10.0...v1.11.0) (2024-10-22)
+
+### Features
+
+- merge pull request
+  [#64](https://github.com/prefapp/action-make-state-repos-dispatches/issues/64)
+  from prefapp/added-json-schema-validation
+  ([a401a51](https://github.com/prefapp/action-make-state-repos-dispatches/commit/a401a519df84ee34a11f3e55af2953e0d93d294d))
+
+## [1.10.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.9.0...v1.10.0) (2024-10-18)
+
+### Features
+
+- Compiled app and added tests
+  ([c30602c](https://github.com/prefapp/action-make-state-repos-dispatches/commit/c30602cff5c5bbc61356d447ca44017cea4ecf93))
+
+### Bug Fixes
+
+- Added clearer errors
+  ([67a5191](https://github.com/prefapp/action-make-state-repos-dispatches/commit/67a51918d0997941c8dfc3919d4dac566e74d4ca))
+
+## [1.9.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.1...v1.9.0) (2024-08-30)
+
+### Features
+
+- Added highest*semver*[prerelease/release]\_[tag] filter
+  ([ca5e208](https://github.com/prefapp/action-make-state-repos-dispatches/commit/ca5e2080e95040dc9eed90d7691f57b62268c665))
+- Added tests and final filter functionality
+  ([6cd2780](https://github.com/prefapp/action-make-state-repos-dispatches/commit/6cd2780cdbf0ea3716306a9116e91e9e71d79e44))
+
+### Bug Fixes
+
+- Merge errors
+  ([12ea281](https://github.com/prefapp/action-make-state-repos-dispatches/commit/12ea2812b586946bbc2f15f27a6d14ac8cd39778))
 
 ## [1.8.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v1.8.0...v1.8.1) (2024-08-30)
 

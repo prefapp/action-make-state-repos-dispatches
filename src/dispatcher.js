@@ -6,6 +6,8 @@ const fs = require('fs')
 const minimatch = require('minimatch')
 const configHelper = require('../utils/config-helper')
 
+const TFWORKSPACE_PLATFORM_TYPE = 'tfworkspaces'
+
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
 }
@@ -247,6 +249,16 @@ function createDispatchList(
         )
       }
 
+      if (
+        clusterConfig[chosenCluster].type === TFWORKSPACE_PLATFORM_TYPE &&
+        !deployment.claim
+      ) {
+        throw new Error(
+          `Error when creating dispatch list: ${TFWORKSPACE_PLATFORM_TYPE} ` +
+            `type clusters must set the 'claim' config value`
+        )
+      }
+
       if (!appConfig[deployment.application]) {
         throw new Error(
           `Error when creating dispatch list: ${deployment.application} ` +
@@ -285,6 +297,7 @@ function createDispatchList(
           state_repo: deployment.state_repo,
           service_name_list: deployment.service_names,
           image_keys: deployment.image_keys,
+          claim: deployment.claim,
           registry:
             deployment.registry || registriesConfig[deployment.type].registry,
           dispatch_event_type:

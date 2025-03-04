@@ -40277,7 +40277,7 @@ function createDispatchList(
       ) {
         throw new Error(
           `Error when creating dispatch list: ${TFWORKSPACE_PLATFORM_TYPE} ` +
-            `type clusters must set the 'claim' config value`
+            `type clusters must set the 'claim' config value `
         )
       }
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.1...v4.0.0) (2025-03-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* Added new claim field to dispatch config ([#94](https://github.com/prefapp/action-make-state-repos-dispatches/issues/94))
+
+### Features
+
+* Added new claim field to dispatch config ([#94](https://github.com/prefapp/action-make-state-repos-dispatches/issues/94)) ([88e7062](https://github.com/prefapp/action-make-state-repos-dispatches/commit/88e70627f541fb2fc615153bb04139f60023a247))
+
 ## [3.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.0...v3.1.1) (2025-02-04)
 
 ### Bug Fixes

@@ -1,6 +1,7 @@
 deployments:
   - tenant: tenant1
     platform: cluster1
+    claim: test-claim
     env: env1
     type: snapshots
     flavor: flavor1

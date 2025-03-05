@@ -199,6 +199,7 @@ describe('The dispatcher', () => {
       type: 'snapshots',
       flavor: 'flavor1',
       registry: 'registry1',
+      claim: 'test-claim',
       dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version1',
       tenant: 'tenant1',
@@ -276,6 +277,7 @@ describe('The dispatcher', () => {
       type: 'snapshots',
       flavor: 'flavor1',
       registry: 'registry1',
+      claim: 'test-claim',
       dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version1',
       tenant: 'tenant1',
@@ -381,6 +383,7 @@ describe('The dispatcher', () => {
       type: 'snapshots',
       flavor: 'flavor1',
       registry: 'registry1',
+      claim: 'test-claim',
       dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version1',
       tenant: 'tenant1',
@@ -406,6 +409,24 @@ describe('The dispatcher', () => {
     const clusterConfig = configHelper.getClustersConfig(
       'fixtures/.firestartr/clusters/'
     )
+
+    dispatchesFileObj.deployments[0]['platform'] = 'cluster99'
+    delete dispatchesFileObj.deployments[0]['claim']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: tfworkspaces ` +
+        `type clusters must set the 'claim' config value`
+    )
+
     clusterConfig[singleDispatch.platform].envs = ['another_env1']
 
     expect(() => {

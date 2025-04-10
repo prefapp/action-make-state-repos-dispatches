@@ -88,6 +88,8 @@ async function makeDispatches(gitController) {
     const clusterFilterList =
       clusterFilter === '*' ? '*' : getListFromInput(clusterFilter)
 
+    const repoContext = gitController.getRepoContext()
+    const defaultImageRepository = `${repoContext.owner}/${repoContext.repo}`
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
     const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
     const registriesConfig = configHelper.getRegistriesConfig(
@@ -97,6 +99,7 @@ async function makeDispatches(gitController) {
     )
 
     const dispatchList = createDispatchList(
+      defaultImageRepository,
       dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
@@ -141,6 +144,7 @@ async function makeDispatches(gitController) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
+            entry.repository === data.image_repo &&
             entry.registry === (data.registry || defaultRegistries[data.type])
         )[0]
 
@@ -212,6 +216,7 @@ async function getDispatchesFileContent(filePath, gitController) {
 }
 
 function createDispatchList(
+  defaultImageRepository,
   deployments,
   reviewersList,
   repo,
@@ -277,38 +282,56 @@ function createDispatchList(
       }
 
       for (const serviceData of appConfig[deployment.application].services) {
-        const imageRepo =
-          deployment.image_repository ||
-          `${registriesConfig[deployment.type].base_paths['services']}/` +
-            `${serviceData.repo}`
+        if (defaultImageRepository === serviceData.repo) {
+          let makeDispatch = false
+          if (deployment.service_names) {
+            for (const serviceName of deployment.service_names) {
+              if (serviceData.service_names.includes(serviceName)) {
+                makeDispatch = true
+                break
+              }
+            }
+          } else {
+            makeDispatch = true
+          }
 
-        const basePath = path.join(
-          clusterConfig[chosenCluster].type,
-          chosenCluster
-        )
+          if (makeDispatch) {
+            const imageRepo =
+              deployment.image_repository ||
+              `${registriesConfig[deployment.type].base_paths['services']}/` +
+                `${defaultImageRepository}`
 
-        dispatchList.push({
-          type: deployment.type,
-          flavor: deployment.flavor,
-          version: versionOverride || deployment.version,
-          tenant: tenantOverride || deployment.tenant,
-          app: deployment.application,
-          env: envOverride || deployment.env,
-          state_repo: deployment.state_repo,
-          service_name_list: deployment.service_names,
-          image_keys: deployment.image_keys,
-          claim: deployment.claim,
-          registry:
-            deployment.registry || registriesConfig[deployment.type].registry,
-          dispatch_event_type:
-            deployment.dispatch_event_type ||
-            `dispatch-image-${clusterConfig[chosenCluster].type}`,
-          reviewers: reviewersList,
-          repository_caller: repo,
-          technology: clusterConfig[chosenCluster].type,
-          platform: chosenCluster,
-          base_folder: basePath
-        })
+            const basePath = path.join(
+              clusterConfig[chosenCluster].type,
+              chosenCluster
+            )
+
+            dispatchList.push({
+              type: deployment.type,
+              flavor: deployment.flavor,
+              version: versionOverride || deployment.version,
+              tenant: tenantOverride || deployment.tenant,
+              app: deployment.application,
+              env: envOverride || deployment.env,
+              state_repo: deployment.state_repo,
+              service_name_list: deployment.service_names,
+              image_keys: deployment.image_keys,
+              claim: deployment.claim,
+              registry:
+                deployment.registry ||
+                registriesConfig[deployment.type].registry,
+              image_repo: imageRepo,
+              dispatch_event_type:
+                deployment.dispatch_event_type ||
+                `dispatch-image-${clusterConfig[chosenCluster].type}`,
+              reviewers: reviewersList,
+              repository_caller: repo,
+              technology: clusterConfig[chosenCluster].type,
+              platform: chosenCluster,
+              base_folder: basePath
+            })
+          }
+        }
       }
     }
 

@@ -34,7 +34,7 @@
     "image_tag": "v444",
     "image_type": "snapshots",
     "registry": "snapshots.reg",
-    "repository": "service/org/repo",
+    "repository": "service/my-org/my-repo",
     "version": "version4"
   },
   {
@@ -48,7 +48,7 @@
     "image_tag": "v2.3-flavor2-dev",
     "image_type": "snapshots",
     "registry": "snapshots.reg",
-    "repository": "service/my-other-org/my-other-repo",
+    "repository": "repo23",
     "version": "version23"
   },
   {
@@ -62,7 +62,7 @@
     "image_tag": "v2.3-flavor3-dev",
     "image_type": "snapshots",
     "registry": "registry23",
-    "repository": "service/my-other-org/my-other-repo",
+    "repository": "service/my-org/my-repo",
     "version": "version23"
   },
   {
@@ -90,7 +90,7 @@
     "image_tag": "v2.3-flavor2-pro",
     "image_type": "releases",
     "registry": "registry23",
-    "repository": "service/my-other-org/my-other-repo",
+    "repository": "repo23",
     "version": "version23"
   },
   {
@@ -104,7 +104,7 @@
     "image_tag": "v2.3-flavor3-pro",
     "image_type": "releases",
     "registry": "releases.reg",
-    "repository": "service/my-other-org/my-other-repo",
+    "repository": "service/my-org/my-repo",
     "version": "version23"
   }
 ]

@@ -3,5 +3,5 @@ registry: releases.reg
 default: true
 image_types: [releases]
 base_paths:
-  services: 'projects'
+  services: 'service'
   charts: 'charts'

@@ -1,7 +1,7 @@
 name: application99
 state_repo: 'org/app99'
 services:
-  - repo: org/app99
+  - repo: my-org/my-repo
     service_names: [app99-client]
-  - repo: org/app99
+  - repo: my-org/my-repo
     service_names: [app99-api]

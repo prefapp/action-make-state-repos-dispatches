@@ -8,7 +8,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -21,7 +25,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -83,13 +87,13 @@ class Command {
     }
 }
 function escapeData(s) {
-    return utils_1.toCommandValue(s)
+    return (0, utils_1.toCommandValue)(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return utils_1.toCommandValue(s)
+    return (0, utils_1.toCommandValue)(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -107,7 +111,11 @@ function escapeProperty(s) {
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -120,7 +128,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -134,7 +142,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+exports.platform = exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = exports.markdownSummary = exports.summary = exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
 const command_1 = __nccwpck_require__(4914);
 const file_command_1 = __nccwpck_require__(4753);
 const utils_1 = __nccwpck_require__(302);
@@ -154,7 +162,7 @@ var ExitCode;
      * A code indicating that the action was a failure
      */
     ExitCode[ExitCode["Failure"] = 1] = "Failure";
-})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
+})(ExitCode || (exports.ExitCode = ExitCode = {}));
 //-----------------------------------------------------------------------
 // Variables
 //-----------------------------------------------------------------------
@@ -165,13 +173,13 @@ var ExitCode;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    const convertedVal = utils_1.toCommandValue(val);
+    const convertedVal = (0, utils_1.toCommandValue)(val);
     process.env[name] = convertedVal;
     const filePath = process.env['GITHUB_ENV'] || '';
     if (filePath) {
-        return file_command_1.issueFileCommand('ENV', file_command_1.prepareKeyValueMessage(name, val));
+        return (0, file_command_1.issueFileCommand)('ENV', (0, file_command_1.prepareKeyValueMessage)(name, val));
     }
-    command_1.issueCommand('set-env', { name }, convertedVal);
+    (0, command_1.issueCommand)('set-env', { name }, convertedVal);
 }
 exports.exportVariable = exportVariable;
 /**
@@ -179,7 +187,7 @@ exports.exportVariable = exportVariable;
  * @param secret value of the secret
  */
 function setSecret(secret) {
-    command_1.issueCommand('add-mask', {}, secret);
+    (0, command_1.issueCommand)('add-mask', {}, secret);
 }
 exports.setSecret = setSecret;
 /**
@@ -189,10 +197,10 @@ exports.setSecret = setSecret;
 function addPath(inputPath) {
     const filePath = process.env['GITHUB_PATH'] || '';
     if (filePath) {
-        file_command_1.issueFileCommand('PATH', inputPath);
+        (0, file_command_1.issueFileCommand)('PATH', inputPath);
     }
     else {
-        command_1.issueCommand('add-path', {}, inputPath);
+        (0, command_1.issueCommand)('add-path', {}, inputPath);
     }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
@@ -267,10 +275,10 @@ exports.getBooleanInput = getBooleanInput;
 function setOutput(name, value) {
     const filePath = process.env['GITHUB_OUTPUT'] || '';
     if (filePath) {
-        return file_command_1.issueFileCommand('OUTPUT', file_command_1.prepareKeyValueMessage(name, value));
+        return (0, file_command_1.issueFileCommand)('OUTPUT', (0, file_command_1.prepareKeyValueMessage)(name, value));
     }
     process.stdout.write(os.EOL);
-    command_1.issueCommand('set-output', { name }, utils_1.toCommandValue(value));
+    (0, command_1.issueCommand)('set-output', { name }, (0, utils_1.toCommandValue)(value));
 }
 exports.setOutput = setOutput;
 /**
@@ -279,7 +287,7 @@ exports.setOutput = setOutput;
  *
  */
 function setCommandEcho(enabled) {
-    command_1.issue('echo', enabled ? 'on' : 'off');
+    (0, command_1.issue)('echo', enabled ? 'on' : 'off');
 }
 exports.setCommandEcho = setCommandEcho;
 //-----------------------------------------------------------------------
@@ -310,7 +318,7 @@ exports.isDebug = isDebug;
  * @param message debug message
  */
 function debug(message) {
-    command_1.issueCommand('debug', {}, message);
+    (0, command_1.issueCommand)('debug', {}, message);
 }
 exports.debug = debug;
 /**
@@ -319,7 +327,7 @@ exports.debug = debug;
  * @param properties optional properties to add to the annotation.
  */
 function error(message, properties = {}) {
-    command_1.issueCommand('error', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    (0, command_1.issueCommand)('error', (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
@@ -328,7 +336,7 @@ exports.error = error;
  * @param properties optional properties to add to the annotation.
  */
 function warning(message, properties = {}) {
-    command_1.issueCommand('warning', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    (0, command_1.issueCommand)('warning', (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
 /**
@@ -337,7 +345,7 @@ exports.warning = warning;
  * @param properties optional properties to add to the annotation.
  */
 function notice(message, properties = {}) {
-    command_1.issueCommand('notice', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    (0, command_1.issueCommand)('notice', (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
 }
 exports.notice = notice;
 /**
@@ -356,14 +364,14 @@ exports.info = info;
  * @param name The name of the output group
  */
 function startGroup(name) {
-    command_1.issue('group', name);
+    (0, command_1.issue)('group', name);
 }
 exports.startGroup = startGroup;
 /**
  * End an output group.
  */
 function endGroup() {
-    command_1.issue('endgroup');
+    (0, command_1.issue)('endgroup');
 }
 exports.endGroup = endGroup;
 /**
@@ -401,9 +409,9 @@ exports.group = group;
 function saveState(name, value) {
     const filePath = process.env['GITHUB_STATE'] || '';
     if (filePath) {
-        return file_command_1.issueFileCommand('STATE', file_command_1.prepareKeyValueMessage(name, value));
+        return (0, file_command_1.issueFileCommand)('STATE', (0, file_command_1.prepareKeyValueMessage)(name, value));
     }
-    command_1.issueCommand('save-state', { name }, utils_1.toCommandValue(value));
+    (0, command_1.issueCommand)('save-state', { name }, (0, utils_1.toCommandValue)(value));
 }
 exports.saveState = saveState;
 /**
@@ -439,6 +447,10 @@ var path_utils_1 = __nccwpck_require__(1976);
 Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
 Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
 Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
+/**
+ * Platform utilities exports
+ */
+exports.platform = __importStar(__nccwpck_require__(8968));
 //# sourceMappingURL=core.js.map
 
 /***/ }),
@@ -451,7 +463,11 @@ Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: funct
 // For internal use, subject to change.
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -464,7 +480,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -472,9 +488,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const crypto = __importStar(__nccwpck_require__(6982));
 const fs = __importStar(__nccwpck_require__(9896));
 const os = __importStar(__nccwpck_require__(857));
-const uuid_1 = __nccwpck_require__(2048);
 const utils_1 = __nccwpck_require__(302);
 function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
@@ -484,14 +500,14 @@ function issueFileCommand(command, message) {
     if (!fs.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
     }
-    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+    fs.appendFileSync(filePath, `${(0, utils_1.toCommandValue)(message)}${os.EOL}`, {
         encoding: 'utf8'
     });
 }
 exports.issueFileCommand = issueFileCommand;
 function prepareKeyValueMessage(key, value) {
-    const delimiter = `ghadelimiter_${uuid_1.v4()}`;
-    const convertedValue = utils_1.toCommandValue(value);
+    const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
+    const convertedValue = (0, utils_1.toCommandValue)(value);
     // These should realistically never happen, but just in case someone finds a
     // way to exploit uuid generation let's not allow keys or values that contain
     // the delimiter.
@@ -576,9 +592,9 @@ class OidcClient {
                     const encodedAudience = encodeURIComponent(audience);
                     id_token_url = `${id_token_url}&audience=${encodedAudience}`;
                 }
-                core_1.debug(`ID token url is ${id_token_url}`);
+                (0, core_1.debug)(`ID token url is ${id_token_url}`);
                 const id_token = yield OidcClient.getCall(id_token_url);
-                core_1.setSecret(id_token);
+                (0, core_1.setSecret)(id_token);
                 return id_token;
             }
             catch (error) {
@@ -599,7 +615,11 @@ exports.OidcClient = OidcClient;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -612,7 +632,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -654,6 +674,107 @@ function toPlatformPath(pth) {
 }
 exports.toPlatformPath = toPlatformPath;
 //# sourceMappingURL=path-utils.js.map
+
+/***/ }),
+
+/***/ 8968:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDetails = exports.isLinux = exports.isMacOS = exports.isWindows = exports.arch = exports.platform = void 0;
+const os_1 = __importDefault(__nccwpck_require__(857));
+const exec = __importStar(__nccwpck_require__(5236));
+const getWindowsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
+    const { stdout: version } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', undefined, {
+        silent: true
+    });
+    const { stdout: name } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"', undefined, {
+        silent: true
+    });
+    return {
+        name: name.trim(),
+        version: version.trim()
+    };
+});
+const getMacOsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    const { stdout } = yield exec.getExecOutput('sw_vers', undefined, {
+        silent: true
+    });
+    const version = (_b = (_a = stdout.match(/ProductVersion:\s*(.+)/)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : '';
+    const name = (_d = (_c = stdout.match(/ProductName:\s*(.+)/)) === null || _c === void 0 ? void 0 : _c[1]) !== null && _d !== void 0 ? _d : '';
+    return {
+        name,
+        version
+    };
+});
+const getLinuxInfo = () => __awaiter(void 0, void 0, void 0, function* () {
+    const { stdout } = yield exec.getExecOutput('lsb_release', ['-i', '-r', '-s'], {
+        silent: true
+    });
+    const [name, version] = stdout.trim().split('\n');
+    return {
+        name,
+        version
+    };
+});
+exports.platform = os_1.default.platform();
+exports.arch = os_1.default.arch();
+exports.isWindows = exports.platform === 'win32';
+exports.isMacOS = exports.platform === 'darwin';
+exports.isLinux = exports.platform === 'linux';
+function getDetails() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return Object.assign(Object.assign({}, (yield (exports.isWindows
+            ? getWindowsInfo()
+            : exports.isMacOS
+                ? getMacOsInfo()
+                : getLinuxInfo()))), { platform: exports.platform,
+            arch: exports.arch,
+            isWindows: exports.isWindows,
+            isMacOS: exports.isMacOS,
+            isLinux: exports.isLinux });
+    });
+}
+exports.getDetails = getDetails;
+//# sourceMappingURL=platform.js.map
 
 /***/ }),
 
@@ -991,6 +1112,741 @@ function toCommandProperties(annotationProperties) {
 }
 exports.toCommandProperties = toCommandProperties;
 //# sourceMappingURL=utils.js.map
+
+/***/ }),
+
+/***/ 5236:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getExecOutput = exports.exec = void 0;
+const string_decoder_1 = __nccwpck_require__(3193);
+const tr = __importStar(__nccwpck_require__(6665));
+/**
+ * Exec a command.
+ * Output will be streamed to the live console.
+ * Returns promise with return code
+ *
+ * @param     commandLine        command to execute (can include additional args). Must be correctly escaped.
+ * @param     args               optional arguments for tool. Escaping is handled by the lib.
+ * @param     options            optional exec options.  See ExecOptions
+ * @returns   Promise<number>    exit code
+ */
+function exec(commandLine, args, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const commandArgs = tr.argStringToArray(commandLine);
+        if (commandArgs.length === 0) {
+            throw new Error(`Parameter 'commandLine' cannot be null or empty.`);
+        }
+        // Path to tool to execute should be first arg
+        const toolPath = commandArgs[0];
+        args = commandArgs.slice(1).concat(args || []);
+        const runner = new tr.ToolRunner(toolPath, args, options);
+        return runner.exec();
+    });
+}
+exports.exec = exec;
+/**
+ * Exec a command and get the output.
+ * Output will be streamed to the live console.
+ * Returns promise with the exit code and collected stdout and stderr
+ *
+ * @param     commandLine           command to execute (can include additional args). Must be correctly escaped.
+ * @param     args                  optional arguments for tool. Escaping is handled by the lib.
+ * @param     options               optional exec options.  See ExecOptions
+ * @returns   Promise<ExecOutput>   exit code, stdout, and stderr
+ */
+function getExecOutput(commandLine, args, options) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        let stdout = '';
+        let stderr = '';
+        //Using string decoder covers the case where a mult-byte character is split
+        const stdoutDecoder = new string_decoder_1.StringDecoder('utf8');
+        const stderrDecoder = new string_decoder_1.StringDecoder('utf8');
+        const originalStdoutListener = (_a = options === null || options === void 0 ? void 0 : options.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
+        const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+        const stdErrListener = (data) => {
+            stderr += stderrDecoder.write(data);
+            if (originalStdErrListener) {
+                originalStdErrListener(data);
+            }
+        };
+        const stdOutListener = (data) => {
+            stdout += stdoutDecoder.write(data);
+            if (originalStdoutListener) {
+                originalStdoutListener(data);
+            }
+        };
+        const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
+        const exitCode = yield exec(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+        //flush any remaining characters
+        stdout += stdoutDecoder.end();
+        stderr += stderrDecoder.end();
+        return {
+            exitCode,
+            stdout,
+            stderr
+        };
+    });
+}
+exports.getExecOutput = getExecOutput;
+//# sourceMappingURL=exec.js.map
+
+/***/ }),
+
+/***/ 6665:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.argStringToArray = exports.ToolRunner = void 0;
+const os = __importStar(__nccwpck_require__(857));
+const events = __importStar(__nccwpck_require__(4434));
+const child = __importStar(__nccwpck_require__(5317));
+const path = __importStar(__nccwpck_require__(6928));
+const io = __importStar(__nccwpck_require__(4994));
+const ioUtil = __importStar(__nccwpck_require__(5207));
+const timers_1 = __nccwpck_require__(3557);
+/* eslint-disable @typescript-eslint/unbound-method */
+const IS_WINDOWS = process.platform === 'win32';
+/*
+ * Class for running command line tools. Handles quoting and arg parsing in a platform agnostic way.
+ */
+class ToolRunner extends events.EventEmitter {
+    constructor(toolPath, args, options) {
+        super();
+        if (!toolPath) {
+            throw new Error("Parameter 'toolPath' cannot be null or empty.");
+        }
+        this.toolPath = toolPath;
+        this.args = args || [];
+        this.options = options || {};
+    }
+    _debug(message) {
+        if (this.options.listeners && this.options.listeners.debug) {
+            this.options.listeners.debug(message);
+        }
+    }
+    _getCommandString(options, noPrefix) {
+        const toolPath = this._getSpawnFileName();
+        const args = this._getSpawnArgs(options);
+        let cmd = noPrefix ? '' : '[command]'; // omit prefix when piped to a second tool
+        if (IS_WINDOWS) {
+            // Windows + cmd file
+            if (this._isCmdFile()) {
+                cmd += toolPath;
+                for (const a of args) {
+                    cmd += ` ${a}`;
+                }
+            }
+            // Windows + verbatim
+            else if (options.windowsVerbatimArguments) {
+                cmd += `"${toolPath}"`;
+                for (const a of args) {
+                    cmd += ` ${a}`;
+                }
+            }
+            // Windows (regular)
+            else {
+                cmd += this._windowsQuoteCmdArg(toolPath);
+                for (const a of args) {
+                    cmd += ` ${this._windowsQuoteCmdArg(a)}`;
+                }
+            }
+        }
+        else {
+            // OSX/Linux - this can likely be improved with some form of quoting.
+            // creating processes on Unix is fundamentally different than Windows.
+            // on Unix, execvp() takes an arg array.
+            cmd += toolPath;
+            for (const a of args) {
+                cmd += ` ${a}`;
+            }
+        }
+        return cmd;
+    }
+    _processLineBuffer(data, strBuffer, onLine) {
+        try {
+            let s = strBuffer + data.toString();
+            let n = s.indexOf(os.EOL);
+            while (n > -1) {
+                const line = s.substring(0, n);
+                onLine(line);
+                // the rest of the string ...
+                s = s.substring(n + os.EOL.length);
+                n = s.indexOf(os.EOL);
+            }
+            return s;
+        }
+        catch (err) {
+            // streaming lines to console is best effort.  Don't fail a build.
+            this._debug(`error processing line. Failed with error ${err}`);
+            return '';
+        }
+    }
+    _getSpawnFileName() {
+        if (IS_WINDOWS) {
+            if (this._isCmdFile()) {
+                return process.env['COMSPEC'] || 'cmd.exe';
+            }
+        }
+        return this.toolPath;
+    }
+    _getSpawnArgs(options) {
+        if (IS_WINDOWS) {
+            if (this._isCmdFile()) {
+                let argline = `/D /S /C "${this._windowsQuoteCmdArg(this.toolPath)}`;
+                for (const a of this.args) {
+                    argline += ' ';
+                    argline += options.windowsVerbatimArguments
+                        ? a
+                        : this._windowsQuoteCmdArg(a);
+                }
+                argline += '"';
+                return [argline];
+            }
+        }
+        return this.args;
+    }
+    _endsWith(str, end) {
+        return str.endsWith(end);
+    }
+    _isCmdFile() {
+        const upperToolPath = this.toolPath.toUpperCase();
+        return (this._endsWith(upperToolPath, '.CMD') ||
+            this._endsWith(upperToolPath, '.BAT'));
+    }
+    _windowsQuoteCmdArg(arg) {
+        // for .exe, apply the normal quoting rules that libuv applies
+        if (!this._isCmdFile()) {
+            return this._uvQuoteCmdArg(arg);
+        }
+        // otherwise apply quoting rules specific to the cmd.exe command line parser.
+        // the libuv rules are generic and are not designed specifically for cmd.exe
+        // command line parser.
+        //
+        // for a detailed description of the cmd.exe command line parser, refer to
+        // http://stackoverflow.com/questions/4094699/how-does-the-windows-command-interpreter-cmd-exe-parse-scripts/7970912#7970912
+        // need quotes for empty arg
+        if (!arg) {
+            return '""';
+        }
+        // determine whether the arg needs to be quoted
+        const cmdSpecialChars = [
+            ' ',
+            '\t',
+            '&',
+            '(',
+            ')',
+            '[',
+            ']',
+            '{',
+            '}',
+            '^',
+            '=',
+            ';',
+            '!',
+            "'",
+            '+',
+            ',',
+            '`',
+            '~',
+            '|',
+            '<',
+            '>',
+            '"'
+        ];
+        let needsQuotes = false;
+        for (const char of arg) {
+            if (cmdSpecialChars.some(x => x === char)) {
+                needsQuotes = true;
+                break;
+            }
+        }
+        // short-circuit if quotes not needed
+        if (!needsQuotes) {
+            return arg;
+        }
+        // the following quoting rules are very similar to the rules that by libuv applies.
+        //
+        // 1) wrap the string in quotes
+        //
+        // 2) double-up quotes - i.e. " => ""
+        //
+        //    this is different from the libuv quoting rules. libuv replaces " with \", which unfortunately
+        //    doesn't work well with a cmd.exe command line.
+        //
+        //    note, replacing " with "" also works well if the arg is passed to a downstream .NET console app.
+        //    for example, the command line:
+        //          foo.exe "myarg:""my val"""
+        //    is parsed by a .NET console app into an arg array:
+        //          [ "myarg:\"my val\"" ]
+        //    which is the same end result when applying libuv quoting rules. although the actual
+        //    command line from libuv quoting rules would look like:
+        //          foo.exe "myarg:\"my val\""
+        //
+        // 3) double-up slashes that precede a quote,
+        //    e.g.  hello \world    => "hello \world"
+        //          hello\"world    => "hello\\""world"
+        //          hello\\"world   => "hello\\\\""world"
+        //          hello world\    => "hello world\\"
+        //
+        //    technically this is not required for a cmd.exe command line, or the batch argument parser.
+        //    the reasons for including this as a .cmd quoting rule are:
+        //
+        //    a) this is optimized for the scenario where the argument is passed from the .cmd file to an
+        //       external program. many programs (e.g. .NET console apps) rely on the slash-doubling rule.
+        //
+        //    b) it's what we've been doing previously (by deferring to node default behavior) and we
+        //       haven't heard any complaints about that aspect.
+        //
+        // note, a weakness of the quoting rules chosen here, is that % is not escaped. in fact, % cannot be
+        // escaped when used on the command line directly - even though within a .cmd file % can be escaped
+        // by using %%.
+        //
+        // the saving grace is, on the command line, %var% is left as-is if var is not defined. this contrasts
+        // the line parsing rules within a .cmd file, where if var is not defined it is replaced with nothing.
+        //
+        // one option that was explored was replacing % with ^% - i.e. %var% => ^%var^%. this hack would
+        // often work, since it is unlikely that var^ would exist, and the ^ character is removed when the
+        // variable is used. the problem, however, is that ^ is not removed when %* is used to pass the args
+        // to an external program.
+        //
+        // an unexplored potential solution for the % escaping problem, is to create a wrapper .cmd file.
+        // % can be escaped within a .cmd file.
+        let reverse = '"';
+        let quoteHit = true;
+        for (let i = arg.length; i > 0; i--) {
+            // walk the string in reverse
+            reverse += arg[i - 1];
+            if (quoteHit && arg[i - 1] === '\\') {
+                reverse += '\\'; // double the slash
+            }
+            else if (arg[i - 1] === '"') {
+                quoteHit = true;
+                reverse += '"'; // double the quote
+            }
+            else {
+                quoteHit = false;
+            }
+        }
+        reverse += '"';
+        return reverse
+            .split('')
+            .reverse()
+            .join('');
+    }
+    _uvQuoteCmdArg(arg) {
+        // Tool runner wraps child_process.spawn() and needs to apply the same quoting as
+        // Node in certain cases where the undocumented spawn option windowsVerbatimArguments
+        // is used.
+        //
+        // Since this function is a port of quote_cmd_arg from Node 4.x (technically, lib UV,
+        // see https://github.com/nodejs/node/blob/v4.x/deps/uv/src/win/process.c for details),
+        // pasting copyright notice from Node within this function:
+        //
+        //      Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+        //
+        //      Permission is hereby granted, free of charge, to any person obtaining a copy
+        //      of this software and associated documentation files (the "Software"), to
+        //      deal in the Software without restriction, including without limitation the
+        //      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+        //      sell copies of the Software, and to permit persons to whom the Software is
+        //      furnished to do so, subject to the following conditions:
+        //
+        //      The above copyright notice and this permission notice shall be included in
+        //      all copies or substantial portions of the Software.
+        //
+        //      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        //      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        //      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        //      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        //      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+        //      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+        //      IN THE SOFTWARE.
+        if (!arg) {
+            // Need double quotation for empty argument
+            return '""';
+        }
+        if (!arg.includes(' ') && !arg.includes('\t') && !arg.includes('"')) {
+            // No quotation needed
+            return arg;
+        }
+        if (!arg.includes('"') && !arg.includes('\\')) {
+            // No embedded double quotes or backslashes, so I can just wrap
+            // quote marks around the whole thing.
+            return `"${arg}"`;
+        }
+        // Expected input/output:
+        //   input : hello"world
+        //   output: "hello\"world"
+        //   input : hello""world
+        //   output: "hello\"\"world"
+        //   input : hello\world
+        //   output: hello\world
+        //   input : hello\\world
+        //   output: hello\\world
+        //   input : hello\"world
+        //   output: "hello\\\"world"
+        //   input : hello\\"world
+        //   output: "hello\\\\\"world"
+        //   input : hello world\
+        //   output: "hello world\\" - note the comment in libuv actually reads "hello world\"
+        //                             but it appears the comment is wrong, it should be "hello world\\"
+        let reverse = '"';
+        let quoteHit = true;
+        for (let i = arg.length; i > 0; i--) {
+            // walk the string in reverse
+            reverse += arg[i - 1];
+            if (quoteHit && arg[i - 1] === '\\') {
+                reverse += '\\';
+            }
+            else if (arg[i - 1] === '"') {
+                quoteHit = true;
+                reverse += '\\';
+            }
+            else {
+                quoteHit = false;
+            }
+        }
+        reverse += '"';
+        return reverse
+            .split('')
+            .reverse()
+            .join('');
+    }
+    _cloneExecOptions(options) {
+        options = options || {};
+        const result = {
+            cwd: options.cwd || process.cwd(),
+            env: options.env || process.env,
+            silent: options.silent || false,
+            windowsVerbatimArguments: options.windowsVerbatimArguments || false,
+            failOnStdErr: options.failOnStdErr || false,
+            ignoreReturnCode: options.ignoreReturnCode || false,
+            delay: options.delay || 10000
+        };
+        result.outStream = options.outStream || process.stdout;
+        result.errStream = options.errStream || process.stderr;
+        return result;
+    }
+    _getSpawnOptions(options, toolPath) {
+        options = options || {};
+        const result = {};
+        result.cwd = options.cwd;
+        result.env = options.env;
+        result['windowsVerbatimArguments'] =
+            options.windowsVerbatimArguments || this._isCmdFile();
+        if (options.windowsVerbatimArguments) {
+            result.argv0 = `"${toolPath}"`;
+        }
+        return result;
+    }
+    /**
+     * Exec a tool.
+     * Output will be streamed to the live console.
+     * Returns promise with return code
+     *
+     * @param     tool     path to tool to exec
+     * @param     options  optional exec options.  See ExecOptions
+     * @returns   number
+     */
+    exec() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // root the tool path if it is unrooted and contains relative pathing
+            if (!ioUtil.isRooted(this.toolPath) &&
+                (this.toolPath.includes('/') ||
+                    (IS_WINDOWS && this.toolPath.includes('\\')))) {
+                // prefer options.cwd if it is specified, however options.cwd may also need to be rooted
+                this.toolPath = path.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+            }
+            // if the tool is only a file name, then resolve it from the PATH
+            // otherwise verify it exists (add extension on Windows if necessary)
+            this.toolPath = yield io.which(this.toolPath, true);
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                this._debug(`exec tool: ${this.toolPath}`);
+                this._debug('arguments:');
+                for (const arg of this.args) {
+                    this._debug(`   ${arg}`);
+                }
+                const optionsNonNull = this._cloneExecOptions(this.options);
+                if (!optionsNonNull.silent && optionsNonNull.outStream) {
+                    optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os.EOL);
+                }
+                const state = new ExecState(optionsNonNull, this.toolPath);
+                state.on('debug', (message) => {
+                    this._debug(message);
+                });
+                if (this.options.cwd && !(yield ioUtil.exists(this.options.cwd))) {
+                    return reject(new Error(`The cwd: ${this.options.cwd} does not exist!`));
+                }
+                const fileName = this._getSpawnFileName();
+                const cp = child.spawn(fileName, this._getSpawnArgs(optionsNonNull), this._getSpawnOptions(this.options, fileName));
+                let stdbuffer = '';
+                if (cp.stdout) {
+                    cp.stdout.on('data', (data) => {
+                        if (this.options.listeners && this.options.listeners.stdout) {
+                            this.options.listeners.stdout(data);
+                        }
+                        if (!optionsNonNull.silent && optionsNonNull.outStream) {
+                            optionsNonNull.outStream.write(data);
+                        }
+                        stdbuffer = this._processLineBuffer(data, stdbuffer, (line) => {
+                            if (this.options.listeners && this.options.listeners.stdline) {
+                                this.options.listeners.stdline(line);
+                            }
+                        });
+                    });
+                }
+                let errbuffer = '';
+                if (cp.stderr) {
+                    cp.stderr.on('data', (data) => {
+                        state.processStderr = true;
+                        if (this.options.listeners && this.options.listeners.stderr) {
+                            this.options.listeners.stderr(data);
+                        }
+                        if (!optionsNonNull.silent &&
+                            optionsNonNull.errStream &&
+                            optionsNonNull.outStream) {
+                            const s = optionsNonNull.failOnStdErr
+                                ? optionsNonNull.errStream
+                                : optionsNonNull.outStream;
+                            s.write(data);
+                        }
+                        errbuffer = this._processLineBuffer(data, errbuffer, (line) => {
+                            if (this.options.listeners && this.options.listeners.errline) {
+                                this.options.listeners.errline(line);
+                            }
+                        });
+                    });
+                }
+                cp.on('error', (err) => {
+                    state.processError = err.message;
+                    state.processExited = true;
+                    state.processClosed = true;
+                    state.CheckComplete();
+                });
+                cp.on('exit', (code) => {
+                    state.processExitCode = code;
+                    state.processExited = true;
+                    this._debug(`Exit code ${code} received from tool '${this.toolPath}'`);
+                    state.CheckComplete();
+                });
+                cp.on('close', (code) => {
+                    state.processExitCode = code;
+                    state.processExited = true;
+                    state.processClosed = true;
+                    this._debug(`STDIO streams have closed for tool '${this.toolPath}'`);
+                    state.CheckComplete();
+                });
+                state.on('done', (error, exitCode) => {
+                    if (stdbuffer.length > 0) {
+                        this.emit('stdline', stdbuffer);
+                    }
+                    if (errbuffer.length > 0) {
+                        this.emit('errline', errbuffer);
+                    }
+                    cp.removeAllListeners();
+                    if (error) {
+                        reject(error);
+                    }
+                    else {
+                        resolve(exitCode);
+                    }
+                });
+                if (this.options.input) {
+                    if (!cp.stdin) {
+                        throw new Error('child process missing stdin');
+                    }
+                    cp.stdin.end(this.options.input);
+                }
+            }));
+        });
+    }
+}
+exports.ToolRunner = ToolRunner;
+/**
+ * Convert an arg string to an array of args. Handles escaping
+ *
+ * @param    argString   string of arguments
+ * @returns  string[]    array of arguments
+ */
+function argStringToArray(argString) {
+    const args = [];
+    let inQuotes = false;
+    let escaped = false;
+    let arg = '';
+    function append(c) {
+        // we only escape double quotes.
+        if (escaped && c !== '"') {
+            arg += '\\';
+        }
+        arg += c;
+        escaped = false;
+    }
+    for (let i = 0; i < argString.length; i++) {
+        const c = argString.charAt(i);
+        if (c === '"') {
+            if (!escaped) {
+                inQuotes = !inQuotes;
+            }
+            else {
+                append(c);
+            }
+            continue;
+        }
+        if (c === '\\' && escaped) {
+            append(c);
+            continue;
+        }
+        if (c === '\\' && inQuotes) {
+            escaped = true;
+            continue;
+        }
+        if (c === ' ' && !inQuotes) {
+            if (arg.length > 0) {
+                args.push(arg);
+                arg = '';
+            }
+            continue;
+        }
+        append(c);
+    }
+    if (arg.length > 0) {
+        args.push(arg.trim());
+    }
+    return args;
+}
+exports.argStringToArray = argStringToArray;
+class ExecState extends events.EventEmitter {
+    constructor(options, toolPath) {
+        super();
+        this.processClosed = false; // tracks whether the process has exited and stdio is closed
+        this.processError = '';
+        this.processExitCode = 0;
+        this.processExited = false; // tracks whether the process has exited
+        this.processStderr = false; // tracks whether stderr was written to
+        this.delay = 10000; // 10 seconds
+        this.done = false;
+        this.timeout = null;
+        if (!toolPath) {
+            throw new Error('toolPath must not be empty');
+        }
+        this.options = options;
+        this.toolPath = toolPath;
+        if (options.delay) {
+            this.delay = options.delay;
+        }
+    }
+    CheckComplete() {
+        if (this.done) {
+            return;
+        }
+        if (this.processClosed) {
+            this._setResult();
+        }
+        else if (this.processExited) {
+            this.timeout = timers_1.setTimeout(ExecState.HandleTimeout, this.delay, this);
+        }
+    }
+    _debug(message) {
+        this.emit('debug', message);
+    }
+    _setResult() {
+        // determine whether there is an error
+        let error;
+        if (this.processExited) {
+            if (this.processError) {
+                error = new Error(`There was an error when attempting to execute the process '${this.toolPath}'. This may indicate the process failed to start. Error: ${this.processError}`);
+            }
+            else if (this.processExitCode !== 0 && !this.options.ignoreReturnCode) {
+                error = new Error(`The process '${this.toolPath}' failed with exit code ${this.processExitCode}`);
+            }
+            else if (this.processStderr && this.options.failOnStdErr) {
+                error = new Error(`The process '${this.toolPath}' failed because one or more lines were written to the STDERR stream`);
+            }
+        }
+        // clear the timeout
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
+        this.done = true;
+        this.emit('done', error, this.processExitCode);
+    }
+    static HandleTimeout(state) {
+        if (state.done) {
+            return;
+        }
+        if (!state.processClosed && state.processExited) {
+            const message = `The STDIO streams did not close within ${state.delay /
+                1000} seconds of the exit event from process '${state.toolPath}'. This may indicate a child process inherited the STDIO streams and has not yet exited.`;
+            state._debug(message);
+        }
+        state._setResult();
+    }
+}
+//# sourceMappingURL=toolrunner.js.map
 
 /***/ }),
 
@@ -2080,6 +2936,502 @@ function isLoopbackAddress(host) {
         hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
 }
 //# sourceMappingURL=proxy.js.map
+
+/***/ }),
+
+/***/ 5207:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
+const fs = __importStar(__nccwpck_require__(9896));
+const path = __importStar(__nccwpck_require__(6928));
+_a = fs.promises
+// export const {open} = 'fs'
+, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+// export const {open} = 'fs'
+exports.IS_WINDOWS = process.platform === 'win32';
+// See https://github.com/nodejs/node/blob/d0153aee367422d0858105abec186da4dff0a0c5/deps/uv/include/uv/win.h#L691
+exports.UV_FS_O_EXLOCK = 0x10000000;
+exports.READONLY = fs.constants.O_RDONLY;
+function exists(fsPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield exports.stat(fsPath);
+        }
+        catch (err) {
+            if (err.code === 'ENOENT') {
+                return false;
+            }
+            throw err;
+        }
+        return true;
+    });
+}
+exports.exists = exists;
+function isDirectory(fsPath, useStat = false) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
+        return stats.isDirectory();
+    });
+}
+exports.isDirectory = isDirectory;
+/**
+ * On OSX/Linux, true if path starts with '/'. On Windows, true for paths like:
+ * \, \hello, \\hello\share, C:, and C:\hello (and corresponding alternate separator cases).
+ */
+function isRooted(p) {
+    p = normalizeSeparators(p);
+    if (!p) {
+        throw new Error('isRooted() parameter "p" cannot be empty');
+    }
+    if (exports.IS_WINDOWS) {
+        return (p.startsWith('\\') || /^[A-Z]:/i.test(p) // e.g. \ or \hello or \\hello
+        ); // e.g. C: or C:\hello
+    }
+    return p.startsWith('/');
+}
+exports.isRooted = isRooted;
+/**
+ * Best effort attempt to determine whether a file exists and is executable.
+ * @param filePath    file path to check
+ * @param extensions  additional file extensions to try
+ * @return if file exists and is executable, returns the file path. otherwise empty string.
+ */
+function tryGetExecutablePath(filePath, extensions) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let stats = undefined;
+        try {
+            // test file exists
+            stats = yield exports.stat(filePath);
+        }
+        catch (err) {
+            if (err.code !== 'ENOENT') {
+                // eslint-disable-next-line no-console
+                console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
+            }
+        }
+        if (stats && stats.isFile()) {
+            if (exports.IS_WINDOWS) {
+                // on Windows, test for valid extension
+                const upperExt = path.extname(filePath).toUpperCase();
+                if (extensions.some(validExt => validExt.toUpperCase() === upperExt)) {
+                    return filePath;
+                }
+            }
+            else {
+                if (isUnixExecutable(stats)) {
+                    return filePath;
+                }
+            }
+        }
+        // try each extension
+        const originalFilePath = filePath;
+        for (const extension of extensions) {
+            filePath = originalFilePath + extension;
+            stats = undefined;
+            try {
+                stats = yield exports.stat(filePath);
+            }
+            catch (err) {
+                if (err.code !== 'ENOENT') {
+                    // eslint-disable-next-line no-console
+                    console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
+                }
+            }
+            if (stats && stats.isFile()) {
+                if (exports.IS_WINDOWS) {
+                    // preserve the case of the actual file (since an extension was appended)
+                    try {
+                        const directory = path.dirname(filePath);
+                        const upperName = path.basename(filePath).toUpperCase();
+                        for (const actualName of yield exports.readdir(directory)) {
+                            if (upperName === actualName.toUpperCase()) {
+                                filePath = path.join(directory, actualName);
+                                break;
+                            }
+                        }
+                    }
+                    catch (err) {
+                        // eslint-disable-next-line no-console
+                        console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
+                    }
+                    return filePath;
+                }
+                else {
+                    if (isUnixExecutable(stats)) {
+                        return filePath;
+                    }
+                }
+            }
+        }
+        return '';
+    });
+}
+exports.tryGetExecutablePath = tryGetExecutablePath;
+function normalizeSeparators(p) {
+    p = p || '';
+    if (exports.IS_WINDOWS) {
+        // convert slashes on Windows
+        p = p.replace(/\//g, '\\');
+        // remove redundant slashes
+        return p.replace(/\\\\+/g, '\\');
+    }
+    // remove redundant slashes
+    return p.replace(/\/\/+/g, '/');
+}
+// on Mac/Linux, test the execute bit
+//     R   W  X  R  W X R W X
+//   256 128 64 32 16 8 4 2 1
+function isUnixExecutable(stats) {
+    return ((stats.mode & 1) > 0 ||
+        ((stats.mode & 8) > 0 && stats.gid === process.getgid()) ||
+        ((stats.mode & 64) > 0 && stats.uid === process.getuid()));
+}
+// Get the path of cmd.exe in windows
+function getCmdPath() {
+    var _a;
+    return (_a = process.env['COMSPEC']) !== null && _a !== void 0 ? _a : `cmd.exe`;
+}
+exports.getCmdPath = getCmdPath;
+//# sourceMappingURL=io-util.js.map
+
+/***/ }),
+
+/***/ 4994:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
+const assert_1 = __nccwpck_require__(2613);
+const path = __importStar(__nccwpck_require__(6928));
+const ioUtil = __importStar(__nccwpck_require__(5207));
+/**
+ * Copies a file or folder.
+ * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
+ *
+ * @param     source    source path
+ * @param     dest      destination path
+ * @param     options   optional. See CopyOptions.
+ */
+function cp(source, dest, options = {}) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { force, recursive, copySourceDirectory } = readCopyOptions(options);
+        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
+        // Dest is an existing file, but not forcing
+        if (destStat && destStat.isFile() && !force) {
+            return;
+        }
+        // If dest is an existing directory, should copy inside.
+        const newDest = destStat && destStat.isDirectory() && copySourceDirectory
+            ? path.join(dest, path.basename(source))
+            : dest;
+        if (!(yield ioUtil.exists(source))) {
+            throw new Error(`no such file or directory: ${source}`);
+        }
+        const sourceStat = yield ioUtil.stat(source);
+        if (sourceStat.isDirectory()) {
+            if (!recursive) {
+                throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
+            }
+            else {
+                yield cpDirRecursive(source, newDest, 0, force);
+            }
+        }
+        else {
+            if (path.relative(source, newDest) === '') {
+                // a file cannot be copied to itself
+                throw new Error(`'${newDest}' and '${source}' are the same file`);
+            }
+            yield copyFile(source, newDest, force);
+        }
+    });
+}
+exports.cp = cp;
+/**
+ * Moves a path.
+ *
+ * @param     source    source path
+ * @param     dest      destination path
+ * @param     options   optional. See MoveOptions.
+ */
+function mv(source, dest, options = {}) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (yield ioUtil.exists(dest)) {
+            let destExists = true;
+            if (yield ioUtil.isDirectory(dest)) {
+                // If dest is directory copy src into dest
+                dest = path.join(dest, path.basename(source));
+                destExists = yield ioUtil.exists(dest);
+            }
+            if (destExists) {
+                if (options.force == null || options.force) {
+                    yield rmRF(dest);
+                }
+                else {
+                    throw new Error('Destination already exists');
+                }
+            }
+        }
+        yield mkdirP(path.dirname(dest));
+        yield ioUtil.rename(source, dest);
+    });
+}
+exports.mv = mv;
+/**
+ * Remove a path recursively with force
+ *
+ * @param inputPath path to remove
+ */
+function rmRF(inputPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (ioUtil.IS_WINDOWS) {
+            // Check for invalid characters
+            // https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+            if (/[*"<>|]/.test(inputPath)) {
+                throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
+            }
+        }
+        try {
+            // note if path does not exist, error is silent
+            yield ioUtil.rm(inputPath, {
+                force: true,
+                maxRetries: 3,
+                recursive: true,
+                retryDelay: 300
+            });
+        }
+        catch (err) {
+            throw new Error(`File was unable to be removed ${err}`);
+        }
+    });
+}
+exports.rmRF = rmRF;
+/**
+ * Make a directory.  Creates the full path with folders in between
+ * Will throw if it fails
+ *
+ * @param   fsPath        path to create
+ * @returns Promise<void>
+ */
+function mkdirP(fsPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        assert_1.ok(fsPath, 'a path argument must be provided');
+        yield ioUtil.mkdir(fsPath, { recursive: true });
+    });
+}
+exports.mkdirP = mkdirP;
+/**
+ * Returns path of a tool had the tool actually been invoked.  Resolves via paths.
+ * If you check and the tool does not exist, it will throw.
+ *
+ * @param     tool              name of the tool
+ * @param     check             whether to check if tool exists
+ * @returns   Promise<string>   path to tool
+ */
+function which(tool, check) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!tool) {
+            throw new Error("parameter 'tool' is required");
+        }
+        // recursive when check=true
+        if (check) {
+            const result = yield which(tool, false);
+            if (!result) {
+                if (ioUtil.IS_WINDOWS) {
+                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
+                }
+                else {
+                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
+                }
+            }
+            return result;
+        }
+        const matches = yield findInPath(tool);
+        if (matches && matches.length > 0) {
+            return matches[0];
+        }
+        return '';
+    });
+}
+exports.which = which;
+/**
+ * Returns a list of all occurrences of the given tool on the system path.
+ *
+ * @returns   Promise<string[]>  the paths of the tool
+ */
+function findInPath(tool) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!tool) {
+            throw new Error("parameter 'tool' is required");
+        }
+        // build the list of extensions to try
+        const extensions = [];
+        if (ioUtil.IS_WINDOWS && process.env['PATHEXT']) {
+            for (const extension of process.env['PATHEXT'].split(path.delimiter)) {
+                if (extension) {
+                    extensions.push(extension);
+                }
+            }
+        }
+        // if it's rooted, return it if exists. otherwise return empty.
+        if (ioUtil.isRooted(tool)) {
+            const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
+            if (filePath) {
+                return [filePath];
+            }
+            return [];
+        }
+        // if any path separators, return empty
+        if (tool.includes(path.sep)) {
+            return [];
+        }
+        // build the list of directories
+        //
+        // Note, technically "where" checks the current directory on Windows. From a toolkit perspective,
+        // it feels like we should not do this. Checking the current directory seems like more of a use
+        // case of a shell, and the which() function exposed by the toolkit should strive for consistency
+        // across platforms.
+        const directories = [];
+        if (process.env.PATH) {
+            for (const p of process.env.PATH.split(path.delimiter)) {
+                if (p) {
+                    directories.push(p);
+                }
+            }
+        }
+        // find all matches
+        const matches = [];
+        for (const directory of directories) {
+            const filePath = yield ioUtil.tryGetExecutablePath(path.join(directory, tool), extensions);
+            if (filePath) {
+                matches.push(filePath);
+            }
+        }
+        return matches;
+    });
+}
+exports.findInPath = findInPath;
+function readCopyOptions(options) {
+    const force = options.force == null ? true : options.force;
+    const recursive = Boolean(options.recursive);
+    const copySourceDirectory = options.copySourceDirectory == null
+        ? true
+        : Boolean(options.copySourceDirectory);
+    return { force, recursive, copySourceDirectory };
+}
+function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Ensure there is not a run away recursive copy
+        if (currentDepth >= 255)
+            return;
+        currentDepth++;
+        yield mkdirP(destDir);
+        const files = yield ioUtil.readdir(sourceDir);
+        for (const fileName of files) {
+            const srcFile = `${sourceDir}/${fileName}`;
+            const destFile = `${destDir}/${fileName}`;
+            const srcFileStat = yield ioUtil.lstat(srcFile);
+            if (srcFileStat.isDirectory()) {
+                // Recurse
+                yield cpDirRecursive(srcFile, destFile, currentDepth, force);
+            }
+            else {
+                yield copyFile(srcFile, destFile, force);
+            }
+        }
+        // Change the mode for the newly created directory
+        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
+    });
+}
+// Buffered file copy
+function copyFile(srcFile, destFile, force) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
+            // unlink/re-link it
+            try {
+                yield ioUtil.lstat(destFile);
+                yield ioUtil.unlink(destFile);
+            }
+            catch (e) {
+                // Try to override file permission
+                if (e.code === 'EPERM') {
+                    yield ioUtil.chmod(destFile, '0666');
+                    yield ioUtil.unlink(destFile);
+                }
+                // other errors = it doesn't exist, no work to do
+            }
+            // Copy over symlink
+            const symlinkFull = yield ioUtil.readlink(srcFile);
+            yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? 'junction' : null);
+        }
+        else if (!(yield ioUtil.exists(destFile)) || force) {
+            yield ioUtil.copyFile(srcFile, destFile);
+        }
+    });
+}
+//# sourceMappingURL=io.js.map
 
 /***/ }),
 
@@ -8013,7 +9365,7 @@ const applicability_1 = __nccwpck_require__(7692);
 const dataType_2 = __nccwpck_require__(6685);
 const defaults_1 = __nccwpck_require__(1699);
 const keyword_1 = __nccwpck_require__(5202);
-const subschema_1 = __nccwpck_require__(3819);
+const subschema_1 = __nccwpck_require__(6200);
 const codegen_1 = __nccwpck_require__(1436);
 const names_1 = __nccwpck_require__(630);
 const resolve_1 = __nccwpck_require__(4090);
@@ -8658,7 +10010,7 @@ exports.validateKeywordUsage = validateKeywordUsage;
 
 /***/ }),
 
-/***/ 3819:
+/***/ 6200:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -12092,6 +13444,7 @@ function useColors() {
 
 	// Is webkit? http://stackoverflow.com/a/16459606/376773
 	// document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+	// eslint-disable-next-line no-return-assign
 	return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
 		// Is firebug? http://stackoverflow.com/a/398120/376773
 		(typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
@@ -12407,24 +13760,62 @@ function setup(env) {
 		createDebug.names = [];
 		createDebug.skips = [];
 
-		let i;
-		const split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
-		const len = split.length;
+		const split = (typeof namespaces === 'string' ? namespaces : '')
+			.trim()
+			.replace(' ', ',')
+			.split(',')
+			.filter(Boolean);
 
-		for (i = 0; i < len; i++) {
-			if (!split[i]) {
-				// ignore empty strings
-				continue;
-			}
-
-			namespaces = split[i].replace(/\*/g, '.*?');
-
-			if (namespaces[0] === '-') {
-				createDebug.skips.push(new RegExp('^' + namespaces.slice(1) + '$'));
+		for (const ns of split) {
+			if (ns[0] === '-') {
+				createDebug.skips.push(ns.slice(1));
 			} else {
-				createDebug.names.push(new RegExp('^' + namespaces + '$'));
+				createDebug.names.push(ns);
 			}
 		}
+	}
+
+	/**
+	 * Checks if the given string matches a namespace template, honoring
+	 * asterisks as wildcards.
+	 *
+	 * @param {String} search
+	 * @param {String} template
+	 * @return {Boolean}
+	 */
+	function matchesTemplate(search, template) {
+		let searchIndex = 0;
+		let templateIndex = 0;
+		let starIndex = -1;
+		let matchIndex = 0;
+
+		while (searchIndex < search.length) {
+			if (templateIndex < template.length && (template[templateIndex] === search[searchIndex] || template[templateIndex] === '*')) {
+				// Match character or proceed with wildcard
+				if (template[templateIndex] === '*') {
+					starIndex = templateIndex;
+					matchIndex = searchIndex;
+					templateIndex++; // Skip the '*'
+				} else {
+					searchIndex++;
+					templateIndex++;
+				}
+			} else if (starIndex !== -1) { // eslint-disable-line no-negated-condition
+				// Backtrack to the last '*' and try to match more characters
+				templateIndex = starIndex + 1;
+				matchIndex++;
+				searchIndex = matchIndex;
+			} else {
+				return false; // No match
+			}
+		}
+
+		// Handle trailing '*' in template
+		while (templateIndex < template.length && template[templateIndex] === '*') {
+			templateIndex++;
+		}
+
+		return templateIndex === template.length;
 	}
 
 	/**
@@ -12435,8 +13826,8 @@ function setup(env) {
 	*/
 	function disable() {
 		const namespaces = [
-			...createDebug.names.map(toNamespace),
-			...createDebug.skips.map(toNamespace).map(namespace => '-' + namespace)
+			...createDebug.names,
+			...createDebug.skips.map(namespace => '-' + namespace)
 		].join(',');
 		createDebug.enable('');
 		return namespaces;
@@ -12450,39 +13841,19 @@ function setup(env) {
 	* @api public
 	*/
 	function enabled(name) {
-		if (name[name.length - 1] === '*') {
-			return true;
-		}
-
-		let i;
-		let len;
-
-		for (i = 0, len = createDebug.skips.length; i < len; i++) {
-			if (createDebug.skips[i].test(name)) {
+		for (const skip of createDebug.skips) {
+			if (matchesTemplate(name, skip)) {
 				return false;
 			}
 		}
 
-		for (i = 0, len = createDebug.names.length; i < len; i++) {
-			if (createDebug.names[i].test(name)) {
+		for (const ns of createDebug.names) {
+			if (matchesTemplate(name, ns)) {
 				return true;
 			}
 		}
 
 		return false;
-	}
-
-	/**
-	* Convert regexp to namespace
-	*
-	* @param {RegExp} regxep
-	* @return {String} namespace
-	* @api private
-	*/
-	function toNamespace(regexp) {
-		return regexp.toString()
-			.substring(2, regexp.toString().length - 2)
-			.replace(/\.\*\?$/, '*');
 	}
 
 	/**
@@ -14889,7 +16260,7 @@ const testSet = (set, version, options) => {
 
 const debug = __nccwpck_require__(1159)
 const { MAX_LENGTH, MAX_SAFE_INTEGER } = __nccwpck_require__(5101)
-const { safeRe: re, t } = __nccwpck_require__(5471)
+const { safeRe: re, safeSrc: src, t } = __nccwpck_require__(5471)
 
 const parseOptions = __nccwpck_require__(356)
 const { compareIdentifiers } = __nccwpck_require__(3348)
@@ -14899,7 +16270,7 @@ class SemVer {
 
     if (version instanceof SemVer) {
       if (version.loose === !!options.loose &&
-          version.includePrerelease === !!options.includePrerelease) {
+        version.includePrerelease === !!options.includePrerelease) {
         return version
       } else {
         version = version.version
@@ -15065,6 +16436,20 @@ class SemVer {
   // preminor will bump the version up to the next minor release, and immediately
   // down to pre-release. premajor and prepatch work the same way.
   inc (release, identifier, identifierBase) {
+    if (release.startsWith('pre')) {
+      if (!identifier && identifierBase === false) {
+        throw new Error('invalid increment argument: identifier is empty')
+      }
+      // Avoid an invalid semver results
+      if (identifier) {
+        const r = new RegExp(`^${this.options.loose ? src[t.PRERELEASELOOSE] : src[t.PRERELEASE]}$`)
+        const match = `-${identifier}`.match(r)
+        if (!match || match[1] !== identifier) {
+          throw new Error(`invalid identifier: ${identifier}`)
+        }
+      }
+    }
+
     switch (release) {
       case 'premajor':
         this.prerelease.length = 0
@@ -15094,6 +16479,12 @@ class SemVer {
           this.inc('patch', identifier, identifierBase)
         }
         this.inc('pre', identifier, identifierBase)
+        break
+      case 'release':
+        if (this.prerelease.length === 0) {
+          throw new Error(`version ${this.raw} is not a prerelease`)
+        }
+        this.prerelease.length = 0
         break
 
       case 'major':
@@ -15137,10 +16528,6 @@ class SemVer {
       // 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
       case 'pre': {
         const base = Number(identifierBase) ? 1 : 0
-
-        if (!identifier && identifierBase === false) {
-          throw new Error('invalid increment argument: identifier is empty')
-        }
 
         if (this.prerelease.length === 0) {
           this.prerelease = [base]
@@ -15400,20 +16787,13 @@ const diff = (version1, version2) => {
       return 'major'
     }
 
-    // Otherwise it can be determined by checking the high version
-
-    if (highVersion.patch) {
-      // anything higher than a patch bump would result in the wrong version
+    // If the main part has no difference
+    if (lowVersion.compareMain(highVersion) === 0) {
+      if (lowVersion.minor && !lowVersion.patch) {
+        return 'minor'
+      }
       return 'patch'
     }
-
-    if (highVersion.minor) {
-      // anything higher than a minor bump would result in the wrong version
-      return 'minor'
-    }
-
-    // bumping major/minor/patch all have same result
-    return 'major'
   }
 
   // add the `pre` prefix if we are going to a prerelease version
@@ -15920,6 +17300,7 @@ exports = module.exports = {}
 const re = exports.re = []
 const safeRe = exports.safeRe = []
 const src = exports.src = []
+const safeSrc = exports.safeSrc = []
 const t = exports.t = {}
 let R = 0
 
@@ -15952,6 +17333,7 @@ const createToken = (name, value, isGlobal) => {
   debug(name, index, value)
   t[name] = index
   src[index] = value
+  safeSrc[index] = safe
   re[index] = new RegExp(value, isGlobal ? 'g' : undefined)
   safeRe[index] = new RegExp(safe, isGlobal ? 'g' : undefined)
 }
@@ -39333,652 +40715,6 @@ exports.getUserAgent = getUserAgent;
 
 /***/ }),
 
-/***/ 2048:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-Object.defineProperty(exports, "v1", ({
-  enumerable: true,
-  get: function () {
-    return _v.default;
-  }
-}));
-Object.defineProperty(exports, "v3", ({
-  enumerable: true,
-  get: function () {
-    return _v2.default;
-  }
-}));
-Object.defineProperty(exports, "v4", ({
-  enumerable: true,
-  get: function () {
-    return _v3.default;
-  }
-}));
-Object.defineProperty(exports, "v5", ({
-  enumerable: true,
-  get: function () {
-    return _v4.default;
-  }
-}));
-Object.defineProperty(exports, "NIL", ({
-  enumerable: true,
-  get: function () {
-    return _nil.default;
-  }
-}));
-Object.defineProperty(exports, "version", ({
-  enumerable: true,
-  get: function () {
-    return _version.default;
-  }
-}));
-Object.defineProperty(exports, "validate", ({
-  enumerable: true,
-  get: function () {
-    return _validate.default;
-  }
-}));
-Object.defineProperty(exports, "stringify", ({
-  enumerable: true,
-  get: function () {
-    return _stringify.default;
-  }
-}));
-Object.defineProperty(exports, "parse", ({
-  enumerable: true,
-  get: function () {
-    return _parse.default;
-  }
-}));
-
-var _v = _interopRequireDefault(__nccwpck_require__(6415));
-
-var _v2 = _interopRequireDefault(__nccwpck_require__(1697));
-
-var _v3 = _interopRequireDefault(__nccwpck_require__(4676));
-
-var _v4 = _interopRequireDefault(__nccwpck_require__(9771));
-
-var _nil = _interopRequireDefault(__nccwpck_require__(7723));
-
-var _version = _interopRequireDefault(__nccwpck_require__(5868));
-
-var _validate = _interopRequireDefault(__nccwpck_require__(6200));
-
-var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
-
-var _parse = _interopRequireDefault(__nccwpck_require__(7267));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-
-/***/ 216:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _crypto = _interopRequireDefault(__nccwpck_require__(6982));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function md5(bytes) {
-  if (Array.isArray(bytes)) {
-    bytes = Buffer.from(bytes);
-  } else if (typeof bytes === 'string') {
-    bytes = Buffer.from(bytes, 'utf8');
-  }
-
-  return _crypto.default.createHash('md5').update(bytes).digest();
-}
-
-var _default = md5;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 7723:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-var _default = '00000000-0000-0000-0000-000000000000';
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 7267:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _validate = _interopRequireDefault(__nccwpck_require__(6200));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function parse(uuid) {
-  if (!(0, _validate.default)(uuid)) {
-    throw TypeError('Invalid UUID');
-  }
-
-  let v;
-  const arr = new Uint8Array(16); // Parse ########-....-....-....-............
-
-  arr[0] = (v = parseInt(uuid.slice(0, 8), 16)) >>> 24;
-  arr[1] = v >>> 16 & 0xff;
-  arr[2] = v >>> 8 & 0xff;
-  arr[3] = v & 0xff; // Parse ........-####-....-....-............
-
-  arr[4] = (v = parseInt(uuid.slice(9, 13), 16)) >>> 8;
-  arr[5] = v & 0xff; // Parse ........-....-####-....-............
-
-  arr[6] = (v = parseInt(uuid.slice(14, 18), 16)) >>> 8;
-  arr[7] = v & 0xff; // Parse ........-....-....-####-............
-
-  arr[8] = (v = parseInt(uuid.slice(19, 23), 16)) >>> 8;
-  arr[9] = v & 0xff; // Parse ........-....-....-....-############
-  // (Use "/" to avoid 32-bit truncation when bit-shifting high-order bytes)
-
-  arr[10] = (v = parseInt(uuid.slice(24, 36), 16)) / 0x10000000000 & 0xff;
-  arr[11] = v / 0x100000000 & 0xff;
-  arr[12] = v >>> 24 & 0xff;
-  arr[13] = v >>> 16 & 0xff;
-  arr[14] = v >>> 8 & 0xff;
-  arr[15] = v & 0xff;
-  return arr;
-}
-
-var _default = parse;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 7879:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-var _default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 2973:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = rng;
-
-var _crypto = _interopRequireDefault(__nccwpck_require__(6982));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const rnds8Pool = new Uint8Array(256); // # of random values to pre-allocate
-
-let poolPtr = rnds8Pool.length;
-
-function rng() {
-  if (poolPtr > rnds8Pool.length - 16) {
-    _crypto.default.randomFillSync(rnds8Pool);
-
-    poolPtr = 0;
-  }
-
-  return rnds8Pool.slice(poolPtr, poolPtr += 16);
-}
-
-/***/ }),
-
-/***/ 507:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _crypto = _interopRequireDefault(__nccwpck_require__(6982));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function sha1(bytes) {
-  if (Array.isArray(bytes)) {
-    bytes = Buffer.from(bytes);
-  } else if (typeof bytes === 'string') {
-    bytes = Buffer.from(bytes, 'utf8');
-  }
-
-  return _crypto.default.createHash('sha1').update(bytes).digest();
-}
-
-var _default = sha1;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 7597:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _validate = _interopRequireDefault(__nccwpck_require__(6200));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-const byteToHex = [];
-
-for (let i = 0; i < 256; ++i) {
-  byteToHex.push((i + 0x100).toString(16).substr(1));
-}
-
-function stringify(arr, offset = 0) {
-  // Note: Be careful editing this code!  It's been tuned for performance
-  // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
-  const uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
-  // of the following:
-  // - One or more input array values don't map to a hex octet (leading to
-  // "undefined" in the uuid)
-  // - Invalid input values for the RFC `version` or `variant` fields
-
-  if (!(0, _validate.default)(uuid)) {
-    throw TypeError('Stringified UUID is invalid');
-  }
-
-  return uuid;
-}
-
-var _default = stringify;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 6415:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _rng = _interopRequireDefault(__nccwpck_require__(2973));
-
-var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// **`v1()` - Generate time-based UUID**
-//
-// Inspired by https://github.com/LiosK/UUID.js
-// and http://docs.python.org/library/uuid.html
-let _nodeId;
-
-let _clockseq; // Previous uuid creation time
-
-
-let _lastMSecs = 0;
-let _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
-
-function v1(options, buf, offset) {
-  let i = buf && offset || 0;
-  const b = buf || new Array(16);
-  options = options || {};
-  let node = options.node || _nodeId;
-  let clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
-  // specified.  We do this lazily to minimize issues related to insufficient
-  // system entropy.  See #189
-
-  if (node == null || clockseq == null) {
-    const seedBytes = options.random || (options.rng || _rng.default)();
-
-    if (node == null) {
-      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-      node = _nodeId = [seedBytes[0] | 0x01, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
-    }
-
-    if (clockseq == null) {
-      // Per 4.2.2, randomize (14 bit) clockseq
-      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
-    }
-  } // UUID timestamps are 100 nano-second units since the Gregorian epoch,
-  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
-  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
-  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-
-
-  let msecs = options.msecs !== undefined ? options.msecs : Date.now(); // Per 4.2.1.2, use count of uuid's generated during the current clock
-  // cycle to simulate higher resolution clock
-
-  let nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
-
-  const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
-
-  if (dt < 0 && options.clockseq === undefined) {
-    clockseq = clockseq + 1 & 0x3fff;
-  } // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
-  // time interval
-
-
-  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
-    nsecs = 0;
-  } // Per 4.2.1.2 Throw error if too many uuids are requested
-
-
-  if (nsecs >= 10000) {
-    throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
-  }
-
-  _lastMSecs = msecs;
-  _lastNSecs = nsecs;
-  _clockseq = clockseq; // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-
-  msecs += 12219292800000; // `time_low`
-
-  const tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-  b[i++] = tl >>> 24 & 0xff;
-  b[i++] = tl >>> 16 & 0xff;
-  b[i++] = tl >>> 8 & 0xff;
-  b[i++] = tl & 0xff; // `time_mid`
-
-  const tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
-  b[i++] = tmh >>> 8 & 0xff;
-  b[i++] = tmh & 0xff; // `time_high_and_version`
-
-  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-
-  b[i++] = tmh >>> 16 & 0xff; // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-
-  b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
-
-  b[i++] = clockseq & 0xff; // `node`
-
-  for (let n = 0; n < 6; ++n) {
-    b[i + n] = node[n];
-  }
-
-  return buf || (0, _stringify.default)(b);
-}
-
-var _default = v1;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 1697:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _v = _interopRequireDefault(__nccwpck_require__(2930));
-
-var _md = _interopRequireDefault(__nccwpck_require__(216));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const v3 = (0, _v.default)('v3', 0x30, _md.default);
-var _default = v3;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 2930:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = _default;
-exports.URL = exports.DNS = void 0;
-
-var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
-
-var _parse = _interopRequireDefault(__nccwpck_require__(7267));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function stringToBytes(str) {
-  str = unescape(encodeURIComponent(str)); // UTF8 escape
-
-  const bytes = [];
-
-  for (let i = 0; i < str.length; ++i) {
-    bytes.push(str.charCodeAt(i));
-  }
-
-  return bytes;
-}
-
-const DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-exports.DNS = DNS;
-const URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
-exports.URL = URL;
-
-function _default(name, version, hashfunc) {
-  function generateUUID(value, namespace, buf, offset) {
-    if (typeof value === 'string') {
-      value = stringToBytes(value);
-    }
-
-    if (typeof namespace === 'string') {
-      namespace = (0, _parse.default)(namespace);
-    }
-
-    if (namespace.length !== 16) {
-      throw TypeError('Namespace must be array-like (16 iterable integer values, 0-255)');
-    } // Compute hash of namespace and value, Per 4.3
-    // Future: Use spread syntax when supported on all platforms, e.g. `bytes =
-    // hashfunc([...namespace, ... value])`
-
-
-    let bytes = new Uint8Array(16 + value.length);
-    bytes.set(namespace);
-    bytes.set(value, namespace.length);
-    bytes = hashfunc(bytes);
-    bytes[6] = bytes[6] & 0x0f | version;
-    bytes[8] = bytes[8] & 0x3f | 0x80;
-
-    if (buf) {
-      offset = offset || 0;
-
-      for (let i = 0; i < 16; ++i) {
-        buf[offset + i] = bytes[i];
-      }
-
-      return buf;
-    }
-
-    return (0, _stringify.default)(bytes);
-  } // Function#name is not settable on some platforms (#270)
-
-
-  try {
-    generateUUID.name = name; // eslint-disable-next-line no-empty
-  } catch (err) {} // For CommonJS default export support
-
-
-  generateUUID.DNS = DNS;
-  generateUUID.URL = URL;
-  return generateUUID;
-}
-
-/***/ }),
-
-/***/ 4676:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _rng = _interopRequireDefault(__nccwpck_require__(2973));
-
-var _stringify = _interopRequireDefault(__nccwpck_require__(7597));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function v4(options, buf, offset) {
-  options = options || {};
-
-  const rnds = options.random || (options.rng || _rng.default)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-
-
-  rnds[6] = rnds[6] & 0x0f | 0x40;
-  rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
-
-  if (buf) {
-    offset = offset || 0;
-
-    for (let i = 0; i < 16; ++i) {
-      buf[offset + i] = rnds[i];
-    }
-
-    return buf;
-  }
-
-  return (0, _stringify.default)(rnds);
-}
-
-var _default = v4;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 9771:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _v = _interopRequireDefault(__nccwpck_require__(2930));
-
-var _sha = _interopRequireDefault(__nccwpck_require__(507));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const v5 = (0, _v.default)('v5', 0x50, _sha.default);
-var _default = v5;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 6200:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _regex = _interopRequireDefault(__nccwpck_require__(7879));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function validate(uuid) {
-  return typeof uuid === 'string' && _regex.default.test(uuid);
-}
-
-var _default = validate;
-exports["default"] = _default;
-
-/***/ }),
-
-/***/ 5868:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports["default"] = void 0;
-
-var _validate = _interopRequireDefault(__nccwpck_require__(6200));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function version(uuid) {
-  if (!(0, _validate.default)(uuid)) {
-    throw TypeError('Invalid UUID');
-  }
-
-  return parseInt(uuid.substr(14, 1), 16);
-}
-
-var _default = version;
-exports["default"] = _default;
-
-/***/ }),
-
 /***/ 8264:
 /***/ ((module) => {
 
@@ -40112,6 +40848,8 @@ async function makeDispatches(gitController) {
     const clusterFilterList =
       clusterFilter === '*' ? '*' : getListFromInput(clusterFilter)
 
+    const repoContext = gitController.getRepoContext()
+    const defaultImageRepository = `${repoContext.owner}/${repoContext.repo}`
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
     const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
     const registriesConfig = configHelper.getRegistriesConfig(
@@ -40121,6 +40859,7 @@ async function makeDispatches(gitController) {
     )
 
     const dispatchList = createDispatchList(
+      defaultImageRepository,
       dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
@@ -40165,6 +40904,7 @@ async function makeDispatches(gitController) {
             entry.flavor === data.flavor &&
             entry.version === resolvedVersion &&
             entry.image_type === data.type &&
+            entry.repository === data.image_repo &&
             entry.registry === (data.registry || defaultRegistries[data.type])
         )[0]
 
@@ -40236,6 +40976,7 @@ async function getDispatchesFileContent(filePath, gitController) {
 }
 
 function createDispatchList(
+  defaultImageRepository,
   deployments,
   reviewersList,
   repo,
@@ -40301,38 +41042,56 @@ function createDispatchList(
       }
 
       for (const serviceData of appConfig[deployment.application].services) {
-        const imageRepo =
-          deployment.image_repository ||
-          `${registriesConfig[deployment.type].base_paths['services']}/` +
-            `${serviceData.repo}`
+        if (defaultImageRepository === serviceData.repo) {
+          let makeDispatch = false
+          if (deployment.service_names) {
+            for (const serviceName of deployment.service_names) {
+              if (serviceData.service_names.includes(serviceName)) {
+                makeDispatch = true
+                break
+              }
+            }
+          } else {
+            makeDispatch = true
+          }
 
-        const basePath = path.join(
-          clusterConfig[chosenCluster].type,
-          chosenCluster
-        )
+          if (makeDispatch) {
+            const imageRepo =
+              deployment.image_repository ||
+              `${registriesConfig[deployment.type].base_paths['services']}/` +
+                `${defaultImageRepository}`
 
-        dispatchList.push({
-          type: deployment.type,
-          flavor: deployment.flavor,
-          version: versionOverride || deployment.version,
-          tenant: tenantOverride || deployment.tenant,
-          app: deployment.application,
-          env: envOverride || deployment.env,
-          state_repo: deployment.state_repo,
-          service_name_list: deployment.service_names,
-          image_keys: deployment.image_keys,
-          claim: deployment.claim,
-          registry:
-            deployment.registry || registriesConfig[deployment.type].registry,
-          dispatch_event_type:
-            deployment.dispatch_event_type ||
-            `dispatch-image-${clusterConfig[chosenCluster].type}`,
-          reviewers: reviewersList,
-          repository_caller: repo,
-          technology: clusterConfig[chosenCluster].type,
-          platform: chosenCluster,
-          base_folder: basePath
-        })
+            const basePath = path.join(
+              clusterConfig[chosenCluster].type,
+              chosenCluster
+            )
+
+            dispatchList.push({
+              type: deployment.type,
+              flavor: deployment.flavor,
+              version: versionOverride || deployment.version,
+              tenant: tenantOverride || deployment.tenant,
+              app: deployment.application,
+              env: envOverride || deployment.env,
+              state_repo: deployment.state_repo,
+              service_name_list: deployment.service_names,
+              image_keys: deployment.image_keys,
+              claim: deployment.claim,
+              registry:
+                deployment.registry ||
+                registriesConfig[deployment.type].registry,
+              image_repo: imageRepo,
+              dispatch_event_type:
+                deployment.dispatch_event_type ||
+                `dispatch-image-${clusterConfig[chosenCluster].type}`,
+              reviewers: reviewersList,
+              repository_caller: repo,
+              technology: clusterConfig[chosenCluster].type,
+              platform: chosenCluster,
+              base_folder: basePath
+            })
+          }
+        }
       }
     }
 
@@ -41089,6 +41848,14 @@ module.exports = require("buffer");
 
 /***/ }),
 
+/***/ 5317:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");
+
+/***/ }),
+
 /***/ 4236:
 /***/ ((module) => {
 
@@ -41161,11 +41928,27 @@ module.exports = require("net");
 
 /***/ }),
 
+/***/ 4573:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:buffer");
+
+/***/ }),
+
 /***/ 8474:
 /***/ ((module) => {
 
 "use strict";
 module.exports = require("node:events");
+
+/***/ }),
+
+/***/ 1708:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:process");
 
 /***/ }),
 
@@ -41238,6 +42021,14 @@ module.exports = require("stream/web");
 
 "use strict";
 module.exports = require("string_decoder");
+
+/***/ }),
+
+/***/ 3557:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("timers");
 
 /***/ }),
 
@@ -43830,6 +44621,7 @@ function composeDoc(options, directives, { offset, start, value, end }, onError)
     const opts = Object.assign({ _directives: directives }, options);
     const doc = new Document.Document(undefined, opts);
     const ctx = {
+        atKey: false,
         atRoot: true,
         directives: doc.directives,
         options: doc.options,
@@ -43874,6 +44666,7 @@ exports.composeDoc = composeDoc;
 
 
 var Alias = __nccwpck_require__(4065);
+var identity = __nccwpck_require__(1127);
 var composeCollection = __nccwpck_require__(7349);
 var composeScalar = __nccwpck_require__(5413);
 var resolveEnd = __nccwpck_require__(7788);
@@ -43881,6 +44674,7 @@ var utilEmptyScalarPosition = __nccwpck_require__(2599);
 
 const CN = { composeNode, composeEmptyNode };
 function composeNode(ctx, token, props, onError) {
+    const atKey = ctx.atKey;
     const { spaceBefore, comment, anchor, tag } = props;
     let node;
     let isSrcToken = true;
@@ -43916,6 +44710,14 @@ function composeNode(ctx, token, props, onError) {
     }
     if (anchor && node.anchor === '')
         onError(anchor, 'BAD_ALIAS', 'Anchor cannot be an empty string');
+    if (atKey &&
+        ctx.options.stringKeys &&
+        (!identity.isScalar(node) ||
+            typeof node.value !== 'string' ||
+            (node.tag && node.tag !== 'tag:yaml.org,2002:str'))) {
+        const msg = 'With stringKeys, all keys must be strings';
+        onError(tag ?? token, 'NON_STRING_KEY', msg);
+    }
     if (spaceBefore)
         node.spaceBefore = true;
     if (comment) {
@@ -43988,11 +44790,16 @@ function composeScalar(ctx, token, tagToken, onError) {
     const tagName = tagToken
         ? ctx.directives.tagName(tagToken.source, msg => onError(tagToken, 'TAG_RESOLVE_FAILED', msg))
         : null;
-    const tag = tagToken && tagName
-        ? findScalarTagByName(ctx.schema, value, tagName, tagToken, onError)
-        : token.type === 'scalar'
-            ? findScalarTagByTest(ctx, value, token, onError)
-            : ctx.schema[identity.SCALAR];
+    let tag;
+    if (ctx.options.stringKeys && ctx.atKey) {
+        tag = ctx.schema[identity.SCALAR];
+    }
+    else if (tagName)
+        tag = findScalarTagByName(ctx.schema, value, tagName, tagToken, onError);
+    else if (token.type === 'scalar')
+        tag = findScalarTagByTest(ctx, value, token, onError);
+    else
+        tag = ctx.schema[identity.SCALAR];
     let scalar;
     try {
         const res = tag.resolve(value, msg => onError(tagToken ?? token, 'TAG_RESOLVE_FAILED', msg), ctx.options);
@@ -44040,8 +44847,9 @@ function findScalarTagByName(schema, value, tagName, tagToken, onError) {
     onError(tagToken, 'TAG_RESOLVE_FAILED', `Unresolved tag: ${tagName}`, tagName !== 'tag:yaml.org,2002:str');
     return schema[identity.SCALAR];
 }
-function findScalarTagByTest({ directives, schema }, value, token, onError) {
-    const tag = schema.tags.find(tag => tag.default && tag.test?.test(value)) || schema[identity.SCALAR];
+function findScalarTagByTest({ atKey, directives, schema }, value, token, onError) {
+    const tag = schema.tags.find(tag => (tag.default === true || (atKey && tag.default === 'key')) &&
+        tag.test?.test(value)) || schema[identity.SCALAR];
     if (schema.compat) {
         const compat = schema.compat.find(tag => tag.default && tag.test?.test(value)) ??
             schema[identity.SCALAR];
@@ -44066,6 +44874,7 @@ exports.composeScalar = composeScalar;
 "use strict";
 
 
+var node_process = __nccwpck_require__(1708);
 var directives = __nccwpck_require__(1342);
 var Document = __nccwpck_require__(3021);
 var errors = __nccwpck_require__(1464);
@@ -44199,7 +45008,7 @@ class Composer {
     }
     /** Advance the composer by one CST token. */
     *next(token) {
-        if (process.env.LOG_STREAM)
+        if (node_process.env.LOG_STREAM)
             console.dir(token, { depth: null });
         switch (token.type) {
             case 'directive':
@@ -44347,12 +45156,14 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError, ta
             onError(offset, 'BAD_INDENT', startColMsg);
         }
         // key value
+        ctx.atKey = true;
         const keyStart = keyProps.end;
         const keyNode = key
             ? composeNode(ctx, key, keyProps, onError)
             : composeEmptyNode(ctx, keyStart, start, null, keyProps, onError);
         if (ctx.schema.compat)
             utilFlowIndentCheck.flowIndentCheck(bm.indent, key, onError);
+        ctx.atKey = false;
         if (utilMapIncludes.mapIncludes(ctx, map.items, keyNode))
             onError(keyStart, 'DUPLICATE_KEY', 'Map keys must be unique');
         // value properties
@@ -44635,6 +45446,8 @@ function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError, ta
     const seq = new NodeClass(ctx.schema);
     if (ctx.atRoot)
         ctx.atRoot = false;
+    if (ctx.atKey)
+        ctx.atKey = false;
     let offset = bs.offset;
     let commentEnd = null;
     for (const { start, value } of bs.items) {
@@ -44750,6 +45563,8 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
     const atRoot = ctx.atRoot;
     if (atRoot)
         ctx.atRoot = false;
+    if (ctx.atKey)
+        ctx.atKey = false;
     let offset = fc.offset + fc.start.source.length;
     for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
@@ -44829,12 +45644,14 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
         else {
             // item is a key+value pair
             // key value
+            ctx.atKey = true;
             const keyStart = props.end;
             const keyNode = key
                 ? composeNode(ctx, key, props, onError)
                 : composeEmptyNode(ctx, keyStart, start, null, props, onError);
             if (isBlock(key))
                 onError(keyNode.range, 'BLOCK_IN_FLOW', blockMsg);
+            ctx.atKey = false;
             // value properties
             const valueProps = resolveProps.resolveProps(sep ?? [], {
                 flow: fcName,
@@ -44895,6 +45712,8 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
                 const map = new YAMLMap.YAMLMap(ctx.schema);
                 map.flow = true;
                 map.items.push(pair);
+                const endRange = (valueNode ?? keyNode).range;
+                map.range = [keyNode.range[0], endRange[1], endRange[2]];
                 coll.items.push(map);
             }
             offset = valueNode ? valueNode.range[2] : valueProps.end;
@@ -45027,7 +45846,7 @@ function foldLines(source) {
         first = new RegExp('(.*?)(?<![ \t])[ \t]*\r?\n', 'sy');
         line = new RegExp('[ \t]*(.*?)(?:(?<![ \t])[ \t]*)?\r?\n', 'sy');
     }
-    catch (_) {
+    catch {
         first = /(.*?)[ \t]*\r?\n/sy;
         line = /[ \t]*(.*?)[ \t]*\r?\n/sy;
     }
@@ -45231,7 +46050,7 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIn
                 if (atNewline) {
                     if (comment)
                         comment += token.source;
-                    else
+                    else if (!found || indicator !== 'seq-item-ind')
                         spaceBefore = true;
                 }
                 else
@@ -45446,11 +46265,7 @@ function mapIncludes(ctx, items, search) {
         return false;
     const isEqual = typeof uniqueKeys === 'function'
         ? uniqueKeys
-        : (a, b) => a === b ||
-            (identity.isScalar(a) &&
-                identity.isScalar(b) &&
-                a.value === b.value &&
-                !(a.value === '<<' && ctx.schema.merge));
+        : (a, b) => a === b || (identity.isScalar(a) && identity.isScalar(b) && a.value === b.value);
     return items.some(pair => isEqual(pair.key, search));
 }
 
@@ -45502,6 +46317,7 @@ class Document {
             logLevel: 'warn',
             prettyErrors: true,
             strict: true,
+            stringKeys: false,
             uniqueKeys: true,
             version: '1.2'
         }, options);
@@ -45725,7 +46541,7 @@ class Document {
                     this.directives.yaml.version = '1.1';
                 else
                     this.directives = new directives.Directives({ version: '1.1' });
-                opt = { merge: true, resolveKnownTags: false, schema: 'yaml-1.1' };
+                opt = { resolveKnownTags: false, schema: 'yaml-1.1' };
                 break;
             case '1.2':
             case 'next':
@@ -45733,7 +46549,7 @@ class Document {
                     this.directives.yaml.version = version;
                 else
                     this.directives = new directives.Directives({ version });
-                opt = { merge: false, resolveKnownTags: true, schema: 'core' };
+                opt = { resolveKnownTags: true, schema: 'core' };
                 break;
             case null:
                 if (this.directives)
@@ -45907,6 +46723,7 @@ function applyReviver(reviver, obj, key, val) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const v0 = val[i];
                 const v1 = applyReviver(reviver, val, String(i), v0);
+                // eslint-disable-next-line @typescript-eslint/no-array-delete
                 if (v1 === undefined)
                     delete val[i];
                 else if (v1 !== v0)
@@ -46366,10 +47183,12 @@ exports.visitAsync = visit.visitAsync;
 /***/ }),
 
 /***/ 7249:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
+
+var node_process = __nccwpck_require__(1708);
 
 function debug(logLevel, ...messages) {
     if (logLevel === 'debug')
@@ -46377,10 +47196,8 @@ function debug(logLevel, ...messages) {
 }
 function warn(logLevel, warning) {
     if (logLevel === 'debug' || logLevel === 'warn') {
-        // https://github.com/typescript-eslint/typescript-eslint/issues/7478
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-        if (typeof process !== 'undefined' && process.emitWarning)
-            process.emitWarning(warning);
+        if (typeof node_process.emitWarning === 'function')
+            node_process.emitWarning(warning);
         else
             console.warn(warning);
     }
@@ -47077,24 +47894,17 @@ exports.YAMLSeq = YAMLSeq;
 
 
 var log = __nccwpck_require__(7249);
+var merge = __nccwpck_require__(452);
 var stringify = __nccwpck_require__(2148);
 var identity = __nccwpck_require__(1127);
-var Scalar = __nccwpck_require__(3301);
 var toJS = __nccwpck_require__(6424);
 
-const MERGE_KEY = '<<';
 function addPairToJSMap(ctx, map, { key, value }) {
-    if (ctx?.doc.schema.merge && isMergeKey(key)) {
-        value = identity.isAlias(value) ? value.resolve(ctx.doc) : value;
-        if (identity.isSeq(value))
-            for (const it of value.items)
-                mergeToJSMap(ctx, map, it);
-        else if (Array.isArray(value))
-            for (const it of value)
-                mergeToJSMap(ctx, map, it);
-        else
-            mergeToJSMap(ctx, map, value);
-    }
+    if (identity.isNode(key) && key.addToJSMap)
+        key.addToJSMap(ctx, map, value);
+    // TODO: Should drop this special case for bare << handling
+    else if (merge.isMergeKey(ctx, key))
+        merge.addMergeToJSMap(ctx, map, value);
     else {
         const jsKey = toJS.toJS(key, '', ctx);
         if (map instanceof Map) {
@@ -47115,41 +47925,6 @@ function addPairToJSMap(ctx, map, { key, value }) {
                 });
             else
                 map[stringKey] = jsValue;
-        }
-    }
-    return map;
-}
-const isMergeKey = (key) => key === MERGE_KEY ||
-    (identity.isScalar(key) &&
-        key.value === MERGE_KEY &&
-        (!key.type || key.type === Scalar.Scalar.PLAIN));
-// If the value associated with a merge key is a single mapping node, each of
-// its key/value pairs is inserted into the current mapping, unless the key
-// already exists in it. If the value associated with the merge key is a
-// sequence, then this sequence is expected to contain mapping nodes and each
-// of these nodes is merged in turn according to its order in the sequence.
-// Keys in mapping nodes earlier in the sequence override keys specified in
-// later mapping nodes. -- http://yaml.org/type/merge.html
-function mergeToJSMap(ctx, map, value) {
-    const source = ctx && identity.isAlias(value) ? value.resolve(ctx.doc) : value;
-    if (!identity.isMap(source))
-        throw new Error('Merge sources must be maps or map aliases');
-    const srcMap = source.toJSON(null, ctx, Map);
-    for (const [key, value] of srcMap) {
-        if (map instanceof Map) {
-            if (!map.has(key))
-                map.set(key, value);
-        }
-        else if (map instanceof Set) {
-            map.add(key);
-        }
-        else if (!Object.prototype.hasOwnProperty.call(map, key)) {
-            Object.defineProperty(map, key, {
-                value,
-                writable: true,
-                enumerable: true,
-                configurable: true
-            });
         }
     }
     return map;
@@ -48598,6 +49373,7 @@ exports.LineCounter = LineCounter;
 "use strict";
 
 
+var node_process = __nccwpck_require__(1708);
 var cst = __nccwpck_require__(3461);
 var lexer = __nccwpck_require__(361);
 
@@ -48764,7 +49540,7 @@ class Parser {
      */
     *next(source) {
         this.source = source;
-        if (process.env.LOG_TOKENS)
+        if (node_process.env.LOG_TOKENS)
             console.log('|', cst.prettyToken(source));
         if (this.atScalar) {
             this.atScalar = false;
@@ -49210,7 +49986,9 @@ class Parser {
                             const sep = it.sep;
                             sep.push(this.sourceToken);
                             // @ts-expect-error type guard is wrong here
-                            delete it.key, delete it.sep;
+                            delete it.key;
+                            // @ts-expect-error type guard is wrong here
+                            delete it.sep;
                             this.stack.push({
                                 type: 'block-map',
                                 offset: this.offset,
@@ -49566,6 +50344,7 @@ var composer = __nccwpck_require__(9984);
 var Document = __nccwpck_require__(3021);
 var errors = __nccwpck_require__(1464);
 var log = __nccwpck_require__(7249);
+var identity = __nccwpck_require__(1127);
 var lineCounter = __nccwpck_require__(6628);
 var parser = __nccwpck_require__(3456);
 
@@ -49657,6 +50436,8 @@ function stringify(value, replacer, options) {
         if (!keepUndefined)
             return undefined;
     }
+    if (identity.isDocument(value) && !_replacer)
+        return value.toString(options);
     return new Document.Document(value, _replacer, options).toString(options);
 }
 
@@ -49688,10 +50469,9 @@ class Schema {
             : compat
                 ? tags.getTags(null, compat)
                 : null;
-        this.merge = !!merge;
         this.name = (typeof schema === 'string' && schema) || 'core';
         this.knownTags = resolveKnownTags ? tags.coreKnownTags : {};
-        this.tags = tags.getTags(customTags, this.name);
+        this.tags = tags.getTags(customTags, this.name, merge);
         this.toStringOptions = toStringDefaults ?? null;
         Object.defineProperty(this, identity.MAP, { value: map.map });
         Object.defineProperty(this, identity.SCALAR, { value: string.string });
@@ -50021,7 +50801,7 @@ const jsonScalars = [
         identify: value => typeof value === 'boolean',
         default: true,
         tag: 'tag:yaml.org,2002:bool',
-        test: /^true|false$/,
+        test: /^true$|^false$/,
         resolve: str => str === 'true',
         stringify: stringifyJSON
     },
@@ -50074,6 +50854,7 @@ var int = __nccwpck_require__(9874);
 var schema = __nccwpck_require__(896);
 var schema$1 = __nccwpck_require__(3559);
 var binary = __nccwpck_require__(6083);
+var merge = __nccwpck_require__(452);
 var omap = __nccwpck_require__(303);
 var pairs = __nccwpck_require__(8385);
 var schema$2 = __nccwpck_require__(8294);
@@ -50099,6 +50880,7 @@ const tagsByName = {
     intOct: int.intOct,
     intTime: timestamp.intTime,
     map: map.map,
+    merge: merge.merge,
     null: _null.nullTag,
     omap: omap.omap,
     pairs: pairs.pairs,
@@ -50108,13 +50890,20 @@ const tagsByName = {
 };
 const coreKnownTags = {
     'tag:yaml.org,2002:binary': binary.binary,
+    'tag:yaml.org,2002:merge': merge.merge,
     'tag:yaml.org,2002:omap': omap.omap,
     'tag:yaml.org,2002:pairs': pairs.pairs,
     'tag:yaml.org,2002:set': set.set,
     'tag:yaml.org,2002:timestamp': timestamp.timestamp
 };
-function getTags(customTags, schemaName) {
-    let tags = schemas.get(schemaName);
+function getTags(customTags, schemaName, addMergeTag) {
+    const schemaTags = schemas.get(schemaName);
+    if (schemaTags && !customTags) {
+        return addMergeTag && !schemaTags.includes(merge.merge)
+            ? schemaTags.concat(merge.merge)
+            : schemaTags.slice();
+    }
+    let tags = schemaTags;
     if (!tags) {
         if (Array.isArray(customTags))
             tags = [];
@@ -50133,17 +50922,21 @@ function getTags(customTags, schemaName) {
     else if (typeof customTags === 'function') {
         tags = customTags(tags.slice());
     }
-    return tags.map(tag => {
-        if (typeof tag !== 'string')
-            return tag;
-        const tagObj = tagsByName[tag];
-        if (tagObj)
-            return tagObj;
-        const keys = Object.keys(tagsByName)
-            .map(key => JSON.stringify(key))
-            .join(', ');
-        throw new Error(`Unknown custom tag "${tag}"; use one of ${keys}`);
-    });
+    if (addMergeTag)
+        tags = tags.concat(merge.merge);
+    return tags.reduce((tags, tag) => {
+        const tagObj = typeof tag === 'string' ? tagsByName[tag] : tag;
+        if (!tagObj) {
+            const tagName = JSON.stringify(tag);
+            const keys = Object.keys(tagsByName)
+                .map(key => JSON.stringify(key))
+                .join(', ');
+            throw new Error(`Unknown custom tag ${tagName}; use one of ${keys}`);
+        }
+        if (!tags.includes(tagObj))
+            tags.push(tagObj);
+        return tags;
+    }, []);
 }
 
 exports.coreKnownTags = coreKnownTags;
@@ -50158,6 +50951,7 @@ exports.getTags = getTags;
 "use strict";
 
 
+var node_buffer = __nccwpck_require__(4573);
 var Scalar = __nccwpck_require__(3301);
 var stringifyString = __nccwpck_require__(3069);
 
@@ -50174,8 +50968,8 @@ const binary = {
      *   document.querySelector('#photo').src = URL.createObjectURL(blob)
      */
     resolve(src, onError) {
-        if (typeof Buffer === 'function') {
-            return Buffer.from(src, 'base64');
+        if (typeof node_buffer.Buffer === 'function') {
+            return node_buffer.Buffer.from(src, 'base64');
         }
         else if (typeof atob === 'function') {
             // On IE 11, atob() can't handle newlines
@@ -50193,11 +50987,11 @@ const binary = {
     stringify({ comment, type, value }, ctx, onComment, onChompKeep) {
         const buf = value; // checked earlier by binary.identify()
         let str;
-        if (typeof Buffer === 'function') {
+        if (typeof node_buffer.Buffer === 'function') {
             str =
-                buf instanceof Buffer
+                buf instanceof node_buffer.Buffer
                     ? buf.toString('base64')
-                    : Buffer.from(buf.buffer).toString('base64');
+                    : node_buffer.Buffer.from(buf.buffer).toString('base64');
         }
         else if (typeof btoa === 'function') {
             let s = '';
@@ -50407,6 +51201,82 @@ exports.intOct = intOct;
 
 /***/ }),
 
+/***/ 452:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var identity = __nccwpck_require__(1127);
+var Scalar = __nccwpck_require__(3301);
+
+// If the value associated with a merge key is a single mapping node, each of
+// its key/value pairs is inserted into the current mapping, unless the key
+// already exists in it. If the value associated with the merge key is a
+// sequence, then this sequence is expected to contain mapping nodes and each
+// of these nodes is merged in turn according to its order in the sequence.
+// Keys in mapping nodes earlier in the sequence override keys specified in
+// later mapping nodes. -- http://yaml.org/type/merge.html
+const MERGE_KEY = '<<';
+const merge = {
+    identify: value => value === MERGE_KEY ||
+        (typeof value === 'symbol' && value.description === MERGE_KEY),
+    default: 'key',
+    tag: 'tag:yaml.org,2002:merge',
+    test: /^<<$/,
+    resolve: () => Object.assign(new Scalar.Scalar(Symbol(MERGE_KEY)), {
+        addToJSMap: addMergeToJSMap
+    }),
+    stringify: () => MERGE_KEY
+};
+const isMergeKey = (ctx, key) => (merge.identify(key) ||
+    (identity.isScalar(key) &&
+        (!key.type || key.type === Scalar.Scalar.PLAIN) &&
+        merge.identify(key.value))) &&
+    ctx?.doc.schema.tags.some(tag => tag.tag === merge.tag && tag.default);
+function addMergeToJSMap(ctx, map, value) {
+    value = ctx && identity.isAlias(value) ? value.resolve(ctx.doc) : value;
+    if (identity.isSeq(value))
+        for (const it of value.items)
+            mergeValue(ctx, map, it);
+    else if (Array.isArray(value))
+        for (const it of value)
+            mergeValue(ctx, map, it);
+    else
+        mergeValue(ctx, map, value);
+}
+function mergeValue(ctx, map, value) {
+    const source = ctx && identity.isAlias(value) ? value.resolve(ctx.doc) : value;
+    if (!identity.isMap(source))
+        throw new Error('Merge sources must be maps or map aliases');
+    const srcMap = source.toJSON(null, ctx, Map);
+    for (const [key, value] of srcMap) {
+        if (map instanceof Map) {
+            if (!map.has(key))
+                map.set(key, value);
+        }
+        else if (map instanceof Set) {
+            map.add(key);
+        }
+        else if (!Object.prototype.hasOwnProperty.call(map, key)) {
+            Object.defineProperty(map, key, {
+                value,
+                writable: true,
+                enumerable: true,
+                configurable: true
+            });
+        }
+    }
+    return map;
+}
+
+exports.addMergeToJSMap = addMergeToJSMap;
+exports.isMergeKey = isMergeKey;
+exports.merge = merge;
+
+
+/***/ }),
+
 /***/ 303:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -50596,6 +51466,7 @@ var binary = __nccwpck_require__(6083);
 var bool = __nccwpck_require__(8398);
 var float = __nccwpck_require__(5782);
 var int = __nccwpck_require__(873);
+var merge = __nccwpck_require__(452);
 var omap = __nccwpck_require__(303);
 var pairs = __nccwpck_require__(8385);
 var set = __nccwpck_require__(1528);
@@ -50616,6 +51487,7 @@ const schema = [
     float.floatExp,
     float.float,
     binary.binary,
+    merge.merge,
     omap.omap,
     pairs.pairs,
     set.set,
@@ -50836,7 +51708,7 @@ const timestamp = {
         }
         return new Date(date);
     },
-    stringify: ({ value }) => value.toISOString().replace(/((T00:00)?:00)?\.000Z$/, '')
+    stringify: ({ value }) => value.toISOString().replace(/(T00:00:00)?\.000Z$/, '')
 };
 
 exports.floatTime = floatTime;
@@ -51067,7 +51939,12 @@ function getTagObject(tags, item) {
     let obj;
     if (identity.isScalar(item)) {
         obj = item.value;
-        const match = tags.filter(t => t.identify?.(obj));
+        let match = tags.filter(t => t.identify?.(obj));
+        if (match.length > 1) {
+            const testMatch = match.filter(t => t.test);
+            if (testMatch.length > 0)
+                match = testMatch;
+        }
         tagObj =
             match.find(t => t.format === item.format) ?? match.find(t => !t.format);
     }
@@ -51841,23 +52718,32 @@ function blockString({ comment, type, value }, ctx, onComment, onChompKeep) {
         start = start.replace(/\n+/g, `$&${indent}`);
     }
     const indentSize = indent ? '2' : '1'; // root is at -1
-    let header = (literal ? '|' : '>') + (startWithSpace ? indentSize : '') + chomp;
+    // Leading | or > is added later
+    let header = (startWithSpace ? indentSize : '') + chomp;
     if (comment) {
         header += ' ' + commentString(comment.replace(/ ?[\r\n]+/g, ' '));
         if (onComment)
             onComment();
     }
-    if (literal) {
-        value = value.replace(/\n+/g, `$&${indent}`);
-        return `${header}\n${indent}${start}${value}${end}`;
+    if (!literal) {
+        const foldedValue = value
+            .replace(/\n+/g, '\n$&')
+            .replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, '$1$2') // more-indented lines aren't folded
+            //                ^ more-ind. ^ empty     ^ capture next empty lines only at end of indent
+            .replace(/\n+/g, `$&${indent}`);
+        let literalFallback = false;
+        const foldOptions = getFoldOptions(ctx, true);
+        if (blockQuote !== 'folded' && type !== Scalar.Scalar.BLOCK_FOLDED) {
+            foldOptions.onOverflow = () => {
+                literalFallback = true;
+            };
+        }
+        const body = foldFlowLines.foldFlowLines(`${start}${foldedValue}${end}`, indent, foldFlowLines.FOLD_BLOCK, foldOptions);
+        if (!literalFallback)
+            return `>${header}\n${indent}${body}`;
     }
-    value = value
-        .replace(/\n+/g, '\n$&')
-        .replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, '$1$2') // more-indented lines aren't folded
-        //                ^ more-ind. ^ empty     ^ capture next empty lines only at end of indent
-        .replace(/\n+/g, `$&${indent}`);
-    const body = foldFlowLines.foldFlowLines(`${start}${value}${end}`, indent, foldFlowLines.FOLD_BLOCK, getFoldOptions(ctx, true));
-    return `${header}\n${indent}${body}`;
+    value = value.replace(/\n+/g, `$&${indent}`);
+    return `|${header}\n${indent}${start}${value}${end}`;
 }
 function plainString(item, ctx, onComment, onChompKeep) {
     const { type, value } = item;

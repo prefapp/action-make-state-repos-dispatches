@@ -64,8 +64,8 @@ const gitControllerMock = {
   },
   getRepoContext: () => {
     return {
-      owner: 'repo-ctx-owner',
-      repo: 'repo-ctx-repo'
+      owner: 'my-org',
+      repo: 'my-repo'
     }
   },
   getSummaryDataForRef: (ref, checkRunName) => {
@@ -116,7 +116,7 @@ describe('The dispatcher', () => {
       'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
     ])
     expect(dispatches[2]).toEqual([
-      'registry23/service/my-other-org/my-other-repo:v2.3-flavor2-pro published in test-overwrite-state-repo'
+      'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
   })
 
@@ -142,7 +142,7 @@ describe('The dispatcher', () => {
       'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
     ])
     expect(dispatches[2]).toEqual([
-      'registry23/service/my-other-org/my-other-repo:v2.3-flavor2-pro published in test-overwrite-state-repo'
+      'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
   })
 
@@ -186,6 +186,7 @@ describe('The dispatcher', () => {
     )
 
     const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
       dispatches.deployments,
       [],
       'test-repo-caller',
@@ -205,6 +206,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
+      image_repo: 'service/my-org/my-repo',
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -221,6 +223,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant23',
       app: 'application23',
       env: 'env23',
+      image_repo: 'repo23',
       image_keys: ['image_key23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -238,6 +241,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant23',
       app: 'application23',
       env: 'env23',
+      image_repo: 'repo23',
       service_name_list: ['service2', 'service23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -265,6 +269,7 @@ describe('The dispatcher', () => {
       'another_service4'
     ]
     const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
       dispatchesFileObj.deployments,
       [],
       'test-repo-caller',
@@ -283,6 +288,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
+      image_repo: 'service/my-org/my-repo',
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -307,6 +313,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -335,6 +342,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -371,6 +379,7 @@ describe('The dispatcher', () => {
       'another_tenant4'
     ]
     const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
       dispatchesFileObj.deployments,
       [],
       'test-repo-caller',
@@ -389,6 +398,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
+      image_repo: 'service/my-org/my-repo',
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -415,6 +425,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -431,6 +442,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -446,6 +458,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -469,6 +482,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',

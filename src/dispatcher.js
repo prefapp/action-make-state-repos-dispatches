@@ -277,38 +277,42 @@ function createDispatchList(
       }
 
       for (const serviceData of appConfig[deployment.application].services) {
-        const imageRepo =
-          deployment.image_repository ||
-          `${registriesConfig[deployment.type].base_paths['services']}/` +
-            `${serviceData.repo}`
+        for (const serviceName of deployment.service_names) {
+          if (serviceName in serviceData.service_names) {
+            const imageRepo =
+              deployment.image_repository ||
+              `${registriesConfig[deployment.type].base_paths['services']}/` +
+                `${serviceData.repo}`
 
-        const basePath = path.join(
-          clusterConfig[chosenCluster].type,
-          chosenCluster
-        )
+            const basePath = path.join(
+              clusterConfig[chosenCluster].type,
+              chosenCluster
+            )
 
-        dispatchList.push({
-          type: deployment.type,
-          flavor: deployment.flavor,
-          version: versionOverride || deployment.version,
-          tenant: tenantOverride || deployment.tenant,
-          app: deployment.application,
-          env: envOverride || deployment.env,
-          state_repo: deployment.state_repo,
-          service_name_list: deployment.service_names,
-          image_keys: deployment.image_keys,
-          claim: deployment.claim,
-          registry:
-            deployment.registry || registriesConfig[deployment.type].registry,
-          dispatch_event_type:
-            deployment.dispatch_event_type ||
-            `dispatch-image-${clusterConfig[chosenCluster].type}`,
-          reviewers: reviewersList,
-          repository_caller: repo,
-          technology: clusterConfig[chosenCluster].type,
-          platform: chosenCluster,
-          base_folder: basePath
-        })
+            dispatchList.push({
+              type: deployment.type,
+              flavor: deployment.flavor,
+              version: versionOverride || deployment.version,
+              tenant: tenantOverride || deployment.tenant,
+              app: deployment.application,
+              env: envOverride || deployment.env,
+              state_repo: deployment.state_repo,
+              service_name_list: deployment.service_names,
+              image_keys: deployment.image_keys,
+              claim: deployment.claim,
+              registry:
+                deployment.registry || registriesConfig[deployment.type].registry,
+              dispatch_event_type:
+                deployment.dispatch_event_type ||
+                `dispatch-image-${clusterConfig[chosenCluster].type}`,
+              reviewers: reviewersList,
+              repository_caller: repo,
+              technology: clusterConfig[chosenCluster].type,
+              platform: chosenCluster,
+              base_folder: basePath
+            })
+          }
+        }
       }
     }
 

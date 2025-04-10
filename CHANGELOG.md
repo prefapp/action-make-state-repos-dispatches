@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.0...v4.0.1) (2025-04-10)
+
+
+### Bug Fixes
+
+* Fixed dispatches being done multiple times ([#99](https://github.com/prefapp/action-make-state-repos-dispatches/issues/99)) ([0f4c5a7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/0f4c5a7da2983964b12077418ffb85c5bdc47167))
+
 ## [4.0.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v3.1.1...v4.0.0) (2025-03-05)
 
 ### ⚠ BREAKING CHANGES

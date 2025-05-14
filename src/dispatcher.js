@@ -151,7 +151,9 @@ async function makeDispatches(gitController) {
         if (!imageData)
           throw new Error(
             `Build summary not found for flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, image_type: ${data.type}`
+              `version: ${resolvedVersion}, image_type: ${data.type}, ` +
+              `image_repo: ${data.image_repo}, ` +
+              `registry: ${data.registry || defaultRegistries[data.type]}`
           )
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))

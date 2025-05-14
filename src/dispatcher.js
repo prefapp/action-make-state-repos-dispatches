@@ -351,6 +351,9 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       checkRunName
     )
 
+    if (!summaryData || !summaryData.summary)
+      throw new Error(`No build summary found for version ${version}`)
+
     const buildSummary = summaryData.summary
       .replace('```yaml', '')
       .replace('```', '')

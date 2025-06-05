@@ -8,8 +8,20 @@ const _payloadCtx = {
   repo: github.context.payload.repository.name
 }
 
-const _token = core.getInput('token', true)
-const _octokit = github.getOctokit(_token)
+/**
+ * In order to be able to have the minimum required permissions in the GitHub App,
+ * we only use the GitHub App token to create dispatch events and the GitHub token
+ * to read the repository information, such as the latest release, file contents, etc.
+ * This way, we can avoid using the GitHub App token for read operations, which would
+ * require additional permissions that we don't need.
+ */
+
+const GITHUB_TOKEN = core.getInput('token', true)
+const builtinOctokit = github.getOctokit(GITHUB_TOKEN)
+
+const GITHUB_APP_TOKEN = core.getInput('gh_app_token', true)
+const appOctokit = github.getOctokit(GITHUB_APP_TOKEN);
+
 const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/
 
 function _resolveSemver(version) {
@@ -96,13 +108,17 @@ function getRepoContext() {
   return github.context.repo
 }
 
-function getOctokit() {
-  return _octokit
+function getBuiltinOctokit() {
+  return builtinOctokit
+}
+
+function getAppOctokit() {
+  return appOctokit
 }
 
 async function getLatestRelease(payload) {
   try {
-    const octokit = getOctokit()
+    const octokit = getBuiltinOctokit()
 
     if (payload.tag) {
       return await getLatestTaggedRelease(payload, octokit)
@@ -168,7 +184,7 @@ async function getHighestSemVerTaggedRelease(tag_filter, releases) {
 
 async function getLatestPrerelease(payload) {
   try {
-    const octokit = getOctokit()
+    const octokit = getBuiltinOctokit()
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
@@ -196,7 +212,7 @@ function sortReleasesByTime(releases) {
 
 async function getLastBranchCommit(payload, short = true) {
   try {
-    const octokit = getOctokit()
+    const octokit = getBuiltinOctokit()
 
     const getBranchResponse = await octokit.rest.repos.getBranch(payload)
 
@@ -214,7 +230,7 @@ async function getLastBranchCommit(payload, short = true) {
 async function getFileContent(filePath) {
   try {
     const ctx = getPayloadContext()
-    const octokit = getOctokit()
+    const octokit = getBuiltinOctokit()
 
     const fileResponse = await octokit.rest.repos.getContent({
       owner: ctx.owner,
@@ -244,7 +260,7 @@ async function getSummaryDataForRef(ref, workflowName) {
     console.info(
       `Getting check run summary for ref: ${ref} and workflow: ${workflowName}`
     )
-    const octokit = getOctokit()
+    const octokit = getBuiltinOctokit()
     const ctx = getPayloadContext()
 
     const resp = await octokit.request(
@@ -289,7 +305,9 @@ async function getSummaryDataForRef(ref, workflowName) {
 
 async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
   try {
-    const octokit = getOctokit()
+    // It uses `module.exports` to allow using spyOn in tests so we can validate
+    // that the dispatch event is being created with the correct authentication
+    const octokit = module.exports.getAppOctokit()
     const ownerAndRepo = stateRepoName.split('/')
     const owner = ownerAndRepo[0]
     const repo = ownerAndRepo[1]
@@ -335,7 +353,8 @@ module.exports = {
   getInput,
   getPayloadContext,
   getRepoContext,
-  getOctokit,
+  getBuiltinOctokit,
+  getAppOctokit,
   getLatestRelease,
   getLatestPrerelease,
   sortReleasesByTime,

@@ -20,7 +20,7 @@ const GITHUB_TOKEN = core.getInput('token', true)
 const builtinOctokit = github.getOctokit(GITHUB_TOKEN)
 
 const GITHUB_APP_TOKEN = core.getInput('gh_app_token', true)
-const appOctokit = github.getOctokit(GITHUB_APP_TOKEN);
+const appOctokit = github.getOctokit(GITHUB_APP_TOKEN)
 
 const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/
 

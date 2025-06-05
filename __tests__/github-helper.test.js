@@ -424,7 +424,7 @@ describe('github-helper', () => {
   })
 
   it('can make dispatches', async () => {
-    const getAppOctokitSpy = jest.spyOn(ghHelper, 'getAppOctokit');
+    const getAppOctokitSpy = jest.spyOn(ghHelper, 'getAppOctokit')
 
     const result = await ghHelper.dispatch('', '', { repo: '' })
 

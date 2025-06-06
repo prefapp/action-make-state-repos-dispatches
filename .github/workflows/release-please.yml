@@ -41,7 +41,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 workflow_id: 'linter.yml',
-                ref: pr.headBranchName,
+                ref: pr.sha,
               });
             }
 

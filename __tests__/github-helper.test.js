@@ -442,7 +442,7 @@ describe('github-helper', () => {
       ghHelper.dispatch('org/throw', 'event', 'dispatch-matrix')
     ).rejects.toThrow(
       `Error creating dispatch event for repo org/throw. ` +
-      `Dispatch matrix: dispatch-matrix`
+        `Dispatch matrix: dispatch-matrix`
     )
   })
 

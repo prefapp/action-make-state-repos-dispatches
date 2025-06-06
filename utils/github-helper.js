@@ -16,10 +16,10 @@ const _payloadCtx = {
  * require additional permissions that we don't need.
  */
 
-const GITHUB_TOKEN = core.getInput('token', true)
-const readOctokit = github.getOctokit(GITHUB_TOKEN)
+const GITHUB_READ_TOKEN = core.getInput(github.token, true)
+const readOctokit = github.getOctokit(GITHUB_READ_TOKEN)
 
-const GITHUB_APP_TOKEN = core.getInput('gh_app_token', true)
+const GITHUB_APP_TOKEN = core.getInput('token', true)
 const appOctokit = github.getOctokit(GITHUB_APP_TOKEN)
 
 const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/

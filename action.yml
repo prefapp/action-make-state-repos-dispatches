@@ -22,12 +22,10 @@ inputs:
     default: '.firestartr/docker_registries'
   token:
     description: GitHub token
+    required: true
+  read_token:
+    description: GitHub token with restricted permissions
     required: false
-    default: ${{ github.token }}
-  gh_app_token:
-    description: GitHub App token
-    required: false
-    default: ${{ github.token }}
   image_type:
     description:
       Image types to filter in the dispatches file (releases, snapshots, *).

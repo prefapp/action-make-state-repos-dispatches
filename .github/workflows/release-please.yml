@@ -30,7 +30,7 @@ jobs:
           script: |
             let prs;
             try {
-              prs = JSON.parse("${{ steps.release.outputs.prs }}");
+              prs = JSON.parse('${{ steps.release.outputs.prs }}');
             } catch (error) {
               console.warn("Failed to parse 'prs' output:", error);
               prs = [];

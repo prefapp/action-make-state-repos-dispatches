@@ -30,7 +30,8 @@ jobs:
           script: |
             let prs;
             try {
-              prs = JSON.parse('${{ steps.release.outputs.prs }}');
+              const json = '${{ steps.release.outputs.prs }}'.replaceAll(/\n/g,'\\\\n');
+              prs = JSON.parse(json);
             } catch (error) {
               console.warn("Failed to parse 'prs' output:", error);
               prs = [];
@@ -41,7 +42,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 workflow_id: 'linter.yml',
-                ref: pr.sha,
+                ref: pr.headBranchName,
               });
             }
 

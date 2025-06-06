@@ -28,6 +28,7 @@ jobs:
         if: ${{ steps.release.outputs.prs_created }}
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.TEST }}
           script: |
             let prs;
             try {

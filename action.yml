@@ -24,7 +24,9 @@ inputs:
     description: GitHub token
     required: true
   read_token:
-    description: GitHub token with permissions for operations in the repository where the action is used (defaults to GITHUB_TOKEN)
+    description: |
+      GitHub token with permissions for operations in the repository where
+      the action is used (defaults to GITHUB_TOKEN)
     default: ${{ github.token }}
     required: true
   image_type:

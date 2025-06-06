@@ -38,7 +38,7 @@ jobs:
         id: pr-verify-check
         with:
           token: ${{ steps.get-gh-app-token.outputs.token }}
-          name: pull-request verify
+          name: PR verify
           status: in_progress
           details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           output: |
@@ -80,4 +80,4 @@ jobs:
           conclusion: ${{ job.status }}
           details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           output: |
-            {"summary":"Pull Request verify completed with status ${{ job.status }}","title":"Pull Requestverify completed"}
+            {"summary":"Pull Request verify completed with status ${{ job.status }}","title":"Pull Request verify completed"}

@@ -212,7 +212,7 @@ describe('github-helper', () => {
   })
 
   it('can get the octokit object when needed', async () => {
-    const result = ghHelper.getBuiltinOctokit()
+    const result = ghHelper.getReadOctokit()
 
     expect(result).not.toEqual(null)
   })
@@ -442,7 +442,7 @@ describe('github-helper', () => {
       ghHelper.dispatch('org/throw', 'event', 'dispatch-matrix')
     ).rejects.toThrow(
       `Error creating dispatch event for repo org/throw. ` +
-        `Dispatch matrix: dispatch-matrix`
+      `Dispatch matrix: dispatch-matrix`
     )
   })
 

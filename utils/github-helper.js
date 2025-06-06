@@ -17,7 +17,7 @@ const _payloadCtx = {
  */
 
 const GITHUB_TOKEN = core.getInput('token', true)
-const builtinOctokit = github.getOctokit(GITHUB_TOKEN)
+const readOctokit = github.getOctokit(GITHUB_TOKEN)
 
 const GITHUB_APP_TOKEN = core.getInput('gh_app_token', true)
 const appOctokit = github.getOctokit(GITHUB_APP_TOKEN)
@@ -108,8 +108,8 @@ function getRepoContext() {
   return github.context.repo
 }
 
-function getBuiltinOctokit() {
-  return builtinOctokit
+function getReadOctokit() {
+  return readOctokit
 }
 
 function getAppOctokit() {
@@ -118,7 +118,7 @@ function getAppOctokit() {
 
 async function getLatestRelease(payload) {
   try {
-    const octokit = getBuiltinOctokit()
+    const octokit = getReadOctokit()
 
     if (payload.tag) {
       return await getLatestTaggedRelease(payload, octokit)
@@ -184,7 +184,7 @@ async function getHighestSemVerTaggedRelease(tag_filter, releases) {
 
 async function getLatestPrerelease(payload) {
   try {
-    const octokit = getBuiltinOctokit()
+    const octokit = getReadOctokit()
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
@@ -212,7 +212,7 @@ function sortReleasesByTime(releases) {
 
 async function getLastBranchCommit(payload, short = true) {
   try {
-    const octokit = getBuiltinOctokit()
+    const octokit = getReadOctokit()
 
     const getBranchResponse = await octokit.rest.repos.getBranch(payload)
 
@@ -230,7 +230,7 @@ async function getLastBranchCommit(payload, short = true) {
 async function getFileContent(filePath) {
   try {
     const ctx = getPayloadContext()
-    const octokit = getBuiltinOctokit()
+    const octokit = getReadOctokit()
 
     const fileResponse = await octokit.rest.repos.getContent({
       owner: ctx.owner,
@@ -260,7 +260,7 @@ async function getSummaryDataForRef(ref, workflowName) {
     console.info(
       `Getting check run summary for ref: ${ref} and workflow: ${workflowName}`
     )
-    const octokit = getBuiltinOctokit()
+    const octokit = getReadOctokit()
     const ctx = getPayloadContext()
 
     const resp = await octokit.request(
@@ -353,7 +353,7 @@ module.exports = {
   getInput,
   getPayloadContext,
   getRepoContext,
-  getBuiltinOctokit,
+  getReadOctokit,
   getAppOctokit,
   getLatestRelease,
   getLatestPrerelease,

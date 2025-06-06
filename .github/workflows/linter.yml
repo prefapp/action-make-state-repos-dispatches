@@ -19,8 +19,16 @@ jobs:
   lint:
     name: Lint Codebase
     runs-on: ubuntu-24.04
-
     steps:
+      - uses: LouisBrunner/checks-action@6b626ffbad7cc56fd58627f774b9067e6118af23
+        id: pr-verify-check
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: PR verify
+          status: in_progress
+          output: |
+            {"summary":"PR verify started","title":"PR verify in progress","text_description":"PR verify in progress"}
+
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
@@ -52,3 +60,13 @@ jobs:
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_JSCPD: false
           VALIDATE_JAVASCRIPT_STANDARD: false
+
+      - uses: LouisBrunner/checks-action@6b626ffbad7cc56fd58627f774b9067e6118af23
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          check_id: ${{ steps.pr-verify-check.outputs.check_id }}
+          status: completed
+          conclusion: ${{ job.status }}
+          output: |
+            {"summary":"PR verify completed with status ${{ job.status }}","title":"PR verify completed"}

@@ -5,11 +5,8 @@ on:
       - main
 
 permissions:
-  checks: read
   contents: write
-  issues: read
   pull-requests: write
-  statuses: read
   actions: write
 
 jobs:

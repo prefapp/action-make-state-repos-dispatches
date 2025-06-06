@@ -25,6 +25,7 @@ inputs:
     required: true
   read_token:
     description: GitHub token with restricted permissions
+    default: ${{ github.token }}
     required: false
   image_type:
     description:

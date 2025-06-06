@@ -41353,7 +41353,7 @@ const _payloadCtx = {
  * require additional permissions that we don't need.
  */
 
-const GITHUB_READ_TOKEN = core.getInput(github.token, true)
+const GITHUB_READ_TOKEN = core.getInput('read_token', true)
 const readOctokit = github.getOctokit(GITHUB_READ_TOKEN)
 
 const GITHUB_APP_TOKEN = core.getInput('token', true)

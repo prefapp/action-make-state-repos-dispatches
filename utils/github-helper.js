@@ -16,7 +16,7 @@ const _payloadCtx = {
  * require additional permissions that we don't need.
  */
 
-const GITHUB_READ_TOKEN = core.getInput(github.token, true)
+const GITHUB_READ_TOKEN = core.getInput('read_token', true)
 const readOctokit = github.getOctokit(GITHUB_READ_TOKEN)
 
 const GITHUB_APP_TOKEN = core.getInput('token', true)
@@ -328,7 +328,7 @@ async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
 
     throw new Error(
       `Error creating dispatch event for repo ${stateRepoName}. ` +
-      `Dispatch matrix: ${dispatchMatrix}`
+        `Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

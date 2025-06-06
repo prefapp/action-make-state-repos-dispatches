@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.1...v4.0.2) (2025-06-06)
+
+
+### Bug Fixes
+
+* Add new input parameter to reduce github app permissions ([#110](https://github.com/prefapp/action-make-state-repos-dispatches/issues/110)) ([d746ef8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d746ef8eac3cefb1597502b529e6738b6d53dbfb))
+
 ## [4.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.0...v4.0.1) (2025-04-10)
 
 ### Bug Fixes

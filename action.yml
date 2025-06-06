@@ -21,7 +21,10 @@ inputs:
     required: true
     default: '.firestartr/docker_registries'
   token:
-    description: GitHub token
+    description: |
+      GitHub token of a GitHub app or user with `contents:write` permissions
+      over the state repository. It's **mandatory** to pass a PAT token of an
+      user or GitHub app with the needed permission.
     required: true
   read_token:
     description: |

@@ -20,9 +20,15 @@ jobs:
     name: Lint Codebase
     runs-on: ubuntu-24.04
     steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Get Token from Github App
         id: get-gh-app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ vars.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_ID }}
           private-key: ${{ secrets.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_PEM_FILE }}
@@ -36,12 +42,6 @@ jobs:
           status: in_progress
           output: |
             {"summary":"PR verify started","title":"PR verify in progress","text_description":"PR verify in progress"}
-
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         id: setup-node

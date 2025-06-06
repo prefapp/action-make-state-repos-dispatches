@@ -328,7 +328,7 @@ async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
 
     throw new Error(
       `Error creating dispatch event for repo ${stateRepoName}. ` +
-        `Dispatch matrix: ${dispatchMatrix}`
+      `Dispatch matrix: ${dispatchMatrix}`
     )
   }
 }

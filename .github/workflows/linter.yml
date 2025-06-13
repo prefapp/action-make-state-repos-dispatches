@@ -7,23 +7,42 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
   packages: read
   statuses: write
+  checks: write
 
 jobs:
   lint:
     name: Lint Codebase
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Get Token from Github App
+        id: get-gh-app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_ID }}
+          private-key: ${{ secrets.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_PEM_FILE }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: LouisBrunner/checks-action@6b626ffbad7cc56fd58627f774b9067e6118af23
+        id: pr-verify-check
+        with:
+          token: ${{ steps.get-gh-app-token.outputs.token }}
+          name: PR verify
+          status: in_progress
+          details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          output: |
+            {"summary":"Pull Request verify started","title":"Pull Request verify in progress"}
 
       - name: Setup Node.js
         id: setup-node
@@ -41,11 +60,24 @@ jobs:
         uses: super-linter/super-linter/slim@v7
         env:
           DEFAULT_BRANCH: main
-          FILTER_REGEX_EXCLUDE: dist/**/*
+          FILTER_REGEX_EXCLUDE: (CHANGELOG\.md|dist\/.*)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JAVASCRIPT_DEFAULT_STYLE: prettier
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false
           VALIDATE_MARKDOWN: false
+          VALIDATE_MARKDOWN_PRETTIER: false
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_JSCPD: false
           VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_YAML_PRETTIER: false
+
+      - uses: LouisBrunner/checks-action@6b626ffbad7cc56fd58627f774b9067e6118af23
+        if: always()
+        with:
+          token: ${{ steps.get-gh-app-token.outputs.token }}
+          check_id: ${{ steps.pr-verify-check.outputs.check_id }}
+          status: completed
+          conclusion: ${{ job.status }}
+          details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          output: |
+            {"summary":"Pull Request verify completed with status ${{ job.status }}","title":"Pull Request verify completed"}

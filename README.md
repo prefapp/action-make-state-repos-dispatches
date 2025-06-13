@@ -15,13 +15,14 @@ The action takes the following inputs:
 
 - `dispatches_file`: path to the `make_dispatches.yaml` in _your code repo_.
   Usually, and by default, `.github/make_dispatches.yaml`.
-- `token`: a Github token from a GitHub app or User, with `contents:write` permissions over the state
-  repository. It's **mandatory** to pass a PAT token of an user or GitHub app with
-  the needed permission.
+- `token`: a Github token from a GitHub app or User, with `contents:write`
+  permissions over the state repository. It's **mandatory** to pass a PAT token
+  of an user or GitHub app with the needed permission.
 
-  **IMPORTANT**: For accessing the code repository, the `GITHUB_TOKEN`provided by the workflow is used,
-  which **needs** `contents:read` & `checks:read` permissions.
-  See [related issue](https://github.com/prefapp/action-make-state-repos-dispatches/issues/109).
+  **IMPORTANT**: For accessing the code repository, the `GITHUB_TOKEN`provided
+  by the workflow is used, which **needs** `contents:read` & `checks:read`
+  permissions. See
+  [related issue](https://github.com/prefapp/action-make-state-repos-dispatches/issues/109).
 
 - `image_type`: image type to dispatch. Can be any of `releases`, `snapshots` or
   `*`, meaning _all_ (default).

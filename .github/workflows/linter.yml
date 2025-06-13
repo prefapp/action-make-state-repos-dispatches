@@ -31,7 +31,8 @@ jobs:
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ vars.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_ID }}
-          private-key: ${{ secrets.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_PEM_FILE }}
+          private-key:
+            ${{ secrets.FIRESTARTER_GITHUB_APP_CHECKS_INSTALLATION_PEM_FILE }}
           owner: ${{ github.repository_owner }}
 
       - uses: LouisBrunner/checks-action@6b626ffbad7cc56fd58627f774b9067e6118af23
@@ -40,7 +41,9 @@ jobs:
           token: ${{ steps.get-gh-app-token.outputs.token }}
           name: PR verify
           status: in_progress
-          details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          details_url:
+            '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+            github.run_id }}'
           output: |
             {"summary":"Pull Request verify started","title":"Pull Request verify in progress"}
 
@@ -78,6 +81,8 @@ jobs:
           check_id: ${{ steps.pr-verify-check.outputs.check_id }}
           status: completed
           conclusion: ${{ job.status }}
-          details_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          details_url:
+            '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+            github.run_id }}'
           output: |
             {"summary":"Pull Request verify completed with status ${{ job.status }}","title":"Pull Request verify completed"}

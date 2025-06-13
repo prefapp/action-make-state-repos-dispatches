@@ -40911,7 +40911,9 @@ async function makeDispatches(gitController) {
         if (!imageData)
           throw new Error(
             `Build summary not found for flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, image_type: ${data.type}`
+              `version: ${resolvedVersion}, image_type: ${data.type}, ` +
+              `image_repo: ${data.image_repo}, ` +
+              `registry: ${data.registry || defaultRegistries[data.type]}`
           )
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -41108,6 +41110,9 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       ref,
       checkRunName
     )
+
+    if (!summaryData || !summaryData.summary)
+      throw new Error(`No build summary found for version ${version}`)
 
     const buildSummary = summaryData.summary
       .replace('```yaml', '')

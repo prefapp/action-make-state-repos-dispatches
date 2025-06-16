@@ -800,6 +800,9 @@ describe('The dispatcher', () => {
       },
       handleSummary: (msg, table) => {
         debug(msg)
+      },
+      getPayloadContext: () => {
+        return {}
       }
     }
 

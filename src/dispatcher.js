@@ -26,6 +26,7 @@ async function makeDispatches(gitController) {
       { data: 'Status', header: true }
     ]
   ]
+  const payloadCtx = gitController.getPayloadContext()
 
   try {
     // Parse action inputs
@@ -50,7 +51,6 @@ async function makeDispatches(gitController) {
       reviewers,
       checkRunName
     } = gitController.getAllInputs()
-    const payloadCtx = gitController.getPayloadContext()
 
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent = await getDispatchesFileContent(
@@ -202,8 +202,10 @@ async function makeDispatches(gitController) {
     return resultList
   } catch (error) {
     console.log(error)
+
     // Fail the workflow run if an error occurs
-    gitController.handleFailure(error.message)
+    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${payloadCtx.ref}, commit ${payloadCtx.sha}`
+    gitController.handleFailure(msg)
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)
   }

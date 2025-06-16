@@ -5,7 +5,9 @@ const semver = require('semver')
 
 const _payloadCtx = {
   owner: github.context.payload.repository.owner.login,
-  repo: github.context.payload.repository.name
+  repo: github.context.payload.repository.name,
+  ref: github.context.ref,
+  sha: github.context.sha
 }
 
 /**

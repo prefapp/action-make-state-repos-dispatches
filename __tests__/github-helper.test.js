@@ -212,7 +212,7 @@ describe('github-helper', () => {
   })
 
   it('can get the octokit object when needed', async () => {
-    const result = ghHelper.getReadOctokit()
+    const result = ghHelper.getReadOnlyOctokit()
 
     expect(result).not.toEqual(null)
   })

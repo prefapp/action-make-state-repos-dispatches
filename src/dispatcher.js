@@ -26,32 +26,32 @@ async function makeDispatches(gitController) {
       { data: 'Status', header: true }
     ]
   ]
+  const payloadCtx = gitController.getPayloadContext()
+
+  // Parse action inputs
+  debug('Parsing action inputs')
+
+  const {
+    dispatchesFilePath,
+    appsFolderPath,
+    clustersFolderPath,
+    registriesFolderPath,
+    imageType,
+    defaultReleasesRegistry,
+    defaultSnapshotsRegistry,
+    buildSummary,
+    flavorFilter,
+    envFilter,
+    tenantFilter,
+    clusterFilter,
+    overwriteVersion,
+    overwriteEnv,
+    overwriteTenant,
+    reviewers,
+    checkRunName
+  } = gitController.getAllInputs()
 
   try {
-    // Parse action inputs
-    debug('Parsing action inputs')
-
-    const {
-      dispatchesFilePath,
-      appsFolderPath,
-      clustersFolderPath,
-      registriesFolderPath,
-      imageType,
-      defaultReleasesRegistry,
-      defaultSnapshotsRegistry,
-      buildSummary,
-      flavorFilter,
-      envFilter,
-      tenantFilter,
-      clusterFilter,
-      overwriteVersion,
-      overwriteEnv,
-      overwriteTenant,
-      reviewers,
-      checkRunName
-    } = gitController.getAllInputs()
-    const payloadCtx = gitController.getPayloadContext()
-
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent = await getDispatchesFileContent(
       dispatchesFilePath,
@@ -136,7 +136,9 @@ async function makeDispatches(gitController) {
           '🔍 Filtering by:',
           `flavor: ${data.flavor}, ` +
             `version: ${resolvedVersion}, ` +
-            `image_type: ${data.type}`
+            `image_type: ${data.type},` +
+            `image_repo: ${data.image_repo}, ` +
+            `registry: ${data.registry || defaultRegistries[data.type]}`
         )
 
         const imageData = buildSummaryObj.filter(
@@ -151,7 +153,9 @@ async function makeDispatches(gitController) {
         if (!imageData)
           throw new Error(
             `Build summary not found for flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, image_type: ${data.type}`
+              `version: ${resolvedVersion}, image_type: ${data.type}, ` +
+              `image_repo: ${data.image_repo}, ` +
+              `registry: ${data.registry || defaultRegistries[data.type]}`
           )
 
         debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -200,8 +204,10 @@ async function makeDispatches(gitController) {
     return resultList
   } catch (error) {
     console.log(error)
+
     // Fail the workflow run if an error occurs
-    gitController.handleFailure(error.message)
+    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${payloadCtx.ref}, commit ${payloadCtx.sha}: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
+    gitController.handleFailure(msg)
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
@@ -348,6 +354,9 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       ref,
       checkRunName
     )
+
+    if (!summaryData || !summaryData.summary)
+      throw new Error(`No build summary found for version ${version}`)
 
     const buildSummary = summaryData.summary
       .replace('```yaml', '')

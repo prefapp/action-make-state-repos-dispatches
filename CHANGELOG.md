@@ -2,12 +2,15 @@
 
 ## [4.0.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.1...v4.0.2) (2025-06-06)
 
-
 ### Bug Fixes
 
-* Add new input parameter to reduce github app permissions ([#110](https://github.com/prefapp/action-make-state-repos-dispatches/issues/110)) ([d746ef8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d746ef8eac3cefb1597502b529e6738b6d53dbfb))
-* json parse ([2df0356](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2df0356cd45fe05a32aeaf6bc66fabf91e1b26e2))
-* workflow ([b438901](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b438901c7a98d236ac70e336737d7a40e6e50663))
+- Add new input parameter to reduce github app permissions
+  ([#110](https://github.com/prefapp/action-make-state-repos-dispatches/issues/110))
+  ([d746ef8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d746ef8eac3cefb1597502b529e6738b6d53dbfb))
+- json parse
+  ([2df0356](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2df0356cd45fe05a32aeaf6bc66fabf91e1b26e2))
+- workflow
+  ([b438901](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b438901c7a98d236ac70e336737d7a40e6e50663))
 
 ## [4.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.0...v4.0.1) (2025-04-10)
 

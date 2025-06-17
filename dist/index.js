@@ -40160,7 +40160,9 @@ async function makeDispatches(gitController) {
           '🔍 Filtering by:',
           `flavor: ${data.flavor}, ` +
             `version: ${resolvedVersion}, ` +
-            `image_type: ${data.type}`
+            `image_type: ${data.type},` +
+            `image_repo: ${data.image_repo}, ` +
+            `registry: ${data.registry || defaultRegistries[data.type]}`
         )
 
         const imageData = buildSummaryObj.filter(

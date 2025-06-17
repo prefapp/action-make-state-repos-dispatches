@@ -801,6 +801,9 @@ describe('The dispatcher', () => {
       handleSummary: (msg, table) => {
         debug(msg)
       },
+      getAllInputs: () => {
+        return allInputs
+      },
       getPayloadContext: () => {
         return {}
       }

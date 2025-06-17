@@ -40228,9 +40228,7 @@ async function makeDispatches(gitController) {
     console.log(error)
 
     // Fail the workflow run if an error occurs
-    const msg = `${error.message}
-
-    Using make_dispatches.yaml file from ref ${payloadCtx.ref}, commit ${payloadCtx.sha}: https://www.github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
+    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${payloadCtx.ref}, commit ${payloadCtx.sha}: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
     gitController.handleFailure(msg)
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)

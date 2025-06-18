@@ -102,7 +102,7 @@ inputs:
   default_branch:
     description: Caller repo's default branch
     required: false
-    default: ${{ github.event.repository.defaul_branch }}
+    default: 'main'
 
 runs:
   using: node20

@@ -99,6 +99,10 @@ inputs:
     description: Name of the check run where the build summary will be uploaded
     required: false
     default: ''
+  default_branch:
+    description: Caller repo's default branch
+    required: false
+    default: ${{ github.event.repository.defaul_branch }}
 
 runs:
   using: node20

@@ -53,10 +53,7 @@ async function makeDispatches(gitController) {
 
   try {
     debug('Loading dispatches file content from path', dispatchesFilePath)
-    const dispatchesFileContent = await getDispatchesFileContent(
-      dispatchesFilePath,
-      gitController
-    )
+    const dispatchesFileContent = getDispatchesFileContent(dispatchesFilePath)
 
     const dispatchesData = configHelper.configParse(
       dispatchesFileContent,
@@ -213,11 +210,11 @@ async function makeDispatches(gitController) {
   }
 }
 
-async function getDispatchesFileContent(filePath, gitController) {
+function getDispatchesFileContent(filePath) {
   try {
     return fs.readFileSync(filePath).toString('base64')
   } catch (err) {
-    return await gitController.getFileContent(filePath)
+    throw new Error(`Error reading make_dispatches.yaml file: ${err}`)
   }
 }
 

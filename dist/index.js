@@ -40808,16 +40808,12 @@ async function makeDispatches(gitController) {
     overwriteEnv,
     overwriteTenant,
     reviewers,
-    checkRunName,
-    defaultBranch
+    checkRunName
   } = gitController.getAllInputs()
 
   try {
     debug('Loading dispatches file content from path', dispatchesFilePath)
-    const dispatchesFileContent = await getDispatchesFileContent(
-      dispatchesFilePath,
-      gitController
-    )
+    const dispatchesFileContent = getDispatchesFileContent(dispatchesFilePath)
 
     const dispatchesData = configHelper.configParse(
       dispatchesFileContent,
@@ -40967,18 +40963,18 @@ async function makeDispatches(gitController) {
     console.log(error)
 
     // Fail the workflow run if an error occurs
-    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${defaultBranch}: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${defaultBranch}/${dispatchesFilePath}`
+    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${payloadCtx.ref}, commit ${payloadCtx.sha}: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
     gitController.handleFailure(msg)
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
 }
 
-async function getDispatchesFileContent(filePath, gitController) {
+function getDispatchesFileContent(filePath) {
   try {
     return fs.readFileSync(filePath).toString('base64')
   } catch (err) {
-    return await gitController.getFileContent(filePath)
+    throw new Error(`Error reading make_dispatches.yaml file: ${err}`)
   }
 }
 
@@ -41439,7 +41435,6 @@ function getAllInputs() {
     const overwriteTenant = core.getInput('overwrite_tenant')
     const reviewers = core.getInput('reviewers')
     const checkRunName = core.getInput('check_run_name')
-    const defaultBranch = core.getInput('default_branch')
 
     return {
       dispatchesFilePath,
@@ -41458,8 +41453,7 @@ function getAllInputs() {
       overwriteEnv,
       overwriteTenant,
       reviewers,
-      checkRunName,
-      defaultBranch
+      checkRunName
     }
   } catch (e) {
     throw new Error(`Error while obtaining all Github inputs: ${e}`)

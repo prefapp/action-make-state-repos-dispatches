@@ -814,7 +814,7 @@ describe('The dispatcher', () => {
     ).rejects.toThrow('Git controller managed failure')
   })
 
-  it('can get the dispatches file content, both locally and remotely', async () => {
+  it("can get the dispatches file content locally, and throws an error when it doesn't find it", async () => {
     const localFilePath = path.join(
       __dirname,
       '../fixtures/dispatches_file.yaml'
@@ -822,23 +822,15 @@ describe('The dispatcher', () => {
     const expectedLocalResult = fs
       .readFileSync(localFilePath)
       .toString('base64')
-    const localFileContent = await dispatcher.getDispatchesFileContent(
-      localFilePath,
-      gitControllerMock
-    )
+    const localFileContent =
+      await dispatcher.getDispatchesFileContent(localFilePath)
 
     expect(localFileContent).toEqual(expectedLocalResult)
 
-    const remoteFilePath = 'dispatches_file.yaml'
-    const expectedRemoteResult = fs
-      .readFileSync(path.join('fixtures', remoteFilePath))
-      .toString('base64')
-    const remoteFileContent = await dispatcher.getDispatchesFileContent(
-      remoteFilePath,
-      gitControllerMock
-    )
-
-    expect(remoteFileContent).toEqual(expectedRemoteResult)
+    const fakeFilePath = 'nonexistent.yaml'
+    expect(() => {
+      dispatcher.getDispatchesFileContent(fakeFilePath)
+    }).toThrow('Error reading make_dispatches.yaml file')
   })
 
   it('correctly throws an error when one happens while obtaining the latest build summary', async () => {

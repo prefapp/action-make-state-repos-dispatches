@@ -48,8 +48,7 @@ async function makeDispatches(gitController) {
     overwriteEnv,
     overwriteTenant,
     reviewers,
-    checkRunName,
-    defaultBranch
+    checkRunName
   } = gitController.getAllInputs()
 
   try {
@@ -207,7 +206,7 @@ async function makeDispatches(gitController) {
     console.log(error)
 
     // Fail the workflow run if an error occurs
-    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${defaultBranch}: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${defaultBranch}/${dispatchesFilePath}`
+    const msg = `${error.message} - Using make_dispatches.yaml file from ref ${payloadCtx.ref}, commit ${payloadCtx.sha}: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
     gitController.handleFailure(msg)
   } finally {
     gitController.handleSummary('Dispatches summary', summaryTable)

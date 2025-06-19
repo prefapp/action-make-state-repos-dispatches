@@ -40815,7 +40815,8 @@ async function makeDispatches(gitController) {
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent = await getDispatchesFileContent(
       dispatchesFilePath,
-      gitController
+      gitController,
+      payloadCtx
     )
 
     const dispatchesData = configHelper.configParse(
@@ -40973,11 +40974,13 @@ async function makeDispatches(gitController) {
   }
 }
 
-async function getDispatchesFileContent(filePath, gitController) {
+async function getDispatchesFileContent(filePath, gitController, payloadCtx) {
   try {
-    return fs.readFileSync(filePath).toString('base64')
+    return await gitController.getFileContent(filePath, payloadCtx.sha)
   } catch (err) {
-    return await gitController.getFileContent(filePath)
+    throw new Error(
+      `Error getting make_dispatches.yaml file from ref ${payloadCtx.ref}: ${err.message}`
+    )
   }
 }
 
@@ -41584,7 +41587,7 @@ async function getLastBranchCommit(payload, short = true) {
   }
 }
 
-async function getFileContent(filePath) {
+async function getFileContent(filePath, reference) {
   try {
     const ctx = getPayloadContext()
     const octokit = module.exports.getReadOnlyOctokit()
@@ -41592,7 +41595,8 @@ async function getFileContent(filePath) {
     const fileResponse = await octokit.rest.repos.getContent({
       owner: ctx.owner,
       repo: ctx.repo,
-      path: filePath
+      path: filePath,
+      ref: reference
     })
 
     if (fileResponse.status !== 200) {

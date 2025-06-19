@@ -216,7 +216,7 @@ async function makeDispatches(gitController) {
 
 async function getDispatchesFileContent(filePath, gitController, payloadCtx) {
   try {
-    return await gitController.getFileContent(filePath, payloadCtx.ref)
+    return await gitController.getFileContent(filePath, payloadCtx.sha)
   } catch (err) {
     throw new Error(
       `Error getting make_dispatches.yaml file from ref ${payloadCtx.ref}: ${err.message}`

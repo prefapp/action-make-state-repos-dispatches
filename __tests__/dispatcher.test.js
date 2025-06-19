@@ -52,8 +52,6 @@ const gitControllerMock = {
     return allInputs
   },
   getFileContent: (filePath, ref = '') => {
-    if (ref != '') throw new Error('Mock error')
-
     return Buffer.from(
       fs.readFileSync(path.join('fixtures', filePath))
     ).toString('base64')

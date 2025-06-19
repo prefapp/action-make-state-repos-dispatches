@@ -13,7 +13,7 @@ inputs:
     required: true
     default: '.firestartr/apps'
   platform_folder:
-    description: 'Local path to the cluster folder of your repo'
+    description: 'Local path to the cluster folder of the .firestartr configuration'
     required: true
     default: '.firestartr/clusters'
   registries_folder:

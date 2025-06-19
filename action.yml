@@ -9,7 +9,7 @@ inputs:
     required: true
     default: '.github/make_dispatches.yaml'
   apps_folder:
-    description: 'Local path to the apps folder of your repo'
+    description: 'Local path to the apps folder of the .firestartr configuration'
     required: true
     default: '.firestartr/apps'
   platform_folder:

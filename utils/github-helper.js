@@ -238,7 +238,7 @@ async function getLastBranchCommit(payload, short = true) {
   }
 }
 
-async function getFileContent(filePath) {
+async function getFileContent(filePath, ref = '') {
   try {
     const ctx = getPayloadContext()
     const octokit = module.exports.getReadOnlyOctokit()
@@ -246,7 +246,8 @@ async function getFileContent(filePath) {
     const fileResponse = await octokit.rest.repos.getContent({
       owner: ctx.owner,
       repo: ctx.repo,
-      path: filePath
+      path: filePath,
+      ref: ref || ctx.ref
     })
 
     if (fileResponse.status !== 200) {

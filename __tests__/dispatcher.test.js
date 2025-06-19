@@ -7,7 +7,7 @@ const configHelper = require('../utils/config-helper')
 
 const defaultDispatchesFilePath = 'fixtures/dispatches_file.yaml'
 const allInputs = {
-  dispatchesFilePath: path.join(__dirname, '../fixtures/dispatches_file.yaml'),
+  dispatchesFilePath: 'dispatches_file.yaml',
   appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
   clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
   registriesFolderPath: path.join(
@@ -51,7 +51,9 @@ const gitControllerMock = {
   getAllInputs: () => {
     return allInputs
   },
-  getFileContent: filePath => {
+  getFileContent: (filePath, ref = '') => {
+    if (ref != '') throw new Error('Mock error')
+
     return Buffer.from(
       fs.readFileSync(path.join('fixtures', filePath))
     ).toString('base64')
@@ -814,23 +816,25 @@ describe('The dispatcher', () => {
     ).rejects.toThrow('Git controller managed failure')
   })
 
-  it("can get the dispatches file content locally, and throws an error when it doesn't find it", async () => {
-    const localFilePath = path.join(
-      __dirname,
-      '../fixtures/dispatches_file.yaml'
-    )
-    const expectedLocalResult = fs
-      .readFileSync(localFilePath)
+  it("can get the dispatches file content remotely, and throws an error when it doesn't find it", async () => {
+    const remoteFilePath = 'dispatches_file.yaml'
+    const expectedRemoteResult = fs
+      .readFileSync(path.join('fixtures', remoteFilePath))
       .toString('base64')
-    const localFileContent =
-      await dispatcher.getDispatchesFileContent(localFilePath)
+    const remoteFileContent = await dispatcher.getDispatchesFileContent(
+      remoteFilePath,
+      gitControllerMock,
+      {}
+    )
 
-    expect(localFileContent).toEqual(expectedLocalResult)
+    expect(remoteFileContent).toEqual(expectedRemoteResult)
 
     const fakeFilePath = 'nonexistent.yaml'
-    expect(() => {
-      dispatcher.getDispatchesFileContent(fakeFilePath)
-    }).toThrow('Error reading make_dispatches.yaml file')
+    await expect(
+      dispatcher.getDispatchesFileContent(fakeFilePath, gitControllerMock, {
+        ref: 'error'
+      })
+    ).rejects.toThrow('Error getting make_dispatches.yaml file')
   })
 
   it('correctly throws an error when one happens while obtaining the latest build summary', async () => {

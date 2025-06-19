@@ -55,7 +55,8 @@ async function makeDispatches(gitController) {
     debug('Loading dispatches file content from path', dispatchesFilePath)
     const dispatchesFileContent = await getDispatchesFileContent(
       dispatchesFilePath,
-      gitController
+      gitController,
+      payloadCtx
     )
 
     const dispatchesData = configHelper.configParse(
@@ -213,11 +214,13 @@ async function makeDispatches(gitController) {
   }
 }
 
-async function getDispatchesFileContent(filePath, gitController) {
+async function getDispatchesFileContent(filePath, gitController, payloadCtx) {
   try {
-    return fs.readFileSync(filePath).toString('base64')
+    return await gitController.getFileContent(filePath, payloadCtx.sha)
   } catch (err) {
-    return await gitController.getFileContent(filePath)
+    throw new Error(
+      `Error getting make_dispatches.yaml file from ref ${payloadCtx.ref}: ${err.message}`
+    )
   }
 }
 

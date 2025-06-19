@@ -17,7 +17,7 @@ inputs:
     required: true
     default: '.firestartr/clusters'
   registries_folder:
-    description: 'Local path to the registries folder of your repo'
+    description: 'Local path to the registries folder of the .firestartr configuration'
     required: true
     default: '.firestartr/docker_registries'
   token:

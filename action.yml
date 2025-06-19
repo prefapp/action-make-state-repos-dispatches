@@ -5,19 +5,19 @@ author: 'Prefapp'
 # Define your inputs here.
 inputs:
   dispatches_file:
-    description: 'Path to the make_dispatches.yaml file of your repo'
+    description: 'Path to the make_dispatches.yaml file of your repo. It will be downloaded dynamically from the trigger GITHUB_REF'
     required: true
     default: '.github/make_dispatches.yaml'
   apps_folder:
-    description: 'Path to the apps folder of your repo'
+    description: 'Local path to the apps folder of your repo'
     required: true
     default: '.firestartr/apps'
   platform_folder:
-    description: 'Path to the cluster folder of your repo'
+    description: 'Local path to the cluster folder of your repo'
     required: true
     default: '.firestartr/clusters'
   registries_folder:
-    description: 'Path to the registries folder of your repo'
+    description: 'Local path to the registries folder of your repo'
     required: true
     default: '.firestartr/docker_registries'
   token:

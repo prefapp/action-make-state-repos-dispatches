@@ -5,7 +5,7 @@ author: 'Prefapp'
 # Define your inputs here.
 inputs:
   dispatches_file:
-    description: 'Path to the config file in the triggered repo. It will be downloaded dynamically from the GITHUB_REF of the trigger event'
+    description: 'Path to the config file in the repository. It will be downloaded dynamically from the GITHUB_SHA of the trigger event'
     required: true
     default: '.github/make_dispatches.yaml'
   apps_folder:

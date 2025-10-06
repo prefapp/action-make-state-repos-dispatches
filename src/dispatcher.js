@@ -341,6 +341,11 @@ function createDispatchList(
             })
           }
         }
+      } else {
+        debug(
+          `Repository ${defaultImageRepository} not found in configuration ` +
+            `for application ${deployment.application}`
+        );
       }
     }
 

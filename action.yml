@@ -5,19 +5,24 @@ author: 'Prefapp'
 # Define your inputs here.
 inputs:
   dispatches_file:
-    description: 'Path to the config file in the repository. It will be downloaded dynamically from the GITHUB_SHA of the trigger event'
+    description:
+      'Path to the config file in the repository. It will be downloaded
+      dynamically from the GITHUB_SHA of the trigger event'
     required: true
     default: '.github/make_dispatches.yaml'
   apps_folder:
-    description: 'Local path to the apps folder of the .firestartr configuration'
+    description:
+      'Local path to the apps folder of the .firestartr configuration'
     required: true
     default: '.firestartr/apps'
   platform_folder:
-    description: 'Local path to the cluster folder of the .firestartr configuration'
+    description:
+      'Local path to the cluster folder of the .firestartr configuration'
     required: true
     default: '.firestartr/clusters'
   registries_folder:
-    description: 'Local path to the registries folder of the .firestartr configuration'
+    description:
+      'Local path to the registries folder of the .firestartr configuration'
     required: true
     default: '.firestartr/docker_registries'
   token:

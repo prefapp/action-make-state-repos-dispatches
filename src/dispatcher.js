@@ -340,6 +340,11 @@ function createDispatchList(
               base_folder: basePath
             })
           }
+        } else {
+          debug(
+            `Repository ${defaultImageRepository} not found in configuration ` +
+              `for application ${deployment.application}`
+          )
         }
       }
     }

@@ -2,10 +2,11 @@
 
 ## [4.0.4](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.3...v4.0.4) (2025-06-19)
 
-
 ### Bug Fixes
 
-* make_dispatches file link ([#124](https://github.com/prefapp/action-make-state-repos-dispatches/issues/124)) ([10071c7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/10071c7da33df134601616e7fdcdadea4c3ac843))
+- make_dispatches file link
+  ([#124](https://github.com/prefapp/action-make-state-repos-dispatches/issues/124))
+  ([10071c7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/10071c7da33df134601616e7fdcdadea4c3ac843))
 
 ## [4.0.3](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.2...v4.0.3) (2025-06-17)
 

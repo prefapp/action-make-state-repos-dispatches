@@ -187,6 +187,15 @@ async function makeDispatches(gitController) {
         groupedDispatches[stateRepoName][data.dispatch_event_type] =
           groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
         groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
+      } else {
+        debug(
+          `::warning::No valid dispatch found for the filters:` +
+            `${data.type} in ${imageTypesList}, ` +
+            `${data.flavor} in ${flavorsList}, ` +
+            `${data.env} in ${envFilterList}, ` +
+            `${data.tenant} in ${tenantFilterList}, ` +
+            `${data.platform} in ${clusterFilterList}`
+        )
       }
     }
 

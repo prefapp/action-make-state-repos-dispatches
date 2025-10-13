@@ -365,9 +365,9 @@ function createDispatchList(
         logger.warn(
           `No valid configuration found for deployment with ` +
             `application ${deployment.application}, ` +
-            `tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
+            `tenant ${deployment.tenant}, flavor ${deployment.flavor}, ` +
             `type ${deployment.type}, env ${deployment.env} ` +
-            `and services ${deployment.service_names}`
+            `${deployment.service_names ? ` and services ${deployment.service_names}` : ''}`
         )
       }
     }

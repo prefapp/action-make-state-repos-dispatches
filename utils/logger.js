@@ -1,9 +1,8 @@
-import winston, { format, transports } from 'winston'
+// import winston, { format, transports } from 'winston'
+const winston = require('winston')
 
 const validLogLevels = ['error', 'warn', 'info', 'debug', 'verbose', 'silly']
-
 let initiated = false
-
 let logger = null
 
 // Type guard to check if a value is a valid LogLevel
@@ -21,7 +20,7 @@ function initLogger() {
 
   const useJson = String(process.env.CI).toLowerCase() !== 'true'
 
-  const humanFormat = format.printf(info => {
+  const humanFormat = winston.format.printf(info => {
     const level = info[Symbol.for('level')] // raw, not colorized
     const msg =
       typeof info.message === 'string'
@@ -38,12 +37,12 @@ function initLogger() {
     level: logLevel,
     exitOnError: false,
     format: useJson
-      ? format.combine(
-          format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-          format.json()
+      ? winston.format.combine(
+          winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+          winston.format.json()
         )
-      : format.combine(format.colorize(), humanFormat),
-    transports: [new transports.Console({ level: logLevel })]
+      : winston.format.combine(winston.format.colorize(), humanFormat),
+    transports: [new winston.transports.Console({ level: logLevel })]
   })
 
   initiated = true
@@ -78,4 +77,4 @@ const log = {
   silly: (...args) => doLog('silly', args)
 }
 
-export default log
+module.exports = log

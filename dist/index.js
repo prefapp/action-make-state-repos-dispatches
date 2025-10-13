@@ -55575,6 +55575,7 @@ function createDispatchList(
         )
       }
 
+      let showWarning = true
       for (const serviceData of appConfig[deployment.application].services) {
         if (defaultImageRepository === serviceData.repo) {
           let makeDispatch = false
@@ -55590,6 +55591,7 @@ function createDispatchList(
           }
 
           if (makeDispatch) {
+            showWarning = false
             const imageRepo =
               deployment.image_repository ||
               `${registriesConfig[deployment.type].base_paths['services']}/` +
@@ -55625,12 +55627,16 @@ function createDispatchList(
               base_folder: basePath
             })
           }
-        } else {
-          logger.warn(
-            `Repository ${defaultImageRepository} not found in configuration ` +
-              `for application ${deployment.application}`
-          )
         }
+      }
+
+      if (showWarning) {
+        logger.warn(
+          `Repository ${defaultImageRepository}` +
+            `${deployment.service_names ? ` or ${deployment.service_names}` : ''}` +
+            ` not found in configuration ` +
+            `for application ${deployment.application}`
+        )
       }
     }
 

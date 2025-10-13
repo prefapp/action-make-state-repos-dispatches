@@ -55632,10 +55632,11 @@ function createDispatchList(
 
       if (showWarning) {
         logger.warn(
-          `Repository ${defaultImageRepository}` +
-            `${deployment.service_names ? ` or ${deployment.service_names}` : ''}` +
-            ` not found in configuration ` +
-            `for application ${deployment.application}`
+          `No valid configuration found for deployment with ` +
+            `application ${deployment.application}, ` +
+            `tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
+            `type ${deployment.type}, env ${deployment.env} ` +
+            `and services ${deployment.service_names}`
         )
       }
     }

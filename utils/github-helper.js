@@ -1,6 +1,6 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
-const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 const semver = require('semver')
 
 const _payloadCtx = {
@@ -118,12 +118,12 @@ function getAllInputs() {
 }
 
 function getPayloadContext() {
-  debug('Getting payload context', _payloadCtx)
+  logger.debug('Getting payload context', _payloadCtx)
   return _payloadCtx
 }
 
 function getRepoContext() {
-  debug('Getting repo context', github.context.repo)
+  logger.debug('Getting repo context', github.context.repo)
   return github.context.repo
 }
 

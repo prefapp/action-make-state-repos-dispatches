@@ -1,4 +1,3 @@
-// const debug = require('debug')('make-state-repos-dispatches')
 const logger = require('../utils/logger')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')

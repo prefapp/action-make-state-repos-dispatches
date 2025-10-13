@@ -1,4 +1,5 @@
-const debug = require('debug')('make-state-repos-dispatches')
+// const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
 const path = require('path')
@@ -29,7 +30,7 @@ async function makeDispatches(gitController) {
   const payloadCtx = gitController.getPayloadContext()
 
   // Parse action inputs
-  debug('Parsing action inputs')
+  logger.debug('Parsing action inputs')
 
   const {
     dispatchesFilePath,
@@ -52,7 +53,10 @@ async function makeDispatches(gitController) {
   } = gitController.getAllInputs()
 
   try {
-    debug('Loading dispatches file content from path', dispatchesFilePath)
+    logger.debug(
+      'Loading dispatches file content from path',
+      dispatchesFilePath
+    )
     const dispatchesFileContent = await getDispatchesFileContent(
       dispatchesFilePath,
       gitController,
@@ -63,7 +67,7 @@ async function makeDispatches(gitController) {
       dispatchesFileContent,
       'base64'
     )
-    debug('Dispatches file content (validated)', dispatchesData)
+    logger.debug('Dispatches file content (validated)', dispatchesData)
 
     let getBuildSummaryData = async version =>
       await getLatestBuildSummary(version, gitController, checkRunName)
@@ -131,9 +135,12 @@ async function makeDispatches(gitController) {
         const stateRepoName = data.state_repo || appConfig[data.app].state_repo
         const buildSummaryObj = await getBuildSummaryData(data.version)
 
-        debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
+        logger.debug(
+          '📜 Summary builds >',
+          JSON.stringify(buildSummaryObj, null, 2)
+        )
 
-        debug(
+        logger.debug(
           '🔍 Filtering by:',
           `flavor: ${data.flavor}, ` +
             `version: ${resolvedVersion}, ` +
@@ -159,7 +166,7 @@ async function makeDispatches(gitController) {
               `registry: ${data.registry || defaultRegistries[data.type]}`
           )
 
-        debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
+        logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
         data.image =
           `${imageData.registry}/` +
@@ -188,8 +195,8 @@ async function makeDispatches(gitController) {
           groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
         groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
       } else {
-        debug(
-          `::warning::No valid dispatch found for the filters:` +
+        logger.warn(
+          `No valid dispatch found for the filters: ` +
             `${data.type} in ${imageTypesList}, ` +
             `${data.flavor} in ${flavorsList}, ` +
             `${data.env} in ${envFilterList}, ` +
@@ -350,7 +357,7 @@ function createDispatchList(
             })
           }
         } else {
-          debug(
+          logger.warn(
             `Repository ${defaultImageRepository} not found in configuration ` +
               `for application ${deployment.application}`
           )

@@ -115,118 +115,123 @@ async function makeDispatches(gitController) {
       overwriteEnv
     )
 
-    const groupedDispatches = {}
-    let dispatchDone = false
-    for (const data of dispatchList) {
-      if (
-        isDispatchValid(
-          data,
-          imageTypesList,
-          flavorsList,
-          envFilterList,
-          tenantFilterList,
-          clusterFilterList
-        )
-      ) {
-        const resolvedVersion = await refHelper.getLatestRef(
-          data.version,
-          gitController
-        )
-        const stateRepoName = data.state_repo || appConfig[data.app].state_repo
-        const buildSummaryObj = await getBuildSummaryData(data.version)
+    if (dispatchList) {
+      const groupedDispatches = {}
+      let dispatchDone = false
+      for (const data of dispatchList) {
+        if (
+          isDispatchValid(
+            data,
+            imageTypesList,
+            flavorsList,
+            envFilterList,
+            tenantFilterList,
+            clusterFilterList
+          )
+        ) {
+          const resolvedVersion = await refHelper.getLatestRef(
+            data.version,
+            gitController
+          )
+          const stateRepoName =
+            data.state_repo || appConfig[data.app].state_repo
+          const buildSummaryObj = await getBuildSummaryData(data.version)
 
-        logger.debug(
-          '📜 Summary builds >',
-          JSON.stringify(buildSummaryObj, null, 2)
-        )
+          logger.debug(
+            '📜 Summary builds >',
+            JSON.stringify(buildSummaryObj, null, 2)
+          )
 
-        logger.debug(
-          '🔍 Filtering by:',
-          `flavor: ${data.flavor}, ` +
-            `version: ${resolvedVersion}, ` +
-            `image_type: ${data.type},` +
-            `image_repo: ${data.image_repo}, ` +
-            `registry: ${data.registry || defaultRegistries[data.type]}`
-        )
-
-        const imageData = buildSummaryObj.filter(
-          entry =>
-            entry.flavor === data.flavor &&
-            entry.version === resolvedVersion &&
-            entry.image_type === data.type &&
-            entry.repository === data.image_repo &&
-            entry.registry === (data.registry || defaultRegistries[data.type])
-        )[0]
-
-        if (!imageData)
-          throw new Error(
-            `Build summary not found for flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, image_type: ${data.type}, ` +
+          logger.debug(
+            '🔍 Filtering by:',
+            `flavor: ${data.flavor}, ` +
+              `version: ${resolvedVersion}, ` +
+              `image_type: ${data.type},` +
               `image_repo: ${data.image_repo}, ` +
               `registry: ${data.registry || defaultRegistries[data.type]}`
           )
 
-        logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
+          const imageData = buildSummaryObj.filter(
+            entry =>
+              entry.flavor === data.flavor &&
+              entry.version === resolvedVersion &&
+              entry.image_type === data.type &&
+              entry.repository === data.image_repo &&
+              entry.registry === (data.registry || defaultRegistries[data.type])
+          )[0]
 
-        data.image =
-          `${imageData.registry}/` +
-          `${imageData.repository}:${imageData.image_tag}`
+          if (!imageData)
+            throw new Error(
+              `Build summary not found for flavor: ${data.flavor}, ` +
+                `version: ${resolvedVersion}, image_type: ${data.type}, ` +
+                `image_repo: ${data.image_repo}, ` +
+                `registry: ${data.registry || defaultRegistries[data.type]}`
+            )
 
-        const dispatchStatus = '✔ Dispatching'
+          logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 
-        updateSummaryTable(
-          data,
-          dispatchStatus,
-          `${stateRepoName}`,
-          summaryTable
-        )
+          data.image =
+            `${imageData.registry}/` +
+            `${imageData.repository}:${imageData.image_tag}`
 
-        gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
-            `for services ` +
-            `${(data.service_name_list || data.image_keys).join(', ')} ` +
-            `with dispatch event type ${data.dispatch_event_type}`
-        )
+          const dispatchStatus = '✔ Dispatching'
 
-        dispatchDone = true
-        data.message = dispatchStatus
-        groupedDispatches[stateRepoName] =
-          groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
-        groupedDispatches[stateRepoName][data.dispatch_event_type] =
-          groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
-        groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
-      }
-    }
-
-    if (!dispatchDone) {
-      logger.warn(
-        `No dispatch found matching the filters: ` +
-          `Type=${imageTypesList}, ` +
-          `Flavor=${flavorsList}, ` +
-          `Env=${envFilterList}, ` +
-          `Tenant=${tenantFilterList}, ` +
-          `Platform=${clusterFilterList}. ` +
-          `Using make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
-          `commit ${payloadCtx.sha}: ` +
-          `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
-          `${payloadCtx.sha}/${dispatchesFilePath}`
-      )
-
-      return []
-    } else {
-      const resultList = []
-      for (const stateRepo in groupedDispatches) {
-        for (const dispatchEventType in groupedDispatches[stateRepo]) {
-          const result = await gitController.dispatch(
-            stateRepo, // They all belong to the same repo
-            dispatchEventType, // They all have the same dispatch_event_type
-            groupedDispatches[stateRepo][dispatchEventType]
+          updateSummaryTable(
+            data,
+            dispatchStatus,
+            `${stateRepoName}`,
+            summaryTable
           )
-          resultList.push(result)
+
+          gitController.handleNotice(
+            `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
+              `for services ` +
+              `${(data.service_name_list || data.image_keys).join(', ')} ` +
+              `with dispatch event type ${data.dispatch_event_type}`
+          )
+
+          dispatchDone = true
+          data.message = dispatchStatus
+          groupedDispatches[stateRepoName] =
+            groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
+          groupedDispatches[stateRepoName][data.dispatch_event_type] =
+            groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
+          groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
         }
       }
 
-      return resultList
+      if (!dispatchDone) {
+        logger.warn(
+          `No dispatch found matching the filters: ` +
+            `Type=${imageTypesList}, ` +
+            `Flavor=${flavorsList}, ` +
+            `Env=${envFilterList}, ` +
+            `Tenant=${tenantFilterList}, ` +
+            `Platform=${clusterFilterList}. ` +
+            `Using make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
+            `commit ${payloadCtx.sha}: ` +
+            `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
+            `${payloadCtx.sha}/${dispatchesFilePath}`
+        )
+
+        return []
+      } else {
+        const resultList = []
+        for (const stateRepo in groupedDispatches) {
+          for (const dispatchEventType in groupedDispatches[stateRepo]) {
+            const result = await gitController.dispatch(
+              stateRepo, // They all belong to the same repo
+              dispatchEventType, // They all have the same dispatch_event_type
+              groupedDispatches[stateRepo][dispatchEventType]
+            )
+            resultList.push(result)
+          }
+        }
+
+        return resultList
+      }
+    } else {
+      return []
     }
   } catch (error) {
     console.log(error)

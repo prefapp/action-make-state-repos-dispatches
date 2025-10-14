@@ -55465,11 +55465,15 @@ async function makeDispatches(gitController) {
       } else {
         logger.warn(
           `No dispatch found matching the filters: ` +
-            `Type=${data.type}, TypeFilter=[${imageTypesList}] ///// ` +
-            `Flavor=${data.flavor}, FlavorFilter=[${flavorsList}] ///// ` +
-            `Env=${data.env}, EnvFilter=[${envFilterList}] ///// ` +
-            `Tenant=${data.tenant}, TenantFilter=[${tenantFilterList}] ///// ` +
-            `Platform=${data.platform}, PlatformFilter=[${clusterFilterList}]`
+            `Type=${imageTypesList}, ` +
+            `Flavor=${flavorsList}, ` +
+            `Env=${envFilterList}, ` +
+            `Tenant=${tenantFilterList}, ` +
+            `Platform=${clusterFilterList}. ` +
+            `Using make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
+            `commit ${payloadCtx.sha}: ` +
+            `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
+            `${payloadCtx.sha}/${dispatchesFilePath}`
         )
       }
     }

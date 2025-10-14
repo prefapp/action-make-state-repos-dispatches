@@ -55464,12 +55464,12 @@ async function makeDispatches(gitController) {
         groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
       } else {
         logger.warn(
-          `No valid dispatch found for the filters: ` +
-            `${data.type} in ${imageTypesList}, ` +
-            `${data.flavor} in ${flavorsList}, ` +
-            `${data.env} in ${envFilterList}, ` +
-            `${data.tenant} in ${tenantFilterList}, ` +
-            `${data.platform} in ${clusterFilterList}`
+          `No dispatch found matching the filters: ` +
+            `Type: ${data.type} in [${imageTypesList}], ` +
+            `Flavor: ${data.flavor} in [${flavorsList}], ` +
+            `Env: ${data.env} in [${envFilterList}], ` +
+            `Tenant: ${data.tenant} in [${tenantFilterList}], ` +
+            `Platform: ${data.platform} in [${clusterFilterList}]`
         )
       }
     }
@@ -55631,7 +55631,7 @@ function createDispatchList(
 
       if (showWarning) {
         logger.warn(
-          `No valid configuration found for deployment with ` +
+          `No matching configuration found for deployment with ` +
             `application ${deployment.application}, ` +
             `tenant ${deployment.tenant}, flavor ${deployment.flavor}, ` +
             `type ${deployment.type}, env ${deployment.env} ` +

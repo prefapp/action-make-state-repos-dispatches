@@ -54476,7 +54476,12 @@ async function makeDispatches(gitController) {
         return resultList
       }
     } else {
-      logger.debug('No dispatches to process')
+      logger.warn(
+        `Used make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
+          `commit ${payloadCtx.sha}: ` +
+          `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
+          `${payloadCtx.sha}/${dispatchesFilePath}`
+      )
       return []
     }
   } catch (error) {

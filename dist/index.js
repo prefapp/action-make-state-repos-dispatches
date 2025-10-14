@@ -4235,7 +4235,7 @@ module.exports = function create(fn) {
 
 /***/ }),
 
-/***/ 3540:
+/***/ 1159:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 var adapter = __nccwpck_require__(3451);
@@ -4557,7 +4557,7 @@ var diagnostics = create(function dev(namespace, options) {
 // Configure the logger for the given environment.
 //
 diagnostics.modify(__nccwpck_require__(910));
-diagnostics.use(__nccwpck_require__(3540));
+diagnostics.use(__nccwpck_require__(1159));
 diagnostics.set(__nccwpck_require__(602));
 
 //
@@ -20084,7 +20084,7 @@ exposeFormat('combine', function () { return __nccwpck_require__(8885); });
 exposeFormat('colorize', function () { return __nccwpck_require__(5085); });
 exposeFormat('json', function () { return __nccwpck_require__(5483); });
 exposeFormat('label', function () { return __nccwpck_require__(654); });
-exposeFormat('logstash', function () { return __nccwpck_require__(7955); });
+exposeFormat('logstash', function () { return __nccwpck_require__(5574); });
 exposeFormat('metadata', function () { return __nccwpck_require__(7847); });
 exposeFormat('ms', function () { return __nccwpck_require__(2786); });
 exposeFormat('padLevels', function () { return __nccwpck_require__(5925); });
@@ -20183,7 +20183,7 @@ module.exports = config => {
 
 /***/ }),
 
-/***/ 7955:
+/***/ 5574:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -25765,7 +25765,7 @@ module.exports = Comparator
 const parseOptions = __nccwpck_require__(356)
 const { safeRe: re, t } = __nccwpck_require__(5471)
 const cmp = __nccwpck_require__(8646)
-const debug = __nccwpck_require__(1159)
+const debug = __nccwpck_require__(3540)
 const SemVer = __nccwpck_require__(7163)
 const Range = __nccwpck_require__(6782)
 
@@ -25994,7 +25994,7 @@ const cache = new LRU()
 
 const parseOptions = __nccwpck_require__(356)
 const Comparator = __nccwpck_require__(9379)
-const debug = __nccwpck_require__(1159)
+const debug = __nccwpck_require__(3540)
 const SemVer = __nccwpck_require__(7163)
 const {
   safeRe: re,
@@ -26336,7 +26336,7 @@ const testSet = (set, version, options) => {
 /***/ 7163:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const debug = __nccwpck_require__(1159)
+const debug = __nccwpck_require__(3540)
 const { MAX_LENGTH, MAX_SAFE_INTEGER } = __nccwpck_require__(5101)
 const { safeRe: re, safeSrc: src, t } = __nccwpck_require__(5471)
 
@@ -27145,7 +27145,7 @@ const Comparator = __nccwpck_require__(9379)
 const Range = __nccwpck_require__(6782)
 const satisfies = __nccwpck_require__(8011)
 const toComparators = __nccwpck_require__(4750)
-const maxSatisfying = __nccwpck_require__(5574)
+const maxSatisfying = __nccwpck_require__(7955)
 const minSatisfying = __nccwpck_require__(8595)
 const minVersion = __nccwpck_require__(1866)
 const validRange = __nccwpck_require__(4737)
@@ -27248,7 +27248,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1159:
+/***/ 3540:
 /***/ ((module) => {
 
 const debug = (
@@ -27371,7 +27371,7 @@ const {
   MAX_SAFE_BUILD_LENGTH,
   MAX_LENGTH,
 } = __nccwpck_require__(5101)
-const debug = __nccwpck_require__(1159)
+const debug = __nccwpck_require__(3540)
 exports = module.exports = {}
 
 // The actual regexps go on exports.re
@@ -27625,7 +27625,7 @@ module.exports = ltr
 
 /***/ }),
 
-/***/ 5574:
+/***/ 7955:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const SemVer = __nccwpck_require__(7163)
@@ -55267,7 +55267,6 @@ function wrappy (fn, cb) {
 /***/ 1288:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-// const debug = require('debug')('make-state-repos-dispatches')
 const logger = __nccwpck_require__(6448)
 const refHelper = __nccwpck_require__(6828)
 const textHelper = __nccwpck_require__(2356)
@@ -55886,7 +55885,7 @@ module.exports = {
 
 const core = __nccwpck_require__(7484)
 const github = __nccwpck_require__(3228)
-const debug = __nccwpck_require__(2830)('make-state-repos-dispatches')
+const logger = __nccwpck_require__(6448)
 const semver = __nccwpck_require__(2088)
 
 const _payloadCtx = {
@@ -56004,12 +56003,12 @@ function getAllInputs() {
 }
 
 function getPayloadContext() {
-  debug('Getting payload context', _payloadCtx)
+  logger.debug('Getting payload context', _payloadCtx)
   return _payloadCtx
 }
 
 function getRepoContext() {
-  debug('Getting repo context', github.context.repo)
+  logger.debug('Getting repo context', github.context.repo)
   return github.context.repo
 }
 

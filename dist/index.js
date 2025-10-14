@@ -55465,10 +55465,10 @@ async function makeDispatches(gitController) {
       } else {
         logger.warn(
           `No dispatch found matching the filters: ` +
-            `Type=${data.type}, TypeFilter=[${imageTypesList}] ///` +
-            `Flavor=${data.flavor}, FlavorFilter=[${flavorsList}] ///` +
-            `Env=${data.env}, EnvFilter=[${envFilterList}] ///` +
-            `Tenant=${data.tenant}, TenantFilter=[${tenantFilterList}] ///` +
+            `Type=${data.type}, TypeFilter=[${imageTypesList}] ///// ` +
+            `Flavor=${data.flavor}, FlavorFilter=[${flavorsList}] ///// ` +
+            `Env=${data.env}, EnvFilter=[${envFilterList}] ///// ` +
+            `Tenant=${data.tenant}, TenantFilter=[${tenantFilterList}] ///// ` +
             `Platform=${data.platform}, PlatformFilter=[${clusterFilterList}]`
         )
       }

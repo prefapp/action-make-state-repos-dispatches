@@ -195,12 +195,12 @@ async function makeDispatches(gitController) {
         groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
       } else {
         logger.warn(
-          `No dispatch found matching the filters: ` +
-            `Type: ${data.type} in [${imageTypesList}], ` +
-            `Flavor: ${data.flavor} in [${flavorsList}], ` +
-            `Env: ${data.env} in [${envFilterList}], ` +
-            `Tenant: ${data.tenant} in [${tenantFilterList}], ` +
-            `Platform: ${data.platform} in [${clusterFilterList}]`
+          `No dispatch found matching the filters:
+Type: ${data.type} in [${imageTypesList}],
+Flavor: ${data.flavor} in [${flavorsList}],
+Env: ${data.env} in [${envFilterList}],
+Tenant: ${data.tenant} in [${tenantFilterList}],
+Platform: ${data.platform} in [${clusterFilterList}]`
         )
       }
     }

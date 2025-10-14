@@ -231,6 +231,7 @@ async function makeDispatches(gitController) {
         return resultList
       }
     } else {
+      logger.debug('No dispatches to process')
       return []
     }
   } catch (error) {

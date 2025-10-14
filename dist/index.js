@@ -55384,7 +55384,7 @@ async function makeDispatches(gitController) {
       overwriteEnv
     )
 
-    if (dispatchList) {
+    if (dispatchList.length !== 0) {
       const groupedDispatches = {}
       let dispatchDone = false
       for (const data of dispatchList) {

@@ -54476,7 +54476,7 @@ async function makeDispatches(gitController) {
         return resultList
       }
     } else {
-      logger.warn(
+      logger.info(
         `Used make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
           `commit ${payloadCtx.sha}: ` +
           `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
@@ -55300,6 +55300,7 @@ function initLogger() {
 
     if (level === 'error') return `::error::${msg}`
     if (level === 'warn') return `::warning::${msg}`
+    if (level === 'info') return `::notice::${msg}`
 
     return `[${info.level}]: ${msg}`
   })

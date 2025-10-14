@@ -29,6 +29,7 @@ function initLogger() {
 
     if (level === 'error') return `::error::${msg}`
     if (level === 'warn') return `::warning::${msg}`
+    if (level === 'info') return `::notice::${msg}`
 
     return `[${info.level}]: ${msg}`
   })

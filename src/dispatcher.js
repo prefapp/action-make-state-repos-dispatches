@@ -231,7 +231,7 @@ async function makeDispatches(gitController) {
         return resultList
       }
     } else {
-      logger.warn(
+      logger.info(
         `Used make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
           `commit ${payloadCtx.sha}: ` +
           `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +

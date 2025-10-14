@@ -116,6 +116,7 @@ async function makeDispatches(gitController) {
     )
 
     const groupedDispatches = {}
+    let dispatchDone = false
     for (const data of dispatchList) {
       if (
         isDispatchValid(
@@ -187,41 +188,46 @@ async function makeDispatches(gitController) {
             `with dispatch event type ${data.dispatch_event_type}`
         )
 
+        dispatchDone = true
         data.message = dispatchStatus
         groupedDispatches[stateRepoName] =
           groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
         groupedDispatches[stateRepoName][data.dispatch_event_type] =
           groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
         groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
-      } else {
-        logger.warn(
-          `No dispatch found matching the filters: ` +
-            `Type=${imageTypesList}, ` +
-            `Flavor=${flavorsList}, ` +
-            `Env=${envFilterList}, ` +
-            `Tenant=${tenantFilterList}, ` +
-            `Platform=${clusterFilterList}. ` +
-            `Using make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
-            `commit ${payloadCtx.sha}: ` +
-            `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
-            `${payloadCtx.sha}/${dispatchesFilePath}`
-        )
       }
     }
 
-    const resultList = []
-    for (const stateRepo in groupedDispatches) {
-      for (const dispatchEventType in groupedDispatches[stateRepo]) {
-        const result = await gitController.dispatch(
-          stateRepo, // They all belong to the same repo
-          dispatchEventType, // They all have the same dispatch_event_type
-          groupedDispatches[stateRepo][dispatchEventType]
-        )
-        resultList.push(result)
-      }
-    }
+    if (!dispatchDone) {
+      logger.warn(
+        `No dispatch found matching the filters: ` +
+          `Type=${imageTypesList}, ` +
+          `Flavor=${flavorsList}, ` +
+          `Env=${envFilterList}, ` +
+          `Tenant=${tenantFilterList}, ` +
+          `Platform=${clusterFilterList}. ` +
+          `Using make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
+          `commit ${payloadCtx.sha}: ` +
+          `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
+          `${payloadCtx.sha}/${dispatchesFilePath}`
+      )
 
-    return resultList
+      return []
+    } else {
+      const resultList = []
+      for (const stateRepo in groupedDispatches) {
+        for (const dispatchEventType in groupedDispatches[stateRepo]) {
+          const result = await gitController.dispatch(
+            stateRepo, // They all belong to the same repo
+            dispatchEventType, // They all have the same dispatch_event_type
+            groupedDispatches[stateRepo][dispatchEventType]
+          )
+          resultList.push(result)
+        }
+      }
+
+      return resultList
+    }
   } catch (error) {
     console.log(error)
 

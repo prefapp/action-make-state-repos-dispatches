@@ -207,13 +207,8 @@ async function makeDispatches(gitController) {
             `Flavor=${flavorsList}, ` +
             `Env=${envFilterList}, ` +
             `Tenant=${tenantFilterList}, ` +
-            `Platform=${clusterFilterList}. ` +
-            `Config file used: ` +
-            `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
-            `${payloadCtx.sha}/${dispatchesFilePath}`
+            `Platform=${clusterFilterList}. `
         )
-
-        return []
       } else {
         const resultList = []
         for (const stateRepo in groupedDispatches) {
@@ -229,23 +224,19 @@ async function makeDispatches(gitController) {
 
         return resultList
       }
-    } else {
-      logger.info(
-        `Config file used: https://github.com/${payloadCtx.owner}/` +
-          `${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
-      )
-      return []
     }
+
+    return []
   } catch (error) {
     console.log(error)
 
     // Fail the workflow run if an error occurs
-    const msg =
-      `${error.message} - Config file used: ` +
-      `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/` +
-      `blob/${payloadCtx.sha}/${dispatchesFilePath}`
-    gitController.handleFailure(msg)
+    gitController.handleFailure(error.message)
   } finally {
+    logger.info(
+      `Config file used: https://github.com/${payloadCtx.owner}/` +
+        `${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
+    )
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
 }

@@ -54453,8 +54453,7 @@ async function makeDispatches(gitController) {
             `Env=${envFilterList}, ` +
             `Tenant=${tenantFilterList}, ` +
             `Platform=${clusterFilterList}. ` +
-            `Using make_dispatches.yaml file from ref ${payloadCtx.ref}, ` +
-            `commit ${payloadCtx.sha}: ` +
+            `Config file used: ` +
             `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/` +
             `${payloadCtx.sha}/${dispatchesFilePath}`
         )

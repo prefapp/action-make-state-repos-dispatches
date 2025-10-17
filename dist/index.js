@@ -55318,7 +55318,7 @@ function doLog(level, args) {
 
   if (data) {
     try {
-      finalMessage = `${finalMessage} | ${JSON.stringify(data?.metadata, 2)}`
+      finalMessage = `${finalMessage} | ${JSON.stringify(data?.metadata, null, 2)}`
     } catch (err) {
       console.error(`Serializing ${message}: ${err}`)
 

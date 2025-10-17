@@ -54362,7 +54362,6 @@ async function makeDispatches(gitController) {
 
     if (dispatchList.length !== 0) {
       const groupedDispatches = {}
-      let dispatchDone = false
       for (const data of dispatchList) {
         if (
           isDispatchValid(
@@ -54435,7 +54434,6 @@ async function makeDispatches(gitController) {
               `with dispatch event type ${data.dispatch_event_type}`
           )
 
-          dispatchDone = true
           data.message = dispatchStatus
           groupedDispatches[stateRepoName] =
             groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
@@ -54445,7 +54443,7 @@ async function makeDispatches(gitController) {
         }
       }
 
-      if (!dispatchDone) {
+      if (Object.keys(groupedDispatches).length === 0) {
         logger.warn(
           `No dispatch found matching the filters: ` +
             `Type=${imageTypesList}, ` +

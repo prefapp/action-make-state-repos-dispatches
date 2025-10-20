@@ -1,6 +1,5 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
-const debug = require('debug')('make-state-repos-dispatches')
 const ghHelper = require('../utils/github-helper')
 
 jest.mock('@actions/core', () => ({

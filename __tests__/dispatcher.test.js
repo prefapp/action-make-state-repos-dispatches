@@ -1,4 +1,4 @@
-const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
 const YAML = require('js-yaml')
@@ -81,16 +81,16 @@ const gitControllerMock = {
     return result
   },
   handleNotice: msg => {
-    debug(msg)
+    logger.debug(msg)
   },
   handleFailure: msg => {
-    debug(msg)
+    logger.debug(msg)
   },
   handleSummary: (msg, table) => {
-    debug(msg)
+    logger.debug(msg)
   },
   handleError: msg => {
-    debug(msg)
+    logger.debug(msg)
   }
 }
 const imageHelperMock = {
@@ -799,7 +799,7 @@ describe('The dispatcher', () => {
         throw new Error('Git controller managed failure')
       },
       handleSummary: (msg, table) => {
-        debug(msg)
+        logger.debug(msg)
       },
       getAllInputs: () => {
         return allInputs

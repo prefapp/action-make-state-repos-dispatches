@@ -2,11 +2,14 @@
 
 ## [4.0.5](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.4...v4.0.5) (2025-10-20)
 
-
 ### Bug Fixes
 
-* Added additional logs ([#133](https://github.com/prefapp/action-make-state-repos-dispatches/issues/133)) ([218e7f0](https://github.com/prefapp/action-make-state-repos-dispatches/commit/218e7f04721d96b30841d669ce30919ee37b5fbc))
-* Added additional logs when no configuration is found for an app ([#131](https://github.com/prefapp/action-make-state-repos-dispatches/issues/131)) ([7ef0ce7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7ef0ce75d6deab8d5705226298a6e37791b2b4e1))
+- Added additional logs
+  ([#133](https://github.com/prefapp/action-make-state-repos-dispatches/issues/133))
+  ([218e7f0](https://github.com/prefapp/action-make-state-repos-dispatches/commit/218e7f04721d96b30841d669ce30919ee37b5fbc))
+- Added additional logs when no configuration is found for an app
+  ([#131](https://github.com/prefapp/action-make-state-repos-dispatches/issues/131))
+  ([7ef0ce7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7ef0ce75d6deab8d5705226298a6e37791b2b4e1))
 
 ## [4.0.4](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.3...v4.0.4) (2025-06-19)
 

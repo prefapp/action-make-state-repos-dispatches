@@ -1,15 +1,46 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
-const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 const semver = require('semver')
 
 const _payloadCtx = {
   owner: github.context.payload.repository.owner.login,
-  repo: github.context.payload.repository.name
+  repo: github.context.payload.repository.name,
+  ref: github.context.ref,
+  sha: github.context.sha
 }
 
-const _token = core.getInput('token', true)
-const _octokit = github.getOctokit(_token)
+/**
+ * In order to be able to have the minimum required permissions in the GitHub App,
+ * we only use the GitHub App token to create dispatch events and the GitHub token
+ * to read the repository information, such as the latest release, file contents, etc.
+ * This way, we can avoid using the GitHub App token for read operations, which would
+ * require additional permissions that we don't need.
+ */
+
+const GITHUB_READ_ONLY_TOKEN = core.getInput('read_token', true)
+const readOnlyOctokit = github.getOctokit(GITHUB_READ_ONLY_TOKEN)
+
+const GITHUB_APP_TOKEN = core.getInput('token', true)
+const appOctokit = github.getOctokit(GITHUB_APP_TOKEN)
+
+// We use `module.exports` in this module to allow using spyOn in tests so we can validate
+// that the dispatch event is being created with the correct authentication
+
+/**
+ * To call this functions we call it through the module.exports object. This allows
+ * us to use spyOn in tests to validate that the dispatch event is being created
+ * with the correct authentication (e.g. `module.exports.getReadOnlyOctokit()`).
+ */
+
+function getReadOnlyOctokit() {
+  return readOnlyOctokit
+}
+
+function getAppOctokit() {
+  return appOctokit
+}
+
 const regex = /([0-9]+)(\.[0-9]+)?(\.[0-9]+)?/
 
 function _resolveSemver(version) {
@@ -87,22 +118,18 @@ function getAllInputs() {
 }
 
 function getPayloadContext() {
-  debug('Getting payload context', _payloadCtx)
+  logger.debug('Getting payload context', _payloadCtx)
   return _payloadCtx
 }
 
 function getRepoContext() {
-  debug('Getting repo context', github.context.repo)
+  logger.debug('Getting repo context', github.context.repo)
   return github.context.repo
-}
-
-function getOctokit() {
-  return _octokit
 }
 
 async function getLatestRelease(payload) {
   try {
-    const octokit = getOctokit()
+    const octokit = module.exports.getReadOnlyOctokit()
 
     if (payload.tag) {
       return await getLatestTaggedRelease(payload, octokit)
@@ -168,7 +195,7 @@ async function getHighestSemVerTaggedRelease(tag_filter, releases) {
 
 async function getLatestPrerelease(payload) {
   try {
-    const octokit = getOctokit()
+    const octokit = module.exports.getReadOnlyOctokit()
 
     const listReleasesResponse = await octokit.rest.repos.listReleases(payload)
 
@@ -196,7 +223,7 @@ function sortReleasesByTime(releases) {
 
 async function getLastBranchCommit(payload, short = true) {
   try {
-    const octokit = getOctokit()
+    const octokit = module.exports.getReadOnlyOctokit()
 
     const getBranchResponse = await octokit.rest.repos.getBranch(payload)
 
@@ -211,15 +238,16 @@ async function getLastBranchCommit(payload, short = true) {
   }
 }
 
-async function getFileContent(filePath) {
+async function getFileContent(filePath, reference) {
   try {
     const ctx = getPayloadContext()
-    const octokit = getOctokit()
+    const octokit = module.exports.getReadOnlyOctokit()
 
     const fileResponse = await octokit.rest.repos.getContent({
       owner: ctx.owner,
       repo: ctx.repo,
-      path: filePath
+      path: filePath,
+      ref: reference
     })
 
     if (fileResponse.status !== 200) {
@@ -244,7 +272,7 @@ async function getSummaryDataForRef(ref, workflowName) {
     console.info(
       `Getting check run summary for ref: ${ref} and workflow: ${workflowName}`
     )
-    const octokit = getOctokit()
+    const octokit = module.exports.getReadOnlyOctokit()
     const ctx = getPayloadContext()
 
     const resp = await octokit.request(
@@ -289,7 +317,7 @@ async function getSummaryDataForRef(ref, workflowName) {
 
 async function dispatch(stateRepoName, dispatchEventType, dispatchMatrix) {
   try {
-    const octokit = getOctokit()
+    const octokit = module.exports.getAppOctokit()
     const ownerAndRepo = stateRepoName.split('/')
     const owner = ownerAndRepo[0]
     const repo = ownerAndRepo[1]
@@ -335,7 +363,8 @@ module.exports = {
   getInput,
   getPayloadContext,
   getRepoContext,
-  getOctokit,
+  getReadOnlyOctokit,
+  getAppOctokit,
   getLatestRelease,
   getLatestPrerelease,
   sortReleasesByTime,

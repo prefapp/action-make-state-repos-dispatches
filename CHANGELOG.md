@@ -1,5 +1,46 @@
 # Changelog
 
+## [4.0.5](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.4...v4.0.5) (2025-10-20)
+
+### Bug Fixes
+
+- Added additional logs
+  ([#133](https://github.com/prefapp/action-make-state-repos-dispatches/issues/133))
+  ([218e7f0](https://github.com/prefapp/action-make-state-repos-dispatches/commit/218e7f04721d96b30841d669ce30919ee37b5fbc))
+- Added additional logs when no configuration is found for an app
+  ([#131](https://github.com/prefapp/action-make-state-repos-dispatches/issues/131))
+  ([7ef0ce7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7ef0ce75d6deab8d5705226298a6e37791b2b4e1))
+
+## [4.0.4](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.3...v4.0.4) (2025-06-19)
+
+### Bug Fixes
+
+- make_dispatches file link
+  ([#124](https://github.com/prefapp/action-make-state-repos-dispatches/issues/124))
+  ([10071c7](https://github.com/prefapp/action-make-state-repos-dispatches/commit/10071c7da33df134601616e7fdcdadea4c3ac843))
+
+## [4.0.3](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.2...v4.0.3) (2025-06-17)
+
+### Bug Fixes
+
+- Improved dispatcher logs
+  ([#105](https://github.com/prefapp/action-make-state-repos-dispatches/issues/105))
+  ([b648866](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b6488663dfdedc1e58d3cfcaa331ac0761f41d2f))
+- workflows
+  ([591a9d1](https://github.com/prefapp/action-make-state-repos-dispatches/commit/591a9d158c9e181cde3c3e20a76e348b9484138b))
+
+## [4.0.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.1...v4.0.2) (2025-06-06)
+
+### Bug Fixes
+
+- Add new input parameter to reduce github app permissions
+  ([#110](https://github.com/prefapp/action-make-state-repos-dispatches/issues/110))
+  ([d746ef8](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d746ef8eac3cefb1597502b529e6738b6d53dbfb))
+- json parse
+  ([2df0356](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2df0356cd45fe05a32aeaf6bc66fabf91e1b26e2))
+- workflow
+  ([b438901](https://github.com/prefapp/action-make-state-repos-dispatches/commit/b438901c7a98d236ac70e336737d7a40e6e50663))
+
 ## [4.0.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.0...v4.0.1) (2025-04-10)
 
 ### Bug Fixes

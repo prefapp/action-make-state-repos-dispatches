@@ -5,27 +5,40 @@ author: 'Prefapp'
 # Define your inputs here.
 inputs:
   dispatches_file:
-    description: 'Path to the make_dispatches.yaml file of your repo'
+    description:
+      'Path to the config file in the repository. It will be downloaded
+      dynamically from the GITHUB_SHA of the trigger event'
     required: true
     default: '.github/make_dispatches.yaml'
   apps_folder:
-    description: 'Path to the apps folder of your repo'
+    description:
+      'Local path to the apps folder of the .firestartr configuration'
     required: true
     default: '.firestartr/apps'
   platform_folder:
-    description: 'Path to the cluster folder of your repo'
+    description:
+      'Local path to the cluster folder of the .firestartr configuration'
     required: true
     default: '.firestartr/clusters'
   registries_folder:
-    description: 'Path to the registries folder of your repo'
+    description:
+      'Local path to the registries folder of the .firestartr configuration'
     required: true
     default: '.firestartr/docker_registries'
   token:
-    description: GitHub token
-    required: false
+    description: |
+      GitHub token of a GitHub app or user with `contents:write` permissions
+      over the state repository. It's **mandatory** to pass a PAT token of an
+      user or GitHub app with the needed permission.
+    required: true
+  read_token:
+    description: |
+      GitHub token with permissions for operations in the repository where
+      the action is used (defaults to GITHUB_TOKEN)
     default: ${{ github.token }}
+    required: true
   image_type:
-    description:
+    description: |
       Image types to filter in the dispatches file (releases, snapshots, *).
       Default to all (*)
     required: false
@@ -36,37 +49,37 @@ inputs:
     required: false
     default: default
   filter_by_env:
-    description:
+    description: |
       Dispatch only to dispatches whose environment is included in this filter,
       if specified. Can be a comma separated list of environments or * (all)
     required: true
     default: '*'
   filter_by_tenant:
-    description:
+    description: |
       Dispatch only to dispatches whose tenant is included in this filter, if
       specified. Can be a comma separated list of tenants or * (all)
     required: true
     default: '*'
   filter_by_platform:
-    description:
+    description: |
       Dispatch only to dispatches whose platform is included in this filter, if
       specified. Can be a comma separated list of clusters or * (all)
     required: true
     default: '*'
   overwrite_version:
-    description:
+    description: |
       Dispatch using this version instead of the one defined in the dispatches
       file (can be a short-sha or a release tag)
     required: false
     default: ''
   overwrite_tenant:
-    description:
+    description: |
       Dispatch using this tenant instead of using the one defined in the
       dispatches file, related to the flavor to deploy.
     required: false
     default: ''
   overwrite_env:
-    description:
+    description: |
       Dispatch using this environment instead of using the one defined in the
       dispatches file, related to the flavor to deploy.
     required: false
@@ -78,7 +91,7 @@ inputs:
     description: Default registry to use when dispatching snapshots
     required: false
   reviewers:
-    description:
+    description: |
       List of reviewers' login username, separated by commas, to include in the
       state repo pull request.
     required: false

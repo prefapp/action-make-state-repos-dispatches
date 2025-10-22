@@ -3,4 +3,4 @@ registry: snapshots.reg
 default: true
 image_types: [snapshots]
 base_paths:
-  services: 'wips'
+  services: 'service'

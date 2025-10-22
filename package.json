@@ -1,7 +1,7 @@
 {
   "name": "javascript-action",
   "description": "GitHub Actions JavaScript Template",
-  "version": "4.0.0",
+  "version": "4.0.5",
   "author": "",
   "private": true,
   "homepage": "https://github.com/actions/javascript-action#readme",
@@ -67,9 +67,9 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
-    "debug": "^4.4.0",
     "ajv": "^8.17.1",
     "yaml": "^2.7.0",
+    "winston": "^3.17.0",
     "semver": "^7.7.1"
   },
   "devDependencies": {

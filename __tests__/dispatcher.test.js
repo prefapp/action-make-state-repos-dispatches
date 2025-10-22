@@ -1,4 +1,4 @@
-const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 const dispatcher = require('../src/dispatcher')
 const fs = require('fs')
 const YAML = require('js-yaml')
@@ -7,7 +7,7 @@ const configHelper = require('../utils/config-helper')
 
 const defaultDispatchesFilePath = 'fixtures/dispatches_file.yaml'
 const allInputs = {
-  dispatchesFilePath: path.join(__dirname, '../fixtures/dispatches_file.yaml'),
+  dispatchesFilePath: 'dispatches_file.yaml',
   appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
   clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
   registriesFolderPath: path.join(
@@ -51,7 +51,7 @@ const gitControllerMock = {
   getAllInputs: () => {
     return allInputs
   },
-  getFileContent: filePath => {
+  getFileContent: (filePath, ref = '') => {
     return Buffer.from(
       fs.readFileSync(path.join('fixtures', filePath))
     ).toString('base64')
@@ -64,8 +64,8 @@ const gitControllerMock = {
   },
   getRepoContext: () => {
     return {
-      owner: 'repo-ctx-owner',
-      repo: 'repo-ctx-repo'
+      owner: 'my-org',
+      repo: 'my-repo'
     }
   },
   getSummaryDataForRef: (ref, checkRunName) => {
@@ -81,16 +81,16 @@ const gitControllerMock = {
     return result
   },
   handleNotice: msg => {
-    debug(msg)
+    logger.debug(msg)
   },
   handleFailure: msg => {
-    debug(msg)
+    logger.debug(msg)
   },
   handleSummary: (msg, table) => {
-    debug(msg)
+    logger.debug(msg)
   },
   handleError: msg => {
-    debug(msg)
+    logger.debug(msg)
   }
 }
 const imageHelperMock = {
@@ -116,7 +116,7 @@ describe('The dispatcher', () => {
       'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
     ])
     expect(dispatches[2]).toEqual([
-      'registry23/service/my-other-org/my-other-repo:v2.3-flavor2-pro published in test-overwrite-state-repo'
+      'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
   })
 
@@ -142,7 +142,7 @@ describe('The dispatcher', () => {
       'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
     ])
     expect(dispatches[2]).toEqual([
-      'registry23/service/my-other-org/my-other-repo:v2.3-flavor2-pro published in test-overwrite-state-repo'
+      'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
   })
 
@@ -186,6 +186,7 @@ describe('The dispatcher', () => {
     )
 
     const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
       dispatches.deployments,
       [],
       'test-repo-caller',
@@ -205,6 +206,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
+      image_repo: 'service/my-org/my-repo',
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -221,6 +223,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant23',
       app: 'application23',
       env: 'env23',
+      image_repo: 'repo23',
       image_keys: ['image_key23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -238,6 +241,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant23',
       app: 'application23',
       env: 'env23',
+      image_repo: 'repo23',
       service_name_list: ['service2', 'service23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -265,6 +269,7 @@ describe('The dispatcher', () => {
       'another_service4'
     ]
     const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
       dispatchesFileObj.deployments,
       [],
       'test-repo-caller',
@@ -283,6 +288,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
+      image_repo: 'service/my-org/my-repo',
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -307,6 +313,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -335,6 +342,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -371,6 +379,7 @@ describe('The dispatcher', () => {
       'another_tenant4'
     ]
     const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
       dispatchesFileObj.deployments,
       [],
       'test-repo-caller',
@@ -389,6 +398,7 @@ describe('The dispatcher', () => {
       tenant: 'tenant1',
       app: 'application1',
       env: 'env1',
+      image_repo: 'service/my-org/my-repo',
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -415,6 +425,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -431,6 +442,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -446,6 +458,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -469,6 +482,7 @@ describe('The dispatcher', () => {
 
     expect(() => {
       dispatcher.createDispatchList(
+        'my-org/my-repo',
         dispatchesFileObj.deployments,
         [],
         'test-repo-caller',
@@ -785,7 +799,13 @@ describe('The dispatcher', () => {
         throw new Error('Git controller managed failure')
       },
       handleSummary: (msg, table) => {
-        debug(msg)
+        logger.debug(msg)
+      },
+      getAllInputs: () => {
+        return allInputs
+      },
+      getPayloadContext: () => {
+        return {}
       }
     }
 
@@ -794,31 +814,25 @@ describe('The dispatcher', () => {
     ).rejects.toThrow('Git controller managed failure')
   })
 
-  it('can get the dispatches file content, both locally and remotely', async () => {
-    const localFilePath = path.join(
-      __dirname,
-      '../fixtures/dispatches_file.yaml'
-    )
-    const expectedLocalResult = fs
-      .readFileSync(localFilePath)
-      .toString('base64')
-    const localFileContent = await dispatcher.getDispatchesFileContent(
-      localFilePath,
-      gitControllerMock
-    )
-
-    expect(localFileContent).toEqual(expectedLocalResult)
-
+  it("can get the dispatches file content remotely, and throws an error when it doesn't find it", async () => {
     const remoteFilePath = 'dispatches_file.yaml'
     const expectedRemoteResult = fs
       .readFileSync(path.join('fixtures', remoteFilePath))
       .toString('base64')
     const remoteFileContent = await dispatcher.getDispatchesFileContent(
       remoteFilePath,
-      gitControllerMock
+      gitControllerMock,
+      {}
     )
 
     expect(remoteFileContent).toEqual(expectedRemoteResult)
+
+    const fakeFilePath = 'nonexistent.yaml'
+    await expect(
+      dispatcher.getDispatchesFileContent(fakeFilePath, gitControllerMock, {
+        ref: 'error'
+      })
+    ).rejects.toThrow('Error getting make_dispatches.yaml file')
   })
 
   it('correctly throws an error when one happens while obtaining the latest build summary', async () => {

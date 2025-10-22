@@ -1,7 +1,7 @@
-const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 
 async function getLatestRef(version, gitController, shortSha = true) {
-  debug('Calculating image name for action type %s', version)
+  logger.debug('Calculating image name for action type %s', version)
   let ref = null
   switch (version) {
     case '$latest_prerelease':

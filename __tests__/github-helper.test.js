@@ -1,6 +1,5 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
-const debug = require('debug')('make-state-repos-dispatches')
 const ghHelper = require('../utils/github-helper')
 
 jest.mock('@actions/core', () => ({
@@ -212,7 +211,7 @@ describe('github-helper', () => {
   })
 
   it('can get the octokit object when needed', async () => {
-    const result = ghHelper.getOctokit()
+    const result = ghHelper.getReadOnlyOctokit()
 
     expect(result).not.toEqual(null)
   })
@@ -424,7 +423,14 @@ describe('github-helper', () => {
   })
 
   it('can make dispatches', async () => {
+    const getAppOctokitSpy = jest.spyOn(ghHelper, 'getAppOctokit')
+
     const result = await ghHelper.dispatch('', '', { repo: '' })
+
+    // Validate that is using the app octokit
+    expect(getAppOctokitSpy).toHaveBeenCalled()
+
+    getAppOctokitSpy.mockRestore()
 
     expect(result).toEqual(true)
   })

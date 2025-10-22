@@ -1,4 +1,4 @@
-const debug = require('debug')('make-state-repos-dispatches')
+const logger = require('../utils/logger')
 const refHelper = require('../utils/ref-helper')
 const textHelper = require('../utils/text-helper')
 const path = require('path')
@@ -26,43 +26,47 @@ async function makeDispatches(gitController) {
       { data: 'Status', header: true }
     ]
   ]
+  const payloadCtx = gitController.getPayloadContext()
+
+  // Parse action inputs
+  logger.debug('Parsing action inputs')
+
+  const {
+    dispatchesFilePath,
+    appsFolderPath,
+    clustersFolderPath,
+    registriesFolderPath,
+    imageType,
+    defaultReleasesRegistry,
+    defaultSnapshotsRegistry,
+    buildSummary,
+    flavorFilter,
+    envFilter,
+    tenantFilter,
+    clusterFilter,
+    overwriteVersion,
+    overwriteEnv,
+    overwriteTenant,
+    reviewers,
+    checkRunName
+  } = gitController.getAllInputs()
 
   try {
-    // Parse action inputs
-    debug('Parsing action inputs')
-
-    const {
-      dispatchesFilePath,
-      appsFolderPath,
-      clustersFolderPath,
-      registriesFolderPath,
-      imageType,
-      defaultReleasesRegistry,
-      defaultSnapshotsRegistry,
-      buildSummary,
-      flavorFilter,
-      envFilter,
-      tenantFilter,
-      clusterFilter,
-      overwriteVersion,
-      overwriteEnv,
-      overwriteTenant,
-      reviewers,
-      checkRunName
-    } = gitController.getAllInputs()
-    const payloadCtx = gitController.getPayloadContext()
-
-    debug('Loading dispatches file content from path', dispatchesFilePath)
+    logger.debug(
+      'Loading dispatches file content from path',
+      dispatchesFilePath
+    )
     const dispatchesFileContent = await getDispatchesFileContent(
       dispatchesFilePath,
-      gitController
+      gitController,
+      payloadCtx
     )
 
     const dispatchesData = configHelper.configParse(
       dispatchesFileContent,
       'base64'
     )
-    debug('Dispatches file content (validated)', dispatchesData)
+    logger.debug('Dispatches file content (validated)', dispatchesData)
 
     let getBuildSummaryData = async version =>
       await getLatestBuildSummary(version, gitController, checkRunName)
@@ -88,6 +92,8 @@ async function makeDispatches(gitController) {
     const clusterFilterList =
       clusterFilter === '*' ? '*' : getListFromInput(clusterFilter)
 
+    const repoContext = gitController.getRepoContext()
+    const defaultImageRepository = `${repoContext.owner}/${repoContext.repo}`
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
     const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
     const registriesConfig = configHelper.getRegistriesConfig(
@@ -97,6 +103,7 @@ async function makeDispatches(gitController) {
     )
 
     const dispatchList = createDispatchList(
+      defaultImageRepository,
       dispatchesData.deployments,
       reviewersList,
       payloadCtx.repo,
@@ -108,110 +115,142 @@ async function makeDispatches(gitController) {
       overwriteEnv
     )
 
-    const groupedDispatches = {}
-    for (const data of dispatchList) {
-      if (
-        isDispatchValid(
-          data,
-          imageTypesList,
-          flavorsList,
-          envFilterList,
-          tenantFilterList,
-          clusterFilterList
-        )
-      ) {
-        const resolvedVersion = await refHelper.getLatestRef(
-          data.version,
-          gitController
-        )
-        const stateRepoName = data.state_repo || appConfig[data.app].state_repo
-        const buildSummaryObj = await getBuildSummaryData(data.version)
+    if (dispatchList.length !== 0) {
+      const groupedDispatches = {}
+      for (const data of dispatchList) {
+        if (
+          isDispatchValid(
+            data,
+            imageTypesList,
+            flavorsList,
+            envFilterList,
+            tenantFilterList,
+            clusterFilterList
+          )
+        ) {
+          const resolvedVersion = await refHelper.getLatestRef(
+            data.version,
+            gitController
+          )
+          const stateRepoName =
+            data.state_repo || appConfig[data.app].state_repo
+          const buildSummaryObj = await getBuildSummaryData(data.version)
 
-        debug('📜 Summary builds >', JSON.stringify(buildSummaryObj, null, 2))
-
-        debug(
-          '🔍 Filtering by:',
-          `flavor: ${data.flavor}, ` +
-            `version: ${resolvedVersion}, ` +
-            `image_type: ${data.type}`
-        )
-
-        const imageData = buildSummaryObj.filter(
-          entry =>
-            entry.flavor === data.flavor &&
-            entry.version === resolvedVersion &&
-            entry.image_type === data.type &&
-            entry.registry === (data.registry || defaultRegistries[data.type])
-        )[0]
-
-        if (!imageData)
-          throw new Error(
-            `Build summary not found for flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, image_type: ${data.type}`
+          logger.debug(
+            '📜 Summary builds >',
+            JSON.stringify(buildSummaryObj, null, 2)
           )
 
-        debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
+          logger.debug(
+            '🔍 Filtering by:',
+            `flavor: ${data.flavor}, ` +
+              `version: ${resolvedVersion}, ` +
+              `image_type: ${data.type},` +
+              `image_repo: ${data.image_repo}, ` +
+              `registry: ${data.registry || defaultRegistries[data.type]}`
+          )
 
-        data.image =
-          `${imageData.registry}/` +
-          `${imageData.repository}:${imageData.image_tag}`
+          const imageData = buildSummaryObj.filter(
+            entry =>
+              entry.flavor === data.flavor &&
+              entry.version === resolvedVersion &&
+              entry.image_type === data.type &&
+              entry.repository === data.image_repo &&
+              entry.registry === (data.registry || defaultRegistries[data.type])
+          )[0]
 
-        const dispatchStatus = '✔ Dispatching'
+          if (!imageData)
+            throw new Error(
+              `Build summary not found for flavor: ${data.flavor}, ` +
+                `version: ${resolvedVersion}, image_type: ${data.type}, ` +
+                `image_repo: ${data.image_repo}, ` +
+                `registry: ${data.registry || defaultRegistries[data.type]}`
+            )
 
-        updateSummaryTable(
-          data,
-          dispatchStatus,
-          `${stateRepoName}`,
-          summaryTable
+          logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
+
+          data.image =
+            `${imageData.registry}/` +
+            `${imageData.repository}:${imageData.image_tag}`
+
+          const dispatchStatus = '✔ Dispatching'
+
+          updateSummaryTable(
+            data,
+            dispatchStatus,
+            `${stateRepoName}`,
+            summaryTable
+          )
+
+          gitController.handleNotice(
+            `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
+              `for services ` +
+              `${(data.service_name_list || data.image_keys).join(', ')} ` +
+              `with dispatch event type ${data.dispatch_event_type}`
+          )
+
+          data.message = dispatchStatus
+          groupedDispatches[stateRepoName] =
+            groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
+          groupedDispatches[stateRepoName][data.dispatch_event_type] =
+            groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
+          groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
+        }
+      }
+
+      if (Object.keys(groupedDispatches).length === 0) {
+        logger.warn(
+          `No dispatch found matching the filters: ` +
+            `Type=${imageTypesList}, ` +
+            `Flavor=${flavorsList}, ` +
+            `Env=${envFilterList}, ` +
+            `Tenant=${tenantFilterList}, ` +
+            `Platform=${clusterFilterList}. `
         )
+      } else {
+        const resultList = []
+        for (const stateRepo in groupedDispatches) {
+          for (const dispatchEventType in groupedDispatches[stateRepo]) {
+            const result = await gitController.dispatch(
+              stateRepo, // They all belong to the same repo
+              dispatchEventType, // They all have the same dispatch_event_type
+              groupedDispatches[stateRepo][dispatchEventType]
+            )
+            resultList.push(result)
+          }
+        }
 
-        gitController.handleNotice(
-          `Dispatching image ${data.image} to state repo ${stateRepoName} ` +
-            `for services ` +
-            `${(data.service_name_list || data.image_keys).join(', ')} ` +
-            `with dispatch event type ${data.dispatch_event_type}`
-        )
-
-        data.message = dispatchStatus
-        groupedDispatches[stateRepoName] =
-          groupedDispatches[stateRepoName] ?? {} // Initialize as an empty object if the property doesn't exist
-        groupedDispatches[stateRepoName][data.dispatch_event_type] =
-          groupedDispatches[stateRepoName][data.dispatch_event_type] ?? [] // Initialize as an empty array if the property doesn't exist
-        groupedDispatches[stateRepoName][data.dispatch_event_type].push(data)
+        return resultList
       }
     }
 
-    const resultList = []
-    for (const stateRepo in groupedDispatches) {
-      for (const dispatchEventType in groupedDispatches[stateRepo]) {
-        const result = await gitController.dispatch(
-          stateRepo, // They all belong to the same repo
-          dispatchEventType, // They all have the same dispatch_event_type
-          groupedDispatches[stateRepo][dispatchEventType]
-        )
-        resultList.push(result)
-      }
-    }
-
-    return resultList
+    return []
   } catch (error) {
     console.log(error)
+
     // Fail the workflow run if an error occurs
     gitController.handleFailure(error.message)
   } finally {
+    logger.info(
+      `Config file used: https://github.com/${payloadCtx.owner}/` +
+        `${payloadCtx.repo}/blob/${payloadCtx.sha}/${dispatchesFilePath}`
+    )
     gitController.handleSummary('Dispatches summary', summaryTable)
   }
 }
 
-async function getDispatchesFileContent(filePath, gitController) {
+async function getDispatchesFileContent(filePath, gitController, payloadCtx) {
   try {
-    return fs.readFileSync(filePath).toString('base64')
+    return await gitController.getFileContent(filePath, payloadCtx.sha)
   } catch (err) {
-    return await gitController.getFileContent(filePath)
+    throw new Error(
+      `Error getting make_dispatches.yaml file from ref ${payloadCtx.ref}: ${err.message}`
+    )
   }
 }
 
 function createDispatchList(
+  defaultImageRepository,
   deployments,
   reviewersList,
   repo,
@@ -276,39 +315,69 @@ function createDispatchList(
         )
       }
 
+      let showWarning = true
       for (const serviceData of appConfig[deployment.application].services) {
-        const imageRepo =
-          deployment.image_repository ||
-          `${registriesConfig[deployment.type].base_paths['services']}/` +
-            `${serviceData.repo}`
+        if (defaultImageRepository === serviceData.repo) {
+          let makeDispatch = false
+          if (deployment.service_names) {
+            for (const serviceName of deployment.service_names) {
+              if (serviceData.service_names.includes(serviceName)) {
+                makeDispatch = true
+                break
+              }
+            }
+          } else {
+            makeDispatch = true
+          }
 
-        const basePath = path.join(
-          clusterConfig[chosenCluster].type,
-          chosenCluster
+          if (makeDispatch) {
+            showWarning = false
+            const imageRepo =
+              deployment.image_repository ||
+              `${registriesConfig[deployment.type].base_paths['services']}/` +
+                `${defaultImageRepository}`
+
+            const basePath = path.join(
+              clusterConfig[chosenCluster].type,
+              chosenCluster
+            )
+
+            dispatchList.push({
+              type: deployment.type,
+              flavor: deployment.flavor,
+              version: versionOverride || deployment.version,
+              tenant: tenantOverride || deployment.tenant,
+              app: deployment.application,
+              env: envOverride || deployment.env,
+              state_repo: deployment.state_repo,
+              service_name_list: deployment.service_names,
+              image_keys: deployment.image_keys,
+              claim: deployment.claim,
+              registry:
+                deployment.registry ||
+                registriesConfig[deployment.type].registry,
+              image_repo: imageRepo,
+              dispatch_event_type:
+                deployment.dispatch_event_type ||
+                `dispatch-image-${clusterConfig[chosenCluster].type}`,
+              reviewers: reviewersList,
+              repository_caller: repo,
+              technology: clusterConfig[chosenCluster].type,
+              platform: chosenCluster,
+              base_folder: basePath
+            })
+          }
+        }
+      }
+
+      if (showWarning) {
+        logger.warn(
+          `No matching configuration found for deployment with ` +
+            `application ${deployment.application}, ` +
+            `tenant ${deployment.tenant}, flavor ${deployment.flavor}, ` +
+            `type ${deployment.type}, env ${deployment.env} ` +
+            `${deployment.service_names ? ` and services ${deployment.service_names}` : ''}`
         )
-
-        dispatchList.push({
-          type: deployment.type,
-          flavor: deployment.flavor,
-          version: versionOverride || deployment.version,
-          tenant: tenantOverride || deployment.tenant,
-          app: deployment.application,
-          env: envOverride || deployment.env,
-          state_repo: deployment.state_repo,
-          service_name_list: deployment.service_names,
-          image_keys: deployment.image_keys,
-          claim: deployment.claim,
-          registry:
-            deployment.registry || registriesConfig[deployment.type].registry,
-          dispatch_event_type:
-            deployment.dispatch_event_type ||
-            `dispatch-image-${clusterConfig[chosenCluster].type}`,
-          reviewers: reviewersList,
-          repository_caller: repo,
-          technology: clusterConfig[chosenCluster].type,
-          platform: chosenCluster,
-          base_folder: basePath
-        })
       }
     }
 
@@ -325,6 +394,9 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       ref,
       checkRunName
     )
+
+    if (!summaryData || !summaryData.summary)
+      throw new Error(`No build summary found for version ${version}`)
 
     const buildSummary = summaryData.summary
       .replace('```yaml', '')

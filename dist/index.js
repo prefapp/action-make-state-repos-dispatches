@@ -54680,7 +54680,7 @@ function updateSummaryTable(
   summaryTable
 ) {
   summaryTable.push([
-    stateRepoName,
+    `<a href="https://www.github.com/${stateRepoName}/pulls">${stateRepoName}</a>`,
     dispatch.tenant,
     dispatch.app,
     dispatch.env,

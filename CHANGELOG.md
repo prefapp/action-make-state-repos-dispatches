@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.6](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.5...v4.0.6) (2026-02-09)
+
+
+### Bug Fixes
+
+* Add link to state repo in dispatch summary ([#134](https://github.com/prefapp/action-make-state-repos-dispatches/issues/134)) ([d035905](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d03590567059351ebc29575cdcf34ea191210083))
+
 ## [4.0.5](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.4...v4.0.5) (2025-10-20)
 
 ### Bug Fixes

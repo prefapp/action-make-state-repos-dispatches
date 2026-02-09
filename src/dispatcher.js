@@ -395,8 +395,14 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       checkRunName
     )
 
-    if (!summaryData || !summaryData.summary)
-      throw new Error(`No build summary found for version ${version}`)
+    if (!summaryData || !summaryData.summary) {
+      const commit = await refHelper.getLatestRef(ref, gitController)
+      const payloadCtx = gitController.getPayloadContext()
+
+      throw new Error(
+        `No build summary found for version ${version} (commit [${commit}](https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/blob/${commit}))`
+      )
+    }
 
     const buildSummary = summaryData.summary
       .replace('```yaml', '')

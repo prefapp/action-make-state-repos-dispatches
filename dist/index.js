@@ -54797,7 +54797,7 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       const payloadCtx = gitController.getPayloadContext()
 
       throw new Error(
-        `No build summary found for version ${version} (commit [${commit}](https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commit}))`
+        `No build summary found for version ${version} (commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commit})`
       )
     }
 

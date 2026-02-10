@@ -397,11 +397,10 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
     )
 
     if (!summaryData || !summaryData.summary) {
-      const commit = await refHelper.getLatestRef(ref, gitController)
       const payloadCtx = gitController.getPayloadContext()
 
       throw new Error(
-        `No build summary found for version ${version} (commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commit})`
+        `No build summary found for version ${version} (commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${ref})`
       )
     }
 

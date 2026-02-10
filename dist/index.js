@@ -54560,7 +54560,7 @@ async function makeDispatches(gitController) {
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
                 `image_repo: ${data.image_repo}, ` +
                 `registry: ${data.registry || defaultRegistries[data.type]}. ` +
-                `[Commit](https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commit})`
+                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commit}`
             )
           }
 

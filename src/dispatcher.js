@@ -159,20 +159,14 @@ async function makeDispatches(gitController) {
               entry.registry === (data.registry || defaultRegistries[data.type])
           )[0]
 
-          if (!imageData) {
-            const commit = await refHelper.getLatestRef(
-              data.version,
-              gitController
-            )
-
+          if (!imageData)
             throw new Error(
               `Build summary not found for flavor: ${data.flavor}, ` +
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
                 `image_repo: ${data.image_repo}, ` +
                 `registry: ${data.registry || defaultRegistries[data.type]}. ` +
-                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commit}`
+                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
             )
-          }
 
           logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
 

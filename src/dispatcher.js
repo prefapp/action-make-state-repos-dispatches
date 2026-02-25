@@ -164,7 +164,8 @@ async function makeDispatches(gitController) {
               `Build summary not found for flavor: ${data.flavor}, ` +
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
                 `image_repo: ${data.image_repo}, ` +
-                `registry: ${data.registry || defaultRegistries[data.type]}`
+                `registry: ${data.registry || defaultRegistries[data.type]}. ` +
+                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
             )
 
           logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -395,8 +396,13 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       checkRunName
     )
 
-    if (!summaryData || !summaryData.summary)
-      throw new Error(`No build summary found for version ${version}`)
+    if (!summaryData || !summaryData.summary) {
+      const payloadCtx = gitController.getPayloadContext()
+
+      throw new Error(
+        `No build summary found for version ${version} (commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${ref})`
+      )
+    }
 
     const buildSummary = summaryData.summary
       .replace('```yaml', '')

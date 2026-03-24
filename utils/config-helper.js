@@ -104,12 +104,13 @@ function getRegistriesConfig(
           'utf-8'
         )
         const configData = YAML.parse(configFileContent, 'utf8')
+        const reg = configData?.registry ?? configData?.url
 
-        if (configData.registry === snapshotsRegistry) {
+        if (reg === snapshotsRegistry) {
           registriesConfig['snapshots'] = configData
         }
 
-        if (configData.registry === releasesRegistry) {
+        if (reg === releasesRegistry) {
           registriesConfig['releases'] = configData
         }
 

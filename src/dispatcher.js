@@ -343,6 +343,10 @@ function createDispatchList(
               chosenCluster
             )
 
+            const reg =
+              registriesConfig[deployment.type]?.registry ||
+              registriesConfig[deployment.type]?.url
+
             dispatchList.push({
               type: deployment.type,
               flavor: deployment.flavor,
@@ -354,9 +358,7 @@ function createDispatchList(
               service_name_list: deployment.service_names,
               image_keys: deployment.image_keys,
               claim: deployment.claim,
-              registry:
-                deployment.registry ||
-                registriesConfig[deployment.type].registry,
+              registry: reg,
               image_repo: imageRepo,
               dispatch_event_type:
                 deployment.dispatch_event_type ||

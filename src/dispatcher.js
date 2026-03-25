@@ -343,7 +343,9 @@ function createDispatchList(
               chosenCluster
             )
 
-            const reg = registriesConfig[deployment.type]?.registry || registriesConfig[deployment.type]?.url
+            const reg =
+              registriesConfig[deployment.type]?.registry ||
+              registriesConfig[deployment.type]?.url
 
             dispatchList.push({
               type: deployment.type,

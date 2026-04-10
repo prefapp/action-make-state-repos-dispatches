@@ -140,11 +140,15 @@ jest.mock('@actions/github', () => ({
   context: {
     payload: {
       repository: {
-        owner: { login: 'owner-login' },
-        name: 'repo-name'
+        // Test case normalization
+        owner: { login: 'Owner-Login' },
+        name: 'Repo-Name'
       }
     },
-    repo: 'repo-context-value'
+    repo: {
+      owner: 'Repo-Context-Owner',
+      repo: 'Repo-Context-Repo'
+    }
   }
 }))
 
@@ -207,7 +211,8 @@ describe('github-helper', () => {
   it('can get the repo context', async () => {
     const result = ghHelper.getRepoContext()
 
-    expect(result).toEqual('repo-context-value')
+    expect(result.owner).toEqual('repo-context-owner')
+    expect(result.repo).toEqual('repo-context-repo')
   })
 
   it('can get the octokit object when needed', async () => {

@@ -4,8 +4,8 @@ const logger = require('../utils/logger')
 const semver = require('semver')
 
 const _payloadCtx = {
-  owner: github.context.payload.repository.owner.login,
-  repo: github.context.payload.repository.name,
+  owner: github.context.payload.repository.owner.login.toLowerCase(),
+  repo: github.context.payload.repository.name.toLowerCase(),
   ref: github.context.ref,
   sha: github.context.sha
 }
@@ -124,7 +124,10 @@ function getPayloadContext() {
 
 function getRepoContext() {
   logger.debug('Getting repo context', github.context.repo)
-  return github.context.repo
+  return {
+    owner: github.context.repo.owner.toLowerCase(),
+    repo: github.context.repo.repo.toLowerCase()
+  }
 }
 
 async function getLatestRelease(payload) {

@@ -19,7 +19,10 @@ function validateSchema(data, schemaPath) {
   const valid = validate(data)
 
   if (!valid) {
-    throw new Error(`Validation errors: ${JSON.stringify(validate.errors)}`)
+    throw new Error(
+      `Validation errors found in file ${schemaPath}: ` +
+        `${JSON.stringify(validate.errors)}`
+    )
   }
 }
 

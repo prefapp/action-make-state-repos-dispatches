@@ -18,14 +18,15 @@
           },
           "service_names": {
             "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "items": { "type": "string" },
+            "minItems": 1
           }
         },
+        "required": ["repo", "service_names"],
         "additionalProperties": false
       }
     }
   },
+  "required": ["name", "state_repo", "services"],
   "additionalProperties": false
 }

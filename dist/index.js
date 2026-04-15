@@ -54765,7 +54765,7 @@ function configParse(fileContent, encoding = '') {
       fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
     }
 
-    const yamlData = YAML.parse(fileContent, 'utf8')
+    const yamlData = YAML.parse(fileContent)
     const schemaFilePath = __nccwpck_require__.ab + "config.schema.json"
 
     validateSchema(yamlData, __nccwpck_require__.ab + "config.schema.json")
@@ -54776,38 +54776,34 @@ function configParse(fileContent, encoding = '') {
   }
 }
 
-function getConfigData(configFolderPath, baseSchemaFilePath) {
-  const config = {}
-  const configFileList = fs.readdirSync(configFolderPath)
-  const schemaFilePath = path.join(__dirname, baseSchemaFilePath)
-
-  for (const configFileName of configFileList) {
-    if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
-      const configFileContent = fs.readFileSync(
-        path.join(configFolderPath, configFileName),
-        'utf-8'
-      )
-      const configData = YAML.parse(configFileContent, 'utf8')
-
-      try {
-        validateSchema(configData, schemaFilePath)
-      } catch (err) {
-        throw new Error(`File ${configFileName}: ${err.message}`)
-      }
-
-      config[configData.name] = {
-        state_repo: configData.state_repo,
-        services: configData.services
-      }
-    }
-  }
-
-  return config
-}
-
 function getAppsConfig(appFolderPath) {
   try {
-    return getConfigData(appFolderPath, '../schema/firestartr-apps.schema.json')
+    const appConfig = {}
+    const configFileList = fs.readdirSync(appFolderPath)
+    const schemaFilePath = __nccwpck_require__.ab + "firestartr-apps.schema.json"
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(appFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent)
+
+        try {
+          validateSchema(configData, __nccwpck_require__.ab + "firestartr-apps.schema.json")
+        } catch (err) {
+          throw new Error(`File ${configFileName}: ${err.message}`)
+        }
+
+        appConfig[configData.name] = {
+          state_repo: configData.state_repo,
+          services: configData.services
+        }
+      }
+    }
+
+    return appConfig
   } catch (err) {
     throw new Error(
       `Error getting app configs from folder ${appFolderPath}: ${err.message}`
@@ -54817,10 +54813,33 @@ function getAppsConfig(appFolderPath) {
 
 function getClustersConfig(clustersFolderPath) {
   try {
-    return getConfigData(
-      clustersFolderPath,
-      '../schema/firestartr-platforms.schema.json'
-    )
+    const clustersConfig = {}
+    const configFileList = fs.readdirSync(clustersFolderPath)
+    const schemaFilePath = __nccwpck_require__.ab + "firestartr-platforms.schema.json"
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(clustersFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent)
+
+        try {
+          validateSchema(configData, __nccwpck_require__.ab + "firestartr-platforms.schema.json")
+        } catch (err) {
+          throw new Error(`File ${configFileName}: ${err.message}`)
+        }
+
+        clustersConfig[configData.name] = {
+          type: configData.type,
+          tenants: configData.tenants,
+          envs: configData.envs
+        }
+      }
+    }
+
+    return clustersConfig
   } catch (err) {
     throw new Error(
       `Error getting cluster configs from folder ` +
@@ -54845,7 +54864,7 @@ function getRegistriesConfig(
           path.join(registriesFolderPath, configFileName),
           'utf-8'
         )
-        const configData = YAML.parse(configFileContent, 'utf8')
+        const configData = YAML.parse(configFileContent)
 
         try {
           validateSchema(configData, __nccwpck_require__.ab + "firestartr-registries.schema.json")

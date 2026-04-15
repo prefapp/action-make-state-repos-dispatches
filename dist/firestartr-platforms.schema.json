@@ -6,11 +6,13 @@
     "name": { "type": "string" },
     "tenants": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "minItems": 1
     },
     "envs": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "minItems": 1
     },
     "allowedClaims": {
       "type": "array",
@@ -19,11 +21,13 @@
         "properties": {
           "resourceTypes": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": { "type": "string" },
+            "minItems": 1
           },
           "providers": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": { "type": "string" },
+            "minItems": 1
           },
           "backend": { "type": "string" }
         },
@@ -31,5 +35,6 @@
       }
     }
   },
+  "required": ["type", "name", "tenants", "envs"],
   "additionalProperties": false
 }

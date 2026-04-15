@@ -1,7 +1,0 @@
-name: sample-app
-state_repo: 'test-org/state-repo'
-services:
-  - repo: test-org/build-and-dispatch
-    service_names: [service-a]
-  - repo: test-org/build-and-dispatch-2
-    service_names: [service-b, service-c]

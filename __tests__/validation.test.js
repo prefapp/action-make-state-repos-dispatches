@@ -91,7 +91,7 @@ describe('Yaml validation against Json schema', () => {
 
   test('should validate .firestartr/apps configs successfully against the Json Schema', () => {
     const yamlData = getAppsConfig(
-      path.join(__dirname, '../fixtures/firestartr_apps')
+      path.join(__dirname, '../fixtures/.firestartr/apps')
     )
 
     expect(yamlData).toBeDefined()
@@ -99,7 +99,7 @@ describe('Yaml validation against Json schema', () => {
 
   test('should fail if .firestartr/apps data does not match the schema', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_apps/app.yaml')
+      getYamlContent('../fixtures/.firestartr/apps/app1.yaml')
     )
     yamlContent['extraField'] = 'invalid'
     writeYamlContent(
@@ -114,7 +114,7 @@ describe('Yaml validation against Json schema', () => {
 
   test('should fail if a required field is missing in .firestartr/apps', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_apps/app.yaml')
+      getYamlContent('../fixtures/.firestartr/apps/app1.yaml')
     )
     delete yamlContent.state_repo
     writeYamlContent(
@@ -129,21 +129,25 @@ describe('Yaml validation against Json schema', () => {
 
   test('should validate .firestartr/docker_registries configs successfully against the Json Schema', () => {
     const yamlData = getRegistriesConfig(
-      path.join(__dirname, '../fixtures/firestartr_docker_registries'),
-      'snapshots-registry',
-      'releases-registry'
+      path.join(__dirname, '../fixtures/.firestartr/docker_registries'),
+      'snapshots.reg',
+      'releases.reg'
     )
+
+    console.log(yamlData)
 
     expect(yamlData).toBeDefined()
     expect(yamlData.snapshots).toBeDefined()
-    expect(yamlData.snapshots.name).toEqual('test-registry-snapshots')
+    expect(yamlData.snapshots.name).toEqual('mysnapshotsreg')
     expect(yamlData.releases).toBeDefined()
-    expect(yamlData.releases.name).toEqual('test-registry-releases')
+    expect(yamlData.releases.name).toEqual('myreleasesreg')
   })
 
   test('should fail if .firestartr/docker_registries data does not match the schema', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_docker_registries/releases.yaml')
+      getYamlContent(
+        '../fixtures/.firestartr/docker_registries/registry_a.yaml'
+      )
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
@@ -157,15 +161,17 @@ describe('Yaml validation against Json schema', () => {
           __dirname,
           '../fixtures/invalid_firestartr_docker_registries'
         ),
-        'snapshots-registry',
-        'releases-registry'
+        'snapshots.reg',
+        'releases.reg'
       )
     ).toThrow()
   })
 
   test('should fail if a required field is missing in .firestartr/docker_registries', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_docker_registries/releases.yaml')
+      getYamlContent(
+        '../fixtures/.firestartr/docker_registries/registry_a.yaml'
+      )
     )
     delete yamlContent.registry
     writeYamlContent(
@@ -179,30 +185,43 @@ describe('Yaml validation against Json schema', () => {
           __dirname,
           '../fixtures/invalid_firestartr_docker_registries'
         ),
-        'snapshots-registry',
-        'releases-registry'
+        'snapshots.reg',
+        'releases.reg'
       )
     ).toThrow()
   })
 
   test('should validate .firestartr/platforms configs successfully against the Json Schema', () => {
     const yamlData = getClustersConfig(
-      path.join(__dirname, '../fixtures/firestartr_platforms')
+      path.join(__dirname, '../fixtures/.firestartr/clusters')
     )
 
     expect(yamlData).toBeDefined()
     expect(yamlData).toEqual({
-      platform: {
-        tenants: ['test-tenant'],
-        envs: ['dev', 'pre'],
-        type: 'kubernetes'
+      myclusteraks1: {
+        type: 'aks-cluster',
+        tenants: ['tenant1', 'tenant2', 'tenant3'],
+        envs: ['dev', 'pre']
+      },
+      'cluster-releases1': {
+        type: 'aks-cluster',
+        tenants: ['tenant-releases1'],
+        envs: ['env-releases1']
+      },
+      cluster1: { type: 'aks-cluster', tenants: ['tenant1'], envs: ['env1'] },
+      cluster23: { type: 'vmss', tenants: ['tenant23'], envs: ['env23'] },
+      cluster4: { type: 'kind-cluster', tenants: ['tenant4'], envs: ['env4'] },
+      cluster99: {
+        type: 'tfworkspaces',
+        tenants: ['tenant99', 'tenant2', 'tenant1'],
+        envs: ['dev', 'env1', 'flavor99']
       }
     })
   })
 
   test('should fail if .firestartr/platforms data does not match the schema', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_platforms/platform.yaml')
+      getYamlContent('../fixtures/.firestartr/clusters/cluster1.yaml')
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
@@ -219,7 +238,7 @@ describe('Yaml validation against Json schema', () => {
 
   test('should fail if a required field is missing in .firestartr/platforms', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_platforms/platform.yaml')
+      getYamlContent('../fixtures/.firestartr/clusters/cluster1.yaml')
     )
     delete yamlContent.envs
     writeYamlContent(

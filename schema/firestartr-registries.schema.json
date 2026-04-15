@@ -17,7 +17,6 @@
         "services": { "type": "string" },
         "charts": { "type": "string" }
       },
-      "required": ["services", "charts"],
       "additionalProperties": false
     }
   },

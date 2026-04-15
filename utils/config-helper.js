@@ -2,11 +2,20 @@ const YAML = require('yaml')
 const fs = require('fs')
 const path = require('path')
 const Ajv = require('ajv')
+const validator = new Ajv()
+const compiledSchemas = {}
 
 function validateSchema(data, schemaPath) {
-  const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
-  const ajv = new Ajv()
-  const validate = ajv.compile(schema)
+  let validate
+
+  if (!compiledSchemas[schemaPath]) {
+    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
+    validate = validator.compile(schema)
+    compiledSchemas[schemaPath] = validate
+  } else {
+    validate = compiledSchemas[schemaPath]
+  }
+
   const valid = validate(data)
 
   if (!valid) {

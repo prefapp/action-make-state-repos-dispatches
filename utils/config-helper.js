@@ -71,7 +71,35 @@ function getConfigData(configFolderPath, baseSchemaFilePath) {
 
 function getAppsConfig(appFolderPath) {
   try {
-    return getConfigData(appFolderPath, '../schema/firestartr-apps.schema.json')
+    const appConfig = {}
+    const configFileList = fs.readdirSync(appFolderPath)
+    const schemaFilePath = path.join(
+      __dirname,
+      '../schema/firestartr-apps.schema.json'
+    )
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(appFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent, 'utf8')
+
+        try {
+          validateSchema(configData, schemaFilePath)
+        } catch (err) {
+          throw new Error(`File ${configFileName}: ${err.message}`)
+        }
+
+        appConfig[configData.name] = {
+          state_repo: configData.state_repo,
+          services: configData.services
+        }
+      }
+    }
+
+    return appConfig
   } catch (err) {
     throw new Error(
       `Error getting app configs from folder ${appFolderPath}: ${err.message}`
@@ -81,10 +109,35 @@ function getAppsConfig(appFolderPath) {
 
 function getClustersConfig(clustersFolderPath) {
   try {
-    return getConfigData(
-      clustersFolderPath,
+    const clustersConfig = {}
+    const configFileList = fs.readdirSync(clustersFolderPath)
+    const schemaFilePath = path.join(
+      __dirname,
       '../schema/firestartr-platforms.schema.json'
     )
+
+    for (const configFileName of configFileList) {
+      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+        const configFileContent = fs.readFileSync(
+          path.join(clustersFolderPath, configFileName),
+          'utf-8'
+        )
+        const configData = YAML.parse(configFileContent, 'utf8')
+
+        try {
+          validateSchema(configData, schemaFilePath)
+        } catch (err) {
+          throw new Error(`File ${configFileName}: ${err.message}`)
+        }
+
+        clustersConfig[configData.name] = {
+          state_repo: configData.state_repo,
+          services: configData.services
+        }
+      }
+    }
+
+    return clustersConfig
   } catch (err) {
     throw new Error(
       `Error getting cluster configs from folder ` +

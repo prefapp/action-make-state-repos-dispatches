@@ -54738,11 +54738,20 @@ const YAML = __nccwpck_require__(8815)
 const fs = __nccwpck_require__(9896)
 const path = __nccwpck_require__(6928)
 const Ajv = __nccwpck_require__(2463)
+const validator = new Ajv()
+const compiledSchemas = {}
 
 function validateSchema(data, schemaPath) {
-  const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
-  const ajv = new Ajv()
-  const validate = ajv.compile(schema)
+  let validate
+
+  if (!compiledSchemas[schemaPath]) {
+    const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'))
+    validate = validator.compile(schema)
+    compiledSchemas[schemaPath] = validate
+  } else {
+    validate = compiledSchemas[schemaPath]
+  }
+
   const valid = validate(data)
 
   if (!valid) {
@@ -54767,30 +54776,38 @@ function configParse(fileContent, encoding = '') {
   }
 }
 
-function getAppsConfig(appFolderPath) {
-  try {
-    const appsConfig = {}
-    const configFileList = fs.readdirSync(appFolderPath)
-    const schemaFilePath = __nccwpck_require__.ab + "firestartr-apps.schema.json"
+function getConfigData(configFolderPath, baseSchemaFilePath) {
+  const config = {}
+  const configFileList = fs.readdirSync(configFolderPath)
+  const schemaFilePath = path.join(__dirname, baseSchemaFilePath)
 
-    for (const configFileName of configFileList) {
-      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
-        const configFileContent = fs.readFileSync(
-          path.join(appFolderPath, configFileName),
-          'utf-8'
-        )
-        const configData = YAML.parse(configFileContent, 'utf8')
+  for (const configFileName of configFileList) {
+    if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+      const configFileContent = fs.readFileSync(
+        path.join(configFolderPath, configFileName),
+        'utf-8'
+      )
+      const configData = YAML.parse(configFileContent, 'utf8')
 
-        validateSchema(configData, __nccwpck_require__.ab + "firestartr-apps.schema.json")
+      try {
+        validateSchema(configData, schemaFilePath)
+      } catch (err) {
+        throw new Error(`File ${configFileName}: ${err.message}`)
+      }
 
-        appsConfig[configData.name] = {
-          state_repo: configData.state_repo,
-          services: configData.services
-        }
+      config[configData.name] = {
+        state_repo: configData.state_repo,
+        services: configData.services
       }
     }
+  }
 
-    return appsConfig
+  return config
+}
+
+function getAppsConfig(appFolderPath) {
+  try {
+    return getConfigData(appFolderPath, '../schema/firestartr-apps.schema.json')
   } catch (err) {
     throw new Error(
       `Error getting app configs from folder ${appFolderPath}: ${err.message}`
@@ -54800,29 +54817,10 @@ function getAppsConfig(appFolderPath) {
 
 function getClustersConfig(clustersFolderPath) {
   try {
-    const clustersConfig = {}
-    const configFileList = fs.readdirSync(clustersFolderPath)
-    const schemaFilePath = __nccwpck_require__.ab + "firestartr-platforms.schema.json"
-
-    for (const configFileName of configFileList) {
-      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
-        const configFileContent = fs.readFileSync(
-          path.join(clustersFolderPath, configFileName),
-          'utf-8'
-        )
-        const configData = YAML.parse(configFileContent, 'utf8')
-
-        validateSchema(configData, __nccwpck_require__.ab + "firestartr-platforms.schema.json")
-
-        clustersConfig[configData.name] = {
-          type: configData.type,
-          tenants: configData.tenants,
-          envs: configData.envs
-        }
-      }
-    }
-
-    return clustersConfig
+    return getConfigData(
+      clustersFolderPath,
+      '../schema/firestartr-platforms.schema.json'
+    )
   } catch (err) {
     throw new Error(
       `Error getting cluster configs from folder ` +
@@ -54849,7 +54847,11 @@ function getRegistriesConfig(
         )
         const configData = YAML.parse(configFileContent, 'utf8')
 
-        validateSchema(configData, __nccwpck_require__.ab + "firestartr-registries.schema.json")
+        try {
+          validateSchema(configData, __nccwpck_require__.ab + "firestartr-registries.schema.json")
+        } catch (err) {
+          throw new Error(`File ${configFileName}: ${err.message}`)
+        }
 
         if (configData.registry === snapshotsRegistry) {
           registriesConfig['snapshots'] = configData

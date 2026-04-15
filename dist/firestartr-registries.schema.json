@@ -6,7 +6,8 @@
     "registry": { "type": "string" },
     "image_types": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "minItems": 1
     },
     "default": { "type": "boolean" },
     "auth_strategy": { "type": "string" },
@@ -16,8 +17,17 @@
         "services": { "type": "string" },
         "charts": { "type": "string" }
       },
+      "required": ["services", "charts"],
       "additionalProperties": false
     }
   },
+  "required": [
+    "name",
+    "registry",
+    "image_types",
+    "default",
+    "auth_strategy",
+    "base_paths"
+  ],
   "additionalProperties": false
 }

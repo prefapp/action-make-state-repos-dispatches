@@ -110,15 +110,21 @@ describe('Yaml validation against Json schema', () => {
 
   test('should validate .firestartr/docker_registries configs successfully against the Json Schema', () => {
     const yamlData = getRegistriesConfig(
-      path.join(__dirname, '../fixtures/firestartr_docker_registries')
+      path.join(__dirname, '../fixtures/firestartr_docker_registries'),
+      'snapshots-registry',
+      'releases-registry'
     )
 
     expect(yamlData).toBeDefined()
+    expect(yamlData.snapshots).toBeDefined()
+    expect(yamlData.snapshots.name).toEqual('test-registry-snapshots')
+    expect(yamlData.releases).toBeDefined()
+    expect(yamlData.releases.name).toEqual('test-registry-releases')
   })
 
   test('should fail if .firestartr/docker_registries data does not match the schema', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_docker_registries/registry.yaml')
+      getYamlContent('../fixtures/firestartr_docker_registries/releases.yaml')
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
@@ -128,14 +134,16 @@ describe('Yaml validation against Json schema', () => {
 
     expect(() =>
       getRegistriesConfig(
-        path.join(__dirname, '../fixtures/firestartr_docker_registries')
+        path.join(__dirname, '../fixtures/firestartr_docker_registries'),
+        'snapshots-registry',
+        'releases-registry'
       )
     ).toThrow()
   })
 
   test('should fail if a required field is missing in .firestartr/docker_registries', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/firestartr_docker_registries/registry.yaml')
+      getYamlContent('../fixtures/firestartr_docker_registries/releases.yaml')
     )
     delete yamlContent.registry
     writeYamlContent(
@@ -145,7 +153,9 @@ describe('Yaml validation against Json schema', () => {
 
     expect(() =>
       getRegistriesConfig(
-        path.join(__dirname, '../fixtures/firestartr_docker_registries')
+        path.join(__dirname, '../fixtures/firestartr_docker_registries'),
+        'snapshots-registry',
+        'releases-registry'
       )
     ).toThrow()
   })

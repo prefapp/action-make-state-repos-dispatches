@@ -6,7 +6,8 @@
     "registry": { "type": "string" },
     "image_types": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "minItems": 1
     },
     "default": { "type": "boolean" },
     "auth_strategy": { "type": "string" },

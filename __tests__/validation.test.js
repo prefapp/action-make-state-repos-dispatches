@@ -166,6 +166,13 @@ describe('Yaml validation against Json schema', () => {
     )
 
     expect(yamlData).toBeDefined()
+    expect(yamlData).toEqual({
+      platform: {
+        tenants: ['test-tenant'],
+        envs: ['dev', 'pre'],
+        type: 'kubernetes'
+      }
+    })
   })
 
   test('should fail if .firestartr/platforms data does not match the schema', () => {

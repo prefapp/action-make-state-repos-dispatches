@@ -131,8 +131,9 @@ function getClustersConfig(clustersFolderPath) {
         }
 
         clustersConfig[configData.name] = {
-          state_repo: configData.state_repo,
-          services: configData.services
+          type: configData.type,
+          tenants: configData.tenants,
+          envs: configData.envs
         }
       }
     }

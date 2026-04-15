@@ -40,35 +40,6 @@ function configParse(fileContent, encoding = '') {
   }
 }
 
-function getConfigData(configFolderPath, baseSchemaFilePath) {
-  const config = {}
-  const configFileList = fs.readdirSync(configFolderPath)
-  const schemaFilePath = path.join(__dirname, baseSchemaFilePath)
-
-  for (const configFileName of configFileList) {
-    if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
-      const configFileContent = fs.readFileSync(
-        path.join(configFolderPath, configFileName),
-        'utf-8'
-      )
-      const configData = YAML.parse(configFileContent, 'utf8')
-
-      try {
-        validateSchema(configData, schemaFilePath)
-      } catch (err) {
-        throw new Error(`File ${configFileName}: ${err.message}`)
-      }
-
-      config[configData.name] = {
-        state_repo: configData.state_repo,
-        services: configData.services
-      }
-    }
-  }
-
-  return config
-}
-
 function getAppsConfig(appFolderPath) {
   try {
     const appConfig = {}

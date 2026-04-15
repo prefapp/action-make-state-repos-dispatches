@@ -15,6 +15,12 @@ function getYamlContent(yamlFilePath) {
 
 function writeYamlContent(yamlFilePath, content) {
   const fullYamlFilePath = path.join(__dirname, yamlFilePath)
+  const dirPath = path.dirname(fullYamlFilePath)
+
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true })
+  }
+
   return fs.writeFileSync(fullYamlFilePath, content)
 }
 
@@ -25,14 +31,27 @@ function deleteFileIfExists(filePath) {
   }
 }
 
+function deleteFolderIfExists(filePath) {
+  const fullFolderPath = path.join(__dirname, filePath)
+  if (fs.existsSync(fullFolderPath)) {
+    fs.rmdirSync(fullFolderPath)
+  }
+}
+
 describe('Yaml validation against Json schema', () => {
   afterAll(() => {
     // Ensure invalid test files are cleaned up after tests run
-    deleteFileIfExists('../fixtures/firestartr_apps/invalid-app.yaml')
-    deleteFileIfExists('../fixtures/firestartr_platforms/invalid-platform.yaml')
+    deleteFileIfExists('../fixtures/invalid_firestartr_apps/invalid-app.yaml')
     deleteFileIfExists(
-      '../fixtures/firestartr_docker_registries/invalid-registry.yaml'
+      '../fixtures/invalid_firestartr_platforms/invalid-platform.yaml'
     )
+    deleteFileIfExists(
+      '../fixtures/invalid_firestartr_docker_registries/invalid-registry.yaml'
+    )
+
+    deleteFolderIfExists('../fixtures/invalid_firestartr_apps')
+    deleteFolderIfExists('../fixtures/invalid_firestartr_platforms')
+    deleteFolderIfExists('../fixtures/invalid_firestartr_docker_registries')
   })
 
   test('should validate make_dispatches.yaml successfully against the Json Schema', () => {
@@ -84,12 +103,12 @@ describe('Yaml validation against Json schema', () => {
     )
     yamlContent['extraField'] = 'invalid'
     writeYamlContent(
-      '../fixtures/firestartr_apps/invalid-app.yaml',
+      '../fixtures/invalid_firestartr_apps/invalid-app.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
-      getAppsConfig(path.join(__dirname, '../fixtures/firestartr_apps'))
+      getAppsConfig(path.join(__dirname, '../fixtures/invalid_firestartr_apps'))
     ).toThrow()
   })
 
@@ -99,12 +118,12 @@ describe('Yaml validation against Json schema', () => {
     )
     delete yamlContent.state_repo
     writeYamlContent(
-      '../fixtures/firestartr_apps/invalid-app.yaml',
+      '../fixtures/invalid_firestartr_apps/invalid-app.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
-      getAppsConfig(path.join(__dirname, '../fixtures/firestartr_apps'))
+      getAppsConfig(path.join(__dirname, '../fixtures/invalid_firestartr_apps'))
     ).toThrow()
   })
 
@@ -128,13 +147,16 @@ describe('Yaml validation against Json schema', () => {
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
-      '../fixtures/firestartr_docker_registries/invalid-registry.yaml',
+      '../fixtures/invalid_firestartr_docker_registries/invalid-registry.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getRegistriesConfig(
-        path.join(__dirname, '../fixtures/firestartr_docker_registries'),
+        path.join(
+          __dirname,
+          '../fixtures/invalid_firestartr_docker_registries'
+        ),
         'snapshots-registry',
         'releases-registry'
       )
@@ -147,13 +169,16 @@ describe('Yaml validation against Json schema', () => {
     )
     delete yamlContent.registry
     writeYamlContent(
-      '../fixtures/firestartr_docker_registries/invalid-registry.yaml',
+      '../fixtures/invalid_firestartr_docker_registries/invalid-registry.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getRegistriesConfig(
-        path.join(__dirname, '../fixtures/firestartr_docker_registries'),
+        path.join(
+          __dirname,
+          '../fixtures/invalid_firestartr_docker_registries'
+        ),
         'snapshots-registry',
         'releases-registry'
       )
@@ -181,13 +206,13 @@ describe('Yaml validation against Json schema', () => {
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
-      '../fixtures/firestartr_platforms/invalid-platform.yaml',
+      '../fixtures/invalid_firestartr_platforms/invalid-platform.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getClustersConfig(
-        path.join(__dirname, '../fixtures/firestartr_platforms')
+        path.join(__dirname, '../fixtures/invalid_firestartr_platforms')
       )
     ).toThrow()
   })
@@ -198,13 +223,13 @@ describe('Yaml validation against Json schema', () => {
     )
     delete yamlContent.envs
     writeYamlContent(
-      '../fixtures/firestartr_platforms/invalid-platform.yaml',
+      '../fixtures/invalid_firestartr_platforms/invalid-platform.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getClustersConfig(
-        path.join(__dirname, '../fixtures/firestartr_platforms')
+        path.join(__dirname, '../fixtures/invalid_firestartr_platforms')
       )
     ).toThrow()
   })

@@ -4,5 +4,5 @@ image_types: [snapshots, releases]
 default: true
 auth_strategy: generic
 base_paths:
-  services: "service"
-  charts: "chart"
+  services: 'service'
+  charts: 'chart'

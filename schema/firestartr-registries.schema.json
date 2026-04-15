@@ -21,6 +21,13 @@
       "additionalProperties": false
     }
   },
-  "required": ["name", "registry", "image_types", "default", "auth_strategy", "base_paths"],
+  "required": [
+    "name",
+    "registry",
+    "image_types",
+    "default",
+    "auth_strategy",
+    "base_paths"
+  ],
   "additionalProperties": false
 }

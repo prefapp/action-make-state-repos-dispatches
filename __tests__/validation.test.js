@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const yaml = require('yaml')
+const os = require('os')
 const {
   configParse,
   getAppsConfig,
@@ -8,13 +9,13 @@ const {
   getRegistriesConfig
 } = require('../utils/config-helper')
 
-function getYamlContent(yamlFilePath) {
-  const fullYamlFilePath = path.join(__dirname, yamlFilePath)
+function getYamlContent(basePath, yamlFilePath) {
+  const fullYamlFilePath = path.join(basePath, yamlFilePath)
   return fs.readFileSync(fullYamlFilePath, 'utf8')
 }
 
-function writeYamlContent(yamlFilePath, content) {
-  const fullYamlFilePath = path.join(__dirname, yamlFilePath)
+function writeYamlContent(basePath, yamlFilePath, content) {
+  const fullYamlFilePath = path.join(basePath, yamlFilePath)
   const dirPath = path.dirname(fullYamlFilePath)
 
   if (!fs.existsSync(dirPath)) {
@@ -24,45 +25,53 @@ function writeYamlContent(yamlFilePath, content) {
   return fs.writeFileSync(fullYamlFilePath, content)
 }
 
-function deleteFileIfExists(filePath) {
-  const fullFilePath = path.join(__dirname, filePath)
+function deleteFileIfExists(basePath, filePath) {
+  const fullFilePath = path.join(basePath, filePath)
   if (fs.existsSync(fullFilePath)) {
     fs.unlinkSync(fullFilePath)
   }
 }
 
-function deleteFolderIfExists(filePath) {
-  const fullFolderPath = path.join(__dirname, filePath)
+function deleteFolderIfExists(basePath, filePath) {
+  const fullFolderPath = path.join(basePath, filePath)
   if (fs.existsSync(fullFolderPath)) {
-    fs.rmdirSync(fullFolderPath)
+    fs.rmSync(fullFolderPath)
   }
 }
 
 describe('Yaml validation against Json schema', () => {
   afterAll(() => {
     // Ensure invalid test files are cleaned up after tests run
-    deleteFileIfExists('../fixtures/invalid_firestartr_apps/invalid-app.yaml')
+    deleteFileIfExists(os.tmpdir(), 'invalid_firestartr_apps/invalid-app.yaml')
     deleteFileIfExists(
-      '../fixtures/invalid_firestartr_platforms/invalid-platform.yaml'
+      os.tmpdir(),
+      'invalid_firestartr_platforms/invalid-platform.yaml'
     )
     deleteFileIfExists(
-      '../fixtures/invalid_firestartr_docker_registries/invalid-registry.yaml'
+      os.tmpdir(),
+      'invalid_firestartr_docker_registries/invalid-registry.yaml'
     )
 
-    deleteFolderIfExists('../fixtures/invalid_firestartr_apps')
-    deleteFolderIfExists('../fixtures/invalid_firestartr_platforms')
-    deleteFolderIfExists('../fixtures/invalid_firestartr_docker_registries')
+    deleteFolderIfExists(os.tmpdir(), 'invalid_firestartr_apps')
+    deleteFolderIfExists(os.tmpdir(), 'invalid_firestartr_platforms')
+    deleteFolderIfExists(os.tmpdir(), 'invalid_firestartr_docker_registries')
   })
 
   test('should validate make_dispatches.yaml successfully against the Json Schema', () => {
-    const yamlContent = getYamlContent('../fixtures/dispatches_file.yaml')
+    const yamlContent = getYamlContent(
+      __dirname,
+      '../fixtures/dispatches_file.yaml'
+     )
     const yamlData = configParse(yamlContent)
 
     expect(yamlData).toBeDefined()
   })
 
   test('should fail if make_dispatches.yaml data does not match the schema', () => {
-    const yamlContent = getYamlContent('../fixtures/dispatches_file.yaml')
+    const yamlContent = getYamlContent(
+      __dirname,
+      '../fixtures/dispatches_file.yaml'
+    )
     const yamlData = configParse(yamlContent)
     const invalidYamlData = {
       ...yamlData,
@@ -75,7 +84,10 @@ describe('Yaml validation against Json schema', () => {
   })
 
   test('should fail if a required field is missing in make_dispatches.yaml', () => {
-    const yamlContent = getYamlContent('../fixtures/dispatches_file.yaml')
+    const yamlContent = getYamlContent(
+      __dirname,
+      '../fixtures/dispatches_file.yaml'
+    )
     const yamlData = configParse(yamlContent)
     const yamlWithoutRequiredField = {
       ...yamlData,
@@ -99,31 +111,33 @@ describe('Yaml validation against Json schema', () => {
 
   test('should fail if .firestartr/apps data does not match the schema', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/.firestartr/apps/app1.yaml')
+      getYamlContent(__dirname, '../fixtures/.firestartr/apps/app1.yaml')
     )
     yamlContent['extraField'] = 'invalid'
     writeYamlContent(
-      '../fixtures/invalid_firestartr_apps/invalid-app.yaml',
+      os.tmpdir(),
+      'invalid_firestartr_apps/invalid-app.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
-      getAppsConfig(path.join(__dirname, '../fixtures/invalid_firestartr_apps'))
+      getAppsConfig(path.join(os.tmpdir(), 'invalid_firestartr_apps'))
     ).toThrow()
   })
 
   test('should fail if a required field is missing in .firestartr/apps', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/.firestartr/apps/app1.yaml')
+      getYamlContent(__dirname, '../fixtures/.firestartr/apps/app1.yaml')
     )
     delete yamlContent.state_repo
     writeYamlContent(
-      '../fixtures/invalid_firestartr_apps/invalid-app.yaml',
+      os.tmpdir(),
+      'invalid_firestartr_apps/invalid-app.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
-      getAppsConfig(path.join(__dirname, '../fixtures/invalid_firestartr_apps'))
+      getAppsConfig(path.join(os.tmpdir(), 'invalid_firestartr_apps'))
     ).toThrow()
   })
 
@@ -133,8 +147,6 @@ describe('Yaml validation against Json schema', () => {
       'snapshots.reg',
       'releases.reg'
     )
-
-    console.log(yamlData)
 
     expect(yamlData).toBeDefined()
     expect(yamlData.snapshots).toBeDefined()
@@ -146,21 +158,20 @@ describe('Yaml validation against Json schema', () => {
   test('should fail if .firestartr/docker_registries data does not match the schema', () => {
     const yamlContent = yaml.parse(
       getYamlContent(
+        __dirname,
         '../fixtures/.firestartr/docker_registries/registry_a.yaml'
       )
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
-      '../fixtures/invalid_firestartr_docker_registries/invalid-registry.yaml',
+      os.tmpdir(),
+      'invalid_firestartr_docker_registries/invalid-registry.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getRegistriesConfig(
-        path.join(
-          __dirname,
-          '../fixtures/invalid_firestartr_docker_registries'
-        ),
+        path.join(os.tmpdir(), 'invalid_firestartr_docker_registries'),
         'snapshots.reg',
         'releases.reg'
       )
@@ -170,21 +181,20 @@ describe('Yaml validation against Json schema', () => {
   test('should fail if a required field is missing in .firestartr/docker_registries', () => {
     const yamlContent = yaml.parse(
       getYamlContent(
+        __dirname,
         '../fixtures/.firestartr/docker_registries/registry_a.yaml'
       )
     )
     delete yamlContent.registry
     writeYamlContent(
-      '../fixtures/invalid_firestartr_docker_registries/invalid-registry.yaml',
+      os.tmpdir(),
+      'invalid_firestartr_docker_registries/invalid-registry.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getRegistriesConfig(
-        path.join(
-          __dirname,
-          '../fixtures/invalid_firestartr_docker_registries'
-        ),
+        path.join(os.tmpdir(), 'invalid_firestartr_docker_registries'),
         'snapshots.reg',
         'releases.reg'
       )
@@ -221,34 +231,42 @@ describe('Yaml validation against Json schema', () => {
 
   test('should fail if .firestartr/platforms data does not match the schema', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/.firestartr/clusters/cluster1.yaml')
+      getYamlContent(
+        __dirname,
+        '../fixtures/.firestartr/clusters/cluster1.yaml'
+      )
     )
     yamlContent.extraField = 'invalid'
     writeYamlContent(
-      '../fixtures/invalid_firestartr_platforms/invalid-platform.yaml',
+      os.tmpdir(),
+      'invalid_firestartr_platforms/invalid-platform.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getClustersConfig(
-        path.join(__dirname, '../fixtures/invalid_firestartr_platforms')
+        path.join(os.tmpdir(), '../fixtures/invalid_firestartr_platforms')
       )
     ).toThrow()
   })
 
   test('should fail if a required field is missing in .firestartr/platforms', () => {
     const yamlContent = yaml.parse(
-      getYamlContent('../fixtures/.firestartr/clusters/cluster1.yaml')
+      getYamlContent(
+        __dirname,
+        '../fixtures/.firestartr/clusters/cluster1.yaml'
+      )
     )
     delete yamlContent.envs
     writeYamlContent(
-      '../fixtures/invalid_firestartr_platforms/invalid-platform.yaml',
+      os.tmpdir(),
+      'invalid_firestartr_platforms/invalid-platform.yaml',
       yaml.stringify(yamlContent)
     )
 
     expect(() =>
       getClustersConfig(
-        path.join(__dirname, '../fixtures/invalid_firestartr_platforms')
+        path.join(os.tmpdir(), '../fixtures/invalid_firestartr_platforms')
       )
     ).toThrow()
   })

@@ -29,7 +29,7 @@ function configParse(fileContent, encoding = '') {
       fileContent = Buffer.from(fileContent, encoding).toString('utf-8')
     }
 
-    const yamlData = YAML.parse(fileContent, 'utf8')
+    const yamlData = YAML.parse(fileContent)
     const schemaFilePath = path.join(__dirname, '../schema/config.schema.json')
 
     validateSchema(yamlData, schemaFilePath)
@@ -55,7 +55,7 @@ function getAppsConfig(appFolderPath) {
           path.join(appFolderPath, configFileName),
           'utf-8'
         )
-        const configData = YAML.parse(configFileContent, 'utf8')
+        const configData = YAML.parse(configFileContent)
 
         try {
           validateSchema(configData, schemaFilePath)
@@ -93,7 +93,7 @@ function getClustersConfig(clustersFolderPath) {
           path.join(clustersFolderPath, configFileName),
           'utf-8'
         )
-        const configData = YAML.parse(configFileContent, 'utf8')
+        const configData = YAML.parse(configFileContent)
 
         try {
           validateSchema(configData, schemaFilePath)
@@ -137,7 +137,7 @@ function getRegistriesConfig(
           path.join(registriesFolderPath, configFileName),
           'utf-8'
         )
-        const configData = YAML.parse(configFileContent, 'utf8')
+        const configData = YAML.parse(configFileContent)
 
         try {
           validateSchema(configData, schemaFilePath)

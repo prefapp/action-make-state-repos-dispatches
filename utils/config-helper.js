@@ -19,10 +19,7 @@ function validateSchema(data, schemaPath) {
   const valid = validate(data)
 
   if (!valid) {
-    throw new Error(
-      `Validation errors found in file ${schemaPath}: ` +
-        `${JSON.stringify(validate.errors)}`
-    )
+    throw new Error(`Validation errors: ${JSON.stringify(validate.errors)}`)
   }
 }
 
@@ -43,33 +40,38 @@ function configParse(fileContent, encoding = '') {
   }
 }
 
-function getAppsConfig(appFolderPath) {
-  try {
-    const appsConfig = {}
-    const configFileList = fs.readdirSync(appFolderPath)
-    const schemaFilePath = path.join(
-      __dirname,
-      '../schema/firestartr-apps.schema.json'
-    )
+function getConfigData(configFolderPath, baseSchemaFilePath) {
+  const config = {}
+  const configFileList = fs.readdirSync(configFolderPath)
+  const schemaFilePath = path.join(__dirname, baseSchemaFilePath)
 
-    for (const configFileName of configFileList) {
-      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
-        const configFileContent = fs.readFileSync(
-          path.join(appFolderPath, configFileName),
-          'utf-8'
-        )
-        const configData = YAML.parse(configFileContent, 'utf8')
+  for (const configFileName of configFileList) {
+    if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
+      const configFileContent = fs.readFileSync(
+        path.join(configFolderPath, configFileName),
+        'utf-8'
+      )
+      const configData = YAML.parse(configFileContent, 'utf8')
 
+      try {
         validateSchema(configData, schemaFilePath)
+      } catch (err) {
+        throw new Error(`File ${configFileName}: ${err.message}`)
+      }
 
-        appsConfig[configData.name] = {
-          state_repo: configData.state_repo,
-          services: configData.services
-        }
+      config[configData.name] = {
+        state_repo: configData.state_repo,
+        services: configData.services
       }
     }
+  }
 
-    return appsConfig
+  return config
+}
+
+function getAppsConfig(appFolderPath) {
+  try {
+    return getConfigData(appFolderPath, '../schema/firestartr-apps.schema.json')
   } catch (err) {
     throw new Error(
       `Error getting app configs from folder ${appFolderPath}: ${err.message}`
@@ -79,32 +81,10 @@ function getAppsConfig(appFolderPath) {
 
 function getClustersConfig(clustersFolderPath) {
   try {
-    const clustersConfig = {}
-    const configFileList = fs.readdirSync(clustersFolderPath)
-    const schemaFilePath = path.join(
-      __dirname,
+    return getConfigData(
+      clustersFolderPath,
       '../schema/firestartr-platforms.schema.json'
     )
-
-    for (const configFileName of configFileList) {
-      if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
-        const configFileContent = fs.readFileSync(
-          path.join(clustersFolderPath, configFileName),
-          'utf-8'
-        )
-        const configData = YAML.parse(configFileContent, 'utf8')
-
-        validateSchema(configData, schemaFilePath)
-
-        clustersConfig[configData.name] = {
-          type: configData.type,
-          tenants: configData.tenants,
-          envs: configData.envs
-        }
-      }
-    }
-
-    return clustersConfig
   } catch (err) {
     throw new Error(
       `Error getting cluster configs from folder ` +
@@ -134,7 +114,11 @@ function getRegistriesConfig(
         )
         const configData = YAML.parse(configFileContent, 'utf8')
 
-        validateSchema(configData, schemaFilePath)
+        try {
+          validateSchema(configData, schemaFilePath)
+        } catch (err) {
+          throw new Error(`File ${configFileName}: ${err.message}`)
+        }
 
         if (configData.registry === snapshotsRegistry) {
           registriesConfig['snapshots'] = configData

@@ -275,6 +275,18 @@ function createDispatchList(
         )
       }
 
+      if (
+        !clusterConfig[chosenCluster].tenants ||
+        !clusterConfig[chosenCluster].envs ||
+        !clusterConfig[chosenCluster].type
+      ) {
+        throw new Error(
+          `Error when creating dispatch list: ${chosenCluster} ` +
+            `cluster configuration is incomplete: ` +
+            `missing "tenants", "envs" or "type"`
+        )
+      }
+
       if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +

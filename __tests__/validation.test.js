@@ -61,7 +61,7 @@ describe('Yaml validation against Json schema', () => {
     const yamlContent = getYamlContent(
       __dirname,
       '../fixtures/dispatches_file.yaml'
-     )
+    )
     const yamlData = configParse(yamlContent)
 
     expect(yamlData).toBeDefined()

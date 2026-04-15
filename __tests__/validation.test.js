@@ -32,10 +32,10 @@ function deleteFileIfExists(basePath, filePath) {
   }
 }
 
-function deleteFolderIfExists(basePath, filePath) {
-  const fullFolderPath = path.join(basePath, filePath)
+function deleteFolderIfExists(basePath, folderPath) {
+  const fullFolderPath = path.join(basePath, folderPath)
   if (fs.existsSync(fullFolderPath)) {
-    fs.rmSync(fullFolderPath)
+    fs.rmdirSync(fullFolderPath)
   }
 }
 
@@ -244,9 +244,7 @@ describe('Yaml validation against Json schema', () => {
     )
 
     expect(() =>
-      getClustersConfig(
-        path.join(os.tmpdir(), '../fixtures/invalid_firestartr_platforms')
-      )
+      getClustersConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
     ).toThrow()
   })
 
@@ -265,9 +263,7 @@ describe('Yaml validation against Json schema', () => {
     )
 
     expect(() =>
-      getClustersConfig(
-        path.join(os.tmpdir(), '../fixtures/invalid_firestartr_platforms')
-      )
+      getClustersConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
     ).toThrow()
   })
 })

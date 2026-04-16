@@ -469,24 +469,10 @@ describe('The dispatcher', () => {
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include tenant ${singleDispatch.tenant}`
     )
-  })
 
-  it('correctly throws an error when a cluster if missing mandatory configuration values', async () => {
-    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
-    const registriesConfig = configHelper.getRegistriesConfig(
-      'fixtures/.firestartr/docker_registries/',
-      'snapshots.reg',
-      'releases.reg'
-    )
-    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
-    )
-    const testPlatformName = dispatchesFileObj.deployments[0].platform
-
-    delete clusterConfig[testPlatformName].type
-    delete clusterConfig[testPlatformName].envs
-    delete clusterConfig[testPlatformName].tenants
+    delete clusterConfig[singleDispatch.platform].type
+    delete clusterConfig[singleDispatch.platform].envs
+    delete clusterConfig[singleDispatch.platform].tenants
 
     expect(() => {
       dispatcher.createDispatchList(
@@ -504,8 +490,8 @@ describe('The dispatcher', () => {
         `missing "tenants", "envs", "type"`
     )
 
-    clusterConfig[testPlatformName].type = 'aks-cluster'
-    clusterConfig[testPlatformName].tenants = ['tenant1']
+    clusterConfig[singleDispatch.platform].type = 'aks-cluster'
+    clusterConfig[singleDispatch.platform].tenants = ['tenant1']
 
     expect(() => {
       dispatcher.createDispatchList(
@@ -523,7 +509,7 @@ describe('The dispatcher', () => {
         `missing "envs"`
     )
 
-    clusterConfig[testPlatformName].envs = 'invalid'
+    clusterConfig[singleDispatch.platform].envs = 'invalid'
 
     expect(() => {
       dispatcher.createDispatchList(
@@ -541,8 +527,8 @@ describe('The dispatcher', () => {
         `"envs" should be an array`
     )
 
-    clusterConfig[testPlatformName].envs = ['env1']
-    clusterConfig[testPlatformName].tenants = 'invalid'
+    clusterConfig[singleDispatch.platform].envs = ['env1']
+    clusterConfig[singleDispatch.platform].tenants = 'invalid'
 
     expect(() => {
       dispatcher.createDispatchList(

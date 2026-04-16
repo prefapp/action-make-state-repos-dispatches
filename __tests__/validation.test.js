@@ -35,7 +35,7 @@ function deleteFileIfExists(basePath, filePath) {
 function deleteFolderIfExists(basePath, folderPath) {
   const fullFolderPath = path.join(basePath, folderPath)
   if (fs.existsSync(fullFolderPath)) {
-    fs.rmdirSync(fullFolderPath)
+    fs.rmSync(fullFolderPath, { recursive: true, force: true })
   }
 }
 

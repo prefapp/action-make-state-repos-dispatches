@@ -471,6 +471,96 @@ describe('The dispatcher', () => {
     )
   })
 
+  it('correctly throws an error when a cluster if missing mandatory configuration values', async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+    const testPlatformName = dispatchesFileObj.deployments[0].platform
+
+    delete clusterConfig[testPlatformName].type
+    delete clusterConfig[testPlatformName].envs
+    delete clusterConfig[testPlatformName].tenants
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: cluster1 ` +
+        `cluster configuration is incomplete: ` +
+        `missing "tenants", "envs", "type"`
+    )
+
+    clusterConfig[testPlatformName].type = 'aks-cluster'
+    clusterConfig[testPlatformName].tenants = ['tenant1']
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: cluster1 ` +
+        `cluster configuration is incomplete: ` +
+        `missing "envs"`
+    )
+
+    clusterConfig[testPlatformName].envs = 'invalid'
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: cluster1 ` +
+        `cluster configuration is incorrect: ` +
+        `"envs" should be an array`
+    )
+
+    clusterConfig[testPlatformName].envs = ['env1']
+    clusterConfig[testPlatformName].tenants = 'invalid'
+
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig
+      )
+    }).toThrow(
+      `Error when creating dispatch list: cluster1 ` +
+        `cluster configuration is incorrect: ` +
+        `"tenants" should be an array`
+    )
+  })
+
   it("correctly throws an error when a cluster doesn't have a configuration file", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const registriesConfig = configHelper.getRegistriesConfig(

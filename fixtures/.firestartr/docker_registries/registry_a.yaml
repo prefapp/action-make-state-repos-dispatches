@@ -2,6 +2,7 @@ name: myreleasesreg
 registry: releases.reg
 default: true
 image_types: [releases]
+auth_strategy: generic
 base_paths:
   services: 'service'
   charts: 'charts'

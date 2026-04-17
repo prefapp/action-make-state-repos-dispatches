@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "registry": { "type": "string" },
+    "image_types": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "default": { "type": "boolean" },
+    "auth_strategy": { "type": "string" },
+    "base_paths": {
+      "type": "object",
+      "properties": {
+        "services": { "type": "string" },
+        "charts": { "type": "string" }
+      },
+      "required": ["services"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "name",
+    "registry",
+    "image_types",
+    "default",
+    "auth_strategy",
+    "base_paths"
+  ],
+  "additionalProperties": false
+}

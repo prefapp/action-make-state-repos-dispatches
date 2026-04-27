@@ -275,34 +275,6 @@ function createDispatchList(
         )
       }
 
-      const missing = ['tenants', 'envs', 'type'].filter(
-        key => !clusterConfig[chosenCluster][key]
-      )
-
-      if (missing.length > 0) {
-        throw new Error(
-          `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration is incomplete: ` +
-            `missing ${missing.map(key => `"${key}"`).join(', ')}`
-        )
-      }
-
-      if (!Array.isArray(clusterConfig[chosenCluster].tenants)) {
-        throw new Error(
-          `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration is incorrect: ` +
-            `"tenants" should be an array`
-        )
-      }
-
-      if (!Array.isArray(clusterConfig[chosenCluster].envs)) {
-        throw new Error(
-          `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration is incorrect: ` +
-            `"envs" should be an array`
-        )
-      }
-
       if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +

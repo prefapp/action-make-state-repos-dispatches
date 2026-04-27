@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.1.0...v4.1.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* Always lowercase repo name ([#145](https://github.com/prefapp/action-make-state-repos-dispatches/issues/145)) ([478ba4d](https://github.com/prefapp/action-make-state-repos-dispatches/commit/478ba4d922d4ea30115f2c025b78c5309f1285a4))
+
 ## [4.1.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.6...v4.1.0) (2026-04-17)
 
 ### Features

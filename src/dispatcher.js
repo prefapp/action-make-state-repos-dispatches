@@ -317,6 +317,7 @@ function createDispatchList(
       }
 
       let showWarning = true
+      logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", deployment.application)
       for (const serviceData of appConfig[deployment.application].services) {
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", defaultImageRepository)
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceData.repo.toLowerCase())

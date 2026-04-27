@@ -2,16 +2,20 @@
 
 ## [4.1.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.6...v4.1.0) (2026-04-17)
 
-
 ### Features
 
-* Add `.firestartr` repo files validation ([#143](https://github.com/prefapp/action-make-state-repos-dispatches/issues/143)) ([2b2a6a3](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2b2a6a3219d895d2b4864220261e645ff5673cf4))
-
+- Add `.firestartr` repo files validation
+  ([#143](https://github.com/prefapp/action-make-state-repos-dispatches/issues/143))
+  ([2b2a6a3](https://github.com/prefapp/action-make-state-repos-dispatches/commit/2b2a6a3219d895d2b4864220261e645ff5673cf4))
 
 ### Bug Fixes
 
-* Added link to commit when no build summary is found ([#137](https://github.com/prefapp/action-make-state-repos-dispatches/issues/137)) ([7714533](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7714533c48a99259ffd9908f7d1e7eff2c10df40))
-* Lowercase repo info ([#139](https://github.com/prefapp/action-make-state-repos-dispatches/issues/139)) ([9ca8636](https://github.com/prefapp/action-make-state-repos-dispatches/commit/9ca8636cbdee44f05c9230b76e878f2892f773cb))
+- Added link to commit when no build summary is found
+  ([#137](https://github.com/prefapp/action-make-state-repos-dispatches/issues/137))
+  ([7714533](https://github.com/prefapp/action-make-state-repos-dispatches/commit/7714533c48a99259ffd9908f7d1e7eff2c10df40))
+- Lowercase repo info
+  ([#139](https://github.com/prefapp/action-make-state-repos-dispatches/issues/139))
+  ([9ca8636](https://github.com/prefapp/action-make-state-repos-dispatches/commit/9ca8636cbdee44f05c9230b76e878f2892f773cb))
 
 ## [4.0.6](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.0.5...v4.0.6) (2026-02-09)
 

@@ -318,7 +318,7 @@ function createDispatchList(
 
       let showWarning = true
       for (const serviceData of appConfig[deployment.application].services) {
-        if (defaultImageRepository === serviceData.repo) {
+        if (defaultImageRepository === serviceData.repo.toLowerCase()) {
           let makeDispatch = false
           if (deployment.service_names) {
             for (const serviceName of deployment.service_names) {
@@ -400,7 +400,8 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
       const payloadCtx = gitController.getPayloadContext()
 
       throw new Error(
-        `No build summary found for version ${version} (commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${ref})`
+        `No build summary found for version ${version} ` +
+          `(commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${ref})`
       )
     }
 

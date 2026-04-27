@@ -30,6 +30,7 @@ async function makeDispatches(gitController) {
 
   // Parse action inputs
   logger.debug('Parsing action inputs')
+  logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Beggining dispatch")
 
   const {
     dispatchesFilePath,
@@ -265,6 +266,7 @@ function createDispatchList(
   try {
     const dispatchList = []
 
+    logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Creating dispatch list")
     for (const deployment of deployments) {
       const chosenCluster = deployment.platform
 

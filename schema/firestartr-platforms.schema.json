@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "type": { "type": "string" },
+    "name": { "type": "string" },
+    "tenants": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "envs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "allowedClaims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resourceTypes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "providers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "backend": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["type", "name", "tenants", "envs"],
+  "additionalProperties": false
+}

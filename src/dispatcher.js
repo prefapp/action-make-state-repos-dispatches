@@ -30,7 +30,6 @@ async function makeDispatches(gitController) {
 
   // Parse action inputs
   logger.debug('Parsing action inputs')
-  logger.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Beggining dispatch')
 
   const {
     dispatchesFilePath,
@@ -266,7 +265,6 @@ function createDispatchList(
   try {
     const dispatchList = []
 
-    logger.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Creating dispatch list')
     for (const deployment of deployments) {
       const chosenCluster = deployment.platform
 
@@ -319,29 +317,11 @@ function createDispatchList(
       }
 
       let showWarning = true
-      console.log(
-        '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-        deployment.application
-      )
-      logger.warn(
-        '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-        deployment.application
-      )
       for (const serviceData of appConfig[deployment.application].services) {
-        logger.warn(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-          defaultImageRepository
-        )
-        logger.warn(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-          serviceData.repo.toLowerCase()
-        )
         if (defaultImageRepository === serviceData.repo.toLowerCase()) {
           let makeDispatch = false
           if (deployment.service_names) {
             for (const serviceName of deployment.service_names) {
-              logger.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', serviceName)
-              logger.warn(serviceData.service_names)
               if (serviceData.service_names.includes(serviceName)) {
                 makeDispatch = true
                 break

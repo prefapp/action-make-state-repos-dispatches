@@ -30,7 +30,7 @@ async function makeDispatches(gitController) {
 
   // Parse action inputs
   logger.debug('Parsing action inputs')
-  logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Beggining dispatch")
+  logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Beggining dispatch")
 
   const {
     dispatchesFilePath,
@@ -266,7 +266,7 @@ function createDispatchList(
   try {
     const dispatchList = []
 
-    logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Creating dispatch list")
+    logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Creating dispatch list")
     for (const deployment of deployments) {
       const chosenCluster = deployment.platform
 
@@ -320,16 +320,16 @@ function createDispatchList(
 
       let showWarning = true
       console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", deployment.application)
-      logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", deployment.application)
+      logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", deployment.application)
       for (const serviceData of appConfig[deployment.application].services) {
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", defaultImageRepository)
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceData.repo.toLowerCase())
+        logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", defaultImageRepository)
+        logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceData.repo.toLowerCase())
         if (defaultImageRepository === serviceData.repo.toLowerCase()) {
           let makeDispatch = false
           if (deployment.service_names) {
             for (const serviceName of deployment.service_names) {
-              logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceName)
-              logger.info(serviceData.service_names)
+              logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceName)
+              logger.warn(serviceData.service_names)
               if (serviceData.service_names.includes(serviceName)) {
                 makeDispatch = true
                 break

@@ -318,14 +318,14 @@ function createDispatchList(
 
       let showWarning = true
       for (const serviceData of appConfig[deployment.application].services) {
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", defaultImageRepository)
-        console.dir(serviceData, { depth: null })
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", defaultImageRepository)
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceData.repo.toLowerCase())
         if (defaultImageRepository === serviceData.repo.toLowerCase()) {
           let makeDispatch = false
           if (deployment.service_names) {
             for (const serviceName of deployment.service_names) {
-              console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceName)
-              console.log(serviceData.service_names)
+              logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", serviceName)
+              logger.info(serviceData.service_names)
               if (serviceData.service_names.includes(serviceName)) {
                 makeDispatch = true
                 break

@@ -408,6 +408,32 @@ describe('The dispatcher', () => {
     })
   })
 
+  it('uses base_path from deployment config when provided', async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+    dispatchesFileObj.deployments[0].base_path = 'custom/base/path'
+
+    const result = dispatcher.createDispatchList(
+      'my-org/my-repo',
+      dispatchesFileObj.deployments,
+      [],
+      'test-repo-caller',
+      appConfig,
+      clusterConfig,
+      registriesConfig
+    )
+    expect(result.length).toEqual(1)
+    expect(result[0].base_folder).toEqual('custom/base/path')
+  })
+
   it("correctly throws an error when a deployment's enviroment or tenant doesn't follow the cluster configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const registriesConfig = configHelper.getRegistriesConfig(

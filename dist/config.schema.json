@@ -57,6 +57,9 @@
           },
           "state_repo": {
             "type": "string"
+          },
+          "base_path": {
+            "type": "string"
           }
         },
         "required": [

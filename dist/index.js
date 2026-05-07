@@ -54584,7 +54584,7 @@ function createDispatchList(
                 `${defaultImageRepository}`
 
             const basePath =
-              deployment.base_path ||
+              deployment.base_path ??
               path.join(clusterConfig[chosenCluster].type, chosenCluster)
 
             dispatchList.push({

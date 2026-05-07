@@ -54583,10 +54583,9 @@ function createDispatchList(
               `${registriesConfig[deployment.type].base_paths['services']}/` +
                 `${defaultImageRepository}`
 
-            const basePath = path.join(
-              clusterConfig[chosenCluster].type,
-              chosenCluster
-            )
+            const basePath =
+              deployment.base_path ||
+              path.join(clusterConfig[chosenCluster].type, chosenCluster)
 
             dispatchList.push({
               type: deployment.type,
@@ -54694,7 +54693,7 @@ function updateSummaryTable(
     (dispatch.service_name_list || dispatch.image_keys).join(', '),
     dispatch.image,
     dispatch.reviewers.join(', '),
-    dispatch.base_path || '',
+    dispatch.base_folder || '',
     dispatchStatus
   ])
 }

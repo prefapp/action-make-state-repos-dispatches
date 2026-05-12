@@ -83,7 +83,7 @@ async function makeDispatches(gitController) {
 
     const reviewersList = getListFromInput(reviewers)
     const imageTypesList =
-      imageType === '*' ? ['releases', 'snapshots'] : [imageType]
+      imageType === '*' ? ['releases', 'snapshots', 'any'] : [imageType, 'any']
     const flavorsList =
       flavorFilter === '*' ? '*' : getListFromInput(flavorFilter)
     const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)

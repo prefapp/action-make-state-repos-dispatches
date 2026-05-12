@@ -54729,7 +54729,7 @@ function createDispatchList(
             if (
               deployment.type === 'any' &&
               imageType === '*' &&
-              !deployment.image_repository
+              (!deployment.image_repository || !deployment.registry)
             ) {
               throw new Error(
                 `Error when making dispatch: ${deployment.application} ` +
@@ -54766,7 +54766,9 @@ function createDispatchList(
               claim: deployment.claim,
               registry:
                 deployment.registry ||
-                registriesConfig[deployment.type].registry,
+                registriesConfig[
+                  deployment.type === 'any' ? imageType : deployment.type
+                ].registry,
               image_repo: imageRepo,
               dispatch_event_type:
                 deployment.dispatch_event_type ||

@@ -155,7 +155,7 @@ async function makeDispatches(gitController) {
             entry =>
               entry.flavor === data.flavor &&
               entry.version === resolvedVersion &&
-              entry.image_type === data.type &&
+              (entry.image_type === data.type || data.type === 'any') &&
               entry.repository === data.image_repo &&
               entry.registry === (data.registry || defaultRegistries[data.type])
           )[0]
@@ -364,7 +364,7 @@ function createDispatchList(
               path.join(clusterConfig[chosenCluster].type, chosenCluster)
 
             dispatchList.push({
-              type: deployment.type === 'any' ? imageType : deployment.type,
+              type: deployment.type,
               flavor: deployment.flavor,
               version: versionOverride || deployment.version,
               tenant: tenantOverride || deployment.tenant,

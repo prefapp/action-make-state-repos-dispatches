@@ -110,6 +110,7 @@ async function makeDispatches(gitController) {
       appConfig,
       clusterConfig,
       registriesConfig,
+      imageType,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -258,6 +259,7 @@ function createDispatchList(
   appConfig,
   clusterConfig,
   registriesConfig,
+  imageType,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''
@@ -333,10 +335,29 @@ function createDispatchList(
 
           if (makeDispatch) {
             showWarning = false
+
+            if (
+              deployment.type === 'any' &&
+              imageType === '*' &&
+              !deployment.image_repository
+            ) {
+              throw new Error(
+                `Error when making dispatch: ${deployment.application} ` +
+                  `for tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
+                  `and env ${deployment.env} has type "any" ` +
+                  `but does not specify an image_repository while the image ` +
+                  `type equals *. Either filter for a specific image type or ` +
+                  `set the image_repository config value.`
+              )
+            }
+
             const imageRepo =
               deployment.image_repository ||
-              `${registriesConfig[deployment.type].base_paths['services']}/` +
-                `${defaultImageRepository}`
+              `${
+                registriesConfig[
+                  deployment.type === 'any' ? imageType : deployment.type
+                ].base_paths['services']
+              }/${defaultImageRepository}`
 
             const basePath =
               deployment.base_path ||

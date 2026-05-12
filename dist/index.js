@@ -54754,7 +54754,7 @@ function createDispatchList(
               path.join(clusterConfig[chosenCluster].type, chosenCluster)
 
             dispatchList.push({
-              type: deployment.type,
+              type: deployment.type === 'any' ? imageType : deployment.type,
               flavor: deployment.flavor,
               version: versionOverride || deployment.version,
               tenant: tenantOverride || deployment.tenant,

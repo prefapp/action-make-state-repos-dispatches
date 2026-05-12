@@ -345,7 +345,7 @@ function createDispatchList(
                 `Error when making dispatch: ${deployment.application} ` +
                   `for tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
                   `and env ${deployment.env} has type "any" ` +
-                  `but does not specify an image_repository while the image ` +
+                  `but does not specify an image_repository or registry while the image ` +
                   `type equals *. Either filter for a specific image type or ` +
                   `set the image_repository config value.`
               )

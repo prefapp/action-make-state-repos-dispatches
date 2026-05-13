@@ -899,7 +899,7 @@ describe('The dispatcher', () => {
     ).toEqual(true)
   })
 
-  it('throws an error when imageType = "*" and an "any" type deployment has no image_repository or regsitry configured', async () => {
+  it('throws an error when imageType = "*" and an "any" type deployment has no image_repository or registry configured', async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch(
       defaultDispatchesFilePath,
       7

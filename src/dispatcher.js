@@ -148,7 +148,7 @@ async function makeDispatches(gitController) {
               `version: ${resolvedVersion}, ` +
               `image_type: ${data.type},` +
               `image_repo: ${data.image_repo}, ` +
-              `registry: ${data.registry || defaultRegistries[data.type]}`
+              `registry: ${data.registry || defaultRegistries[data.type === 'any' ? imageType : data.type]}`
           )
 
           const imageData = buildSummaryObj.filter(

@@ -54404,9 +54404,9 @@ async function makeDispatches(gitController) {
               entry.repository === data.image_repo &&
               entry.registry ===
                 (data.registry ||
-                  defaultRegistries[
-                    data.type === 'any' ? imageType : data.type
-                  ])
+                  (data.type === 'any'
+                    ? entry.registry
+                    : defaultRegistries[data.type]))
           )[0]
 
           if (!imageData)
@@ -54619,6 +54619,8 @@ function createDispatchList(
               deployment.base_path ||
               path.join(clusterConfig[chosenCluster].type, chosenCluster)
 
+            console.dir(deployment, { depth: null })
+
             dispatchList.push({
               type: deployment.type,
               flavor: deployment.flavor,
@@ -54632,9 +54634,9 @@ function createDispatchList(
               claim: deployment.claim,
               registry:
                 deployment.registry ||
-                registriesConfig[
-                  deployment.type === 'any' ? imageType : deployment.type
-                ].registry,
+                (deployment.type === 'any'
+                  ? ''
+                  : registriesConfig[deployment.type].registry),
               image_repo: imageRepo,
               dispatch_event_type:
                 deployment.dispatch_event_type ||

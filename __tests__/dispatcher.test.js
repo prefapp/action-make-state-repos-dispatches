@@ -945,7 +945,7 @@ describe('The dispatcher', () => {
         '*'
       )
     }).toThrow(
-      `but does not specify an image_repository or registry while the image`
+      `but does not specify the following configuration fields: image_repository`
     )
 
     dispatchesFileObj.deployments[0].image_repository = 'repo-any1'
@@ -962,7 +962,23 @@ describe('The dispatcher', () => {
         '*'
       )
     }).toThrow(
-      `but does not specify an image_repository or registry while the image`
+      `but does not specify the following configuration fields: registry`
+    )
+
+    dispatchesFileObj.deployments[0].image_repository = undefined
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig,
+        '*'
+      )
+    }).toThrow(
+      `but does not specify the following configuration fields: image_repository, registry`
     )
   })
 

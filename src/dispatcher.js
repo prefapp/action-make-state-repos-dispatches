@@ -345,13 +345,20 @@ function createDispatchList(
               imageType === '*' &&
               (!deployment.image_repository || !deployment.registry)
             ) {
+              let missingFields = ''
+              if (!deployment.image_repository)
+                missingFields = 'image_repository'
+              if (!deployment.registry)
+                missingFields = `${missingFields}${missingFields ? ', ' : ''}registry`
+
               throw new Error(
                 `Error when creating dispatch list: ${deployment.application} ` +
                   `for tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
                   `and env ${deployment.env} has type "any" ` +
-                  `but does not specify an image_repository or registry while the image ` +
-                  `type equals *. Either filter for a specific image type or ` +
-                  `set the image_repository and registry config values.`
+                  `but does not specify the following configuration fields: ` +
+                  `${missingFields} while the image type equals "*". Either ` +
+                  `filter for a specific image type or set the ` +
+                  `${missingFields} config values.`
               )
             }
 

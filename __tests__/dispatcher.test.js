@@ -44,7 +44,7 @@ const getSingleDispatch = (
 
   return { dispatchesFileObj: dispatches, singleDispatch: dispatchToReturn }
 }
-const gitControllerMock = {
+const baseGitControllerMock = {
   getInput: (input, required) => {
     return `${input}_value`
   },
@@ -97,9 +97,14 @@ const imageHelperMock = {
   checkManifest: _ => true
 }
 
+function getGitControllerMock() {
+  return { ...baseGitControllerMock }
+}
+
 describe('The dispatcher', () => {
   it('can make dispatches', async () => {
     const dispatchesExpectedLengths = [1, 3, 1, 1, 1, 1, 1]
+    const gitControllerMock = getGitControllerMock()
 
     const dispatches = await dispatcher.makeDispatches(
       gitControllerMock,
@@ -125,6 +130,7 @@ describe('The dispatcher', () => {
 
   it('can make dispatches without a build summary', async () => {
     const dispatchesExpectedLengths = [1, 3, 1, 1, 1, 1, 1]
+    const gitControllerMock = getGitControllerMock()
     gitControllerMock.getAllInputs = () => {
       allInputs.buildSummary = ''
       return allInputs
@@ -154,6 +160,7 @@ describe('The dispatcher', () => {
 
   it('correctly processes deployments with type="any"', async () => {
     let dispatchesExpectedLengths = [1, 2, 1, 1, 1]
+    const gitControllerMock = getGitControllerMock()
     gitControllerMock.getAllInputs = () => {
       allInputs.imageType = 'snapshots'
       return allInputs
@@ -209,6 +216,7 @@ describe('The dispatcher', () => {
   })
 
   it('returns undefined when no data for the current build is found (the error is captured)', async () => {
+    const gitControllerMock = getGitControllerMock()
     gitControllerMock.getAllInputs = () => {
       allInputs.buildSummary = '[{}]'
       return allInputs
@@ -223,6 +231,7 @@ describe('The dispatcher', () => {
   })
 
   it('returns undefined when no build summary is found (the error is captured)', async () => {
+    const gitControllerMock = getGitControllerMock()
     gitControllerMock.getSummaryDataForRef = (ref, checkRunName) => {
       throw new Error('No build summary found mock')
     }
@@ -979,6 +988,7 @@ describe('The dispatcher', () => {
   })
 
   it("can get the dispatches file content remotely, and throws an error when it doesn't find it", async () => {
+    const gitControllerMock = getGitControllerMock()
     const remoteFilePath = 'dispatches_file.yaml'
     const expectedRemoteResult = fs
       .readFileSync(path.join('fixtures', remoteFilePath))

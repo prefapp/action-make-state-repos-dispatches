@@ -255,18 +255,6 @@ async function getDispatchesFileContent(filePath, gitController, payloadCtx) {
   }
 }
 
-function checkTypeWhenAny(buildSummaryEntry, deployment, defaultType) {
-  if (deployment.type === 'any') {
-    if (defaultType === '*') {
-      return true
-    }
-
-    return buildSummaryEntry.image_type === defaultType
-  }
-
-  return false
-}
-
 function createDispatchList(
   defaultImageRepository,
   deployments,

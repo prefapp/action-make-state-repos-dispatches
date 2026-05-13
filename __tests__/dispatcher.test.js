@@ -324,13 +324,13 @@ describe('The dispatcher', () => {
     expect(result[7]).toEqual({
       type: 'any',
       flavor: 'flavor1',
-      registry: 'registry-any1',
+      registry: '',
       dispatch_event_type: 'dispatch-image-aks-cluster',
       version: 'version-any1',
       tenant: 'tenant-any1',
       app: 'application-any1',
       env: 'env-any1',
-      image_repo: 'repo-any1',
+      image_repo: '',
       service_name_list: ['service5'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
@@ -915,71 +915,6 @@ describe('The dispatcher', () => {
         'cluster2'
       ])
     ).toEqual(true)
-  })
-
-  it('throws an error when imageType = "*" and an "any" type deployment has no image_repository or registry configured', async () => {
-    const { dispatchesFileObj, singleDispatch } = getSingleDispatch(
-      defaultDispatchesFilePath,
-      7
-    )
-    const registriesConfig = configHelper.getRegistriesConfig(
-      'fixtures/.firestartr/docker_registries/',
-      'snapshots.reg',
-      'releases.reg'
-    )
-    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
-    )
-
-    dispatchesFileObj.deployments[0].image_repository = undefined
-    expect(() => {
-      dispatcher.createDispatchList(
-        'my-org/my-repo',
-        dispatchesFileObj.deployments,
-        [],
-        'test-repo-caller',
-        appConfig,
-        clusterConfig,
-        registriesConfig,
-        '*'
-      )
-    }).toThrow(
-      `but does not specify the following configuration fields: image_repository`
-    )
-
-    dispatchesFileObj.deployments[0].image_repository = 'repo-any1'
-    dispatchesFileObj.deployments[0].registry = undefined
-    expect(() => {
-      dispatcher.createDispatchList(
-        'my-org/my-repo',
-        dispatchesFileObj.deployments,
-        [],
-        'test-repo-caller',
-        appConfig,
-        clusterConfig,
-        registriesConfig,
-        '*'
-      )
-    }).toThrow(
-      `but does not specify the following configuration fields: registry`
-    )
-
-    dispatchesFileObj.deployments[0].image_repository = undefined
-    expect(() => {
-      dispatcher.createDispatchList(
-        'my-org/my-repo',
-        dispatchesFileObj.deployments,
-        [],
-        'test-repo-caller',
-        appConfig,
-        clusterConfig,
-        registriesConfig,
-        '*'
-      )
-    }).toThrow(
-      `but does not specify the following configuration fields: image_repository, registry`
-    )
   })
 
   it('can handle a failure', async () => {

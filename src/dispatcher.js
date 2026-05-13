@@ -147,8 +147,8 @@ async function makeDispatches(gitController) {
             `flavor: ${data.flavor}, ` +
               `version: ${resolvedVersion}, ` +
               `image_type: ${data.type},` +
-              `image_repo: ${data.image_repo}, ` +
-              `registry: ${data.registry || defaultRegistries[data.type === 'any' ? imageType : data.type]}`
+              `image_repo: ${data.image_repo || 'N/A'}, ` +
+              `registry: ${data.registry || data.type === 'any' ? 'N/A' : defaultRegistries[data.type]}`
           )
 
           const imageData = buildSummaryObj.filter(
@@ -156,7 +156,8 @@ async function makeDispatches(gitController) {
               entry.flavor === data.flavor &&
               entry.version === resolvedVersion &&
               (entry.image_type === data.type || data.type === 'any') &&
-              entry.repository === data.image_repo &&
+              entry.repository ===
+                (data.type === 'any' ? entry.repository : data.image_repo) &&
               entry.registry ===
                 (data.registry ||
                   (data.type === 'any'
@@ -168,8 +169,8 @@ async function makeDispatches(gitController) {
             throw new Error(
               `Build summary not found for flavor: ${data.flavor}, ` +
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
-                `image_repo: ${data.image_repo}, ` +
-                `registry: ${data.registry || defaultRegistries[data.type === 'any' ? imageType : data.type]}. ` +
+                `image_repo: ${data.image_repo || 'N/A'}, ` +
+                `registry: ${data.registry || data.type === 'any' ? 'N/A' : defaultRegistries[data.type]}. ` +
                 `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
             )
 
@@ -340,41 +341,15 @@ function createDispatchList(
           if (makeDispatch) {
             showWarning = false
 
-            if (
-              deployment.type === 'any' &&
-              imageType === '*' &&
-              (!deployment.image_repository || !deployment.registry)
-            ) {
-              let missingFields = ''
-              if (!deployment.image_repository)
-                missingFields = 'image_repository'
-              if (!deployment.registry)
-                missingFields = `${missingFields}${missingFields ? ', ' : ''}registry`
-
-              throw new Error(
-                `Error when creating dispatch list: ${deployment.application} ` +
-                  `for tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
-                  `and env ${deployment.env} has type "any" ` +
-                  `but does not specify the following configuration fields: ` +
-                  `${missingFields} while the image type equals "*". Either ` +
-                  `filter for a specific image type or set the ` +
-                  `${missingFields} config values.`
-              )
-            }
-
             const imageRepo =
               deployment.image_repository ||
-              `${
-                registriesConfig[
-                  deployment.type === 'any' ? imageType : deployment.type
-                ].base_paths['services']
-              }/${defaultImageRepository}`
+              (deployment.type === 'any'
+                ? ''
+                : `${registriesConfig[deployment.type].base_paths['services']}/${defaultImageRepository}`)
 
             const basePath =
               deployment.base_path ||
               path.join(clusterConfig[chosenCluster].type, chosenCluster)
-
-            console.dir(deployment, { depth: null })
 
             dispatchList.push({
               type: deployment.type,

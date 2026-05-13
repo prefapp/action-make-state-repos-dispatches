@@ -77,8 +77,6 @@ deployments:
     flavor: flavor1
     version: version-any1
     application: application-any1
-    registry: registry-any1
-    image_repository: repo-any1
     service_names: ['service5']
 
   - tenant: tenant-any2
@@ -88,6 +86,4 @@ deployments:
     flavor: flavor2
     version: version-any2
     application: application-any2
-    registry: registry-any2
-    image_repository: repo-any2
     image_keys: ['image_key2']

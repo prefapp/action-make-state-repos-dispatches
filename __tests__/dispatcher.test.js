@@ -49,7 +49,7 @@ const baseGitControllerMock = {
     return `${input}_value`
   },
   getAllInputs: () => {
-    return allInputs
+    return { ...allInputs }
   },
   getFileContent: (filePath, ref = '') => {
     return Buffer.from(

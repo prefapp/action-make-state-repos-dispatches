@@ -169,7 +169,7 @@ async function makeDispatches(gitController) {
               `Build summary not found for flavor: ${data.flavor}, ` +
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
                 `image_repo: ${data.image_repo}, ` +
-                `registry: ${data.registry || defaultRegistries[data.type]}. ` +
+                `registry: ${data.registry || defaultRegistries[data.type === 'any' ? imageType : data.type]}. ` +
                 `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
             )
 

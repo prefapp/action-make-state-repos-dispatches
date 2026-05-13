@@ -69,3 +69,25 @@ deployments:
     application: application-releases1
     registry: registry-releases1
     image_keys: ['image_key1']
+
+  - tenant: tenant-any1
+    platform: cluster-any1
+    env: env-any1
+    type: any
+    flavor: flavor1
+    version: version-any1
+    application: application-any1
+    registry: registry-any1
+    image_repository: repo-any1
+    service_names: ['service5']
+
+  - tenant: tenant-any2
+    platform: cluster-any2
+    env: env-any2
+    type: any
+    flavor: flavor2
+    version: version-any2
+    application: application-any2
+    registry: registry-any2
+    image_repository: repo-any2
+    image_keys: ['image_key2']

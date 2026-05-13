@@ -155,10 +155,13 @@ async function makeDispatches(gitController) {
             entry =>
               entry.flavor === data.flavor &&
               entry.version === resolvedVersion &&
-              (entry.image_type === data.type ||
-                checkTypeWhenAny(entry, data, imageType)) &&
+              (entry.image_type === data.type || data.type === 'any') &&
               entry.repository === data.image_repo &&
-              entry.registry === (data.registry || defaultRegistries[data.type])
+              entry.registry ===
+                (data.registry ||
+                  defaultRegistries[
+                    data.type === 'any' ? imageType : data.type
+                  ])
           )[0]
 
           if (!imageData)
@@ -258,7 +261,7 @@ function checkTypeWhenAny(buildSummaryEntry, deployment, defaultType) {
       return true
     }
 
-    return buildSummaryEntry.type === defaultType
+    return buildSummaryEntry.image_type === defaultType
   }
 
   return false

@@ -99,14 +99,14 @@ const imageHelperMock = {
 
 describe('The dispatcher', () => {
   it('can make dispatches', async () => {
-    const dispatchesExpectedLengths = [1, 3, 1, 1, 1]
+    const dispatchesExpectedLengths = [1, 3, 1, 1, 1, 1, 1]
 
     const dispatches = await dispatcher.makeDispatches(
       gitControllerMock,
       imageHelperMock
     )
 
-    expect(dispatches.length).toEqual(5)
+    expect(dispatches.length).toEqual(7)
 
     for (const index in dispatches) {
       expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
@@ -118,10 +118,13 @@ describe('The dispatcher', () => {
     expect(dispatches[2]).toEqual([
       'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
+    expect(dispatches[5]).toEqual([
+      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+    ])
   })
 
   it('can make dispatches without a build summary', async () => {
-    const dispatchesExpectedLengths = [1, 3, 1, 1, 1]
+    const dispatchesExpectedLengths = [1, 3, 1, 1, 1, 1, 1]
     gitControllerMock.getAllInputs = () => {
       allInputs.buildSummary = ''
       return allInputs
@@ -132,7 +135,7 @@ describe('The dispatcher', () => {
       imageHelperMock
     )
 
-    expect(dispatches.length).toEqual(5)
+    expect(dispatches.length).toEqual(7)
 
     for (const index in dispatches) {
       expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
@@ -143,6 +146,65 @@ describe('The dispatcher', () => {
     ])
     expect(dispatches[2]).toEqual([
       'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
+    ])
+    expect(dispatches[5]).toEqual([
+      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+    ])
+  })
+
+  it('correctly processes deployments with type="any"', async () => {
+    let dispatchesExpectedLengths = [1, 2, 1, 1, 1]
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = 'snapshots'
+      return allInputs
+    }
+
+    let dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches.length).toEqual(5)
+
+    for (const index in dispatches) {
+      expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
+    }
+
+    expect(dispatches[0]).toEqual([
+      'registry1/service/my-org/my-repo:v1.1.0-pre published in org/state-app-app1'
+    ])
+    expect(dispatches[2]).toEqual([
+      'snapshots.reg/service/my-org/my-repo:v444 published in org/state-app-app4'
+    ])
+    expect(dispatches[3]).toEqual([
+      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+    ])
+
+    dispatchesExpectedLengths = [1, 1, 1, 1, 1]
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = 'releases'
+      return allInputs
+    }
+
+    dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches.length).toEqual(5)
+
+    for (const index in dispatches) {
+      expect(dispatches[index].length).toEqual(dispatchesExpectedLengths[index])
+    }
+
+    expect(dispatches[0]).toEqual([
+      'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
+    ])
+    expect(dispatches[2]).toEqual([
+      'registry-releases1/service/my-org/my-repo:v1.1.0-pro published in org/state-app-app-releases1'
+    ])
+    expect(dispatches[3]).toEqual([
+      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
     ])
   })
 
@@ -192,10 +254,11 @@ describe('The dispatcher', () => {
       'test-repo-caller',
       appConfig,
       clusterConfig,
-      registriesConfig
+      registriesConfig,
+      '*'
     )
 
-    expect(result.length).toEqual(7)
+    expect(result.length).toEqual(9)
     expect(result[0]).toEqual({
       type: 'snapshots',
       flavor: 'flavor1',
@@ -248,6 +311,23 @@ describe('The dispatcher', () => {
       technology: 'vmss',
       platform: 'cluster23',
       base_folder: 'vmss/cluster23'
+    })
+    expect(result[7]).toEqual({
+      type: 'any',
+      flavor: 'flavor1',
+      registry: 'registry-any1',
+      dispatch_event_type: 'dispatch-image-aks-cluster',
+      version: 'version-any1',
+      tenant: 'tenant-any1',
+      app: 'application-any1',
+      env: 'env-any1',
+      image_repo: 'repo-any1',
+      service_name_list: ['service5'],
+      reviewers: [],
+      repository_caller: 'test-repo-caller',
+      technology: 'aks-cluster',
+      platform: 'cluster-any1',
+      base_folder: 'aks-cluster/cluster-any1'
     })
   })
 
@@ -817,6 +897,55 @@ describe('The dispatcher', () => {
         'cluster2'
       ])
     ).toEqual(true)
+  })
+
+  it('throws an error when imageType = "*" and an "any" type deployment has no image_repository or regsitry configured', async () => {
+    const { dispatchesFileObj, singleDispatch } = getSingleDispatch(
+      defaultDispatchesFilePath,
+      7
+    )
+    const registriesConfig = configHelper.getRegistriesConfig(
+      'fixtures/.firestartr/docker_registries/',
+      'snapshots.reg',
+      'releases.reg'
+    )
+    const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
+    const clusterConfig = configHelper.getClustersConfig(
+      'fixtures/.firestartr/clusters/'
+    )
+
+    dispatchesFileObj.deployments[0].image_repository = undefined
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig,
+        '*'
+      )
+    }).toThrow(
+      `but does not specify an image_repository or registry while the image`
+    )
+
+    dispatchesFileObj.deployments[0].image_repository = 'repo-any1'
+    dispatchesFileObj.deployments[0].registry = undefined
+    expect(() => {
+      dispatcher.createDispatchList(
+        'my-org/my-repo',
+        dispatchesFileObj.deployments,
+        [],
+        'test-repo-caller',
+        appConfig,
+        clusterConfig,
+        registriesConfig,
+        '*'
+      )
+    }).toThrow(
+      `but does not specify an image_repository or registry while the image`
+    )
   })
 
   it('can handle a failure', async () => {

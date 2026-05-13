@@ -346,7 +346,7 @@ function createDispatchList(
               (!deployment.image_repository || !deployment.registry)
             ) {
               throw new Error(
-                `Error when making dispatch: ${deployment.application} ` +
+                `Error when creating dispatch list: ${deployment.application} ` +
                   `for tenant ${deployment.tenant}, flavor ${deployment.flavor} ` +
                   `and env ${deployment.env} has type "any" ` +
                   `but does not specify an image_repository or registry while the image ` +

@@ -3,4 +3,3 @@ state_repo: 'org/state-app-app-any2'
 services:
   - repo: my-org/my-repo
     service_names: [service5]
-

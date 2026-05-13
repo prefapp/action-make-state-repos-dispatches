@@ -155,7 +155,8 @@ async function makeDispatches(gitController) {
             entry =>
               entry.flavor === data.flavor &&
               entry.version === resolvedVersion &&
-              (entry.image_type === data.type || data.type === 'any') &&
+              (entry.image_type === data.type ||
+                checkTypeWhenAny(entry, data, imageType)) &&
               entry.repository === data.image_repo &&
               entry.registry === (data.registry || defaultRegistries[data.type])
           )[0]
@@ -249,6 +250,18 @@ async function getDispatchesFileContent(filePath, gitController, payloadCtx) {
       `Error getting make_dispatches.yaml file from ref ${payloadCtx.ref}: ${err.message}`
     )
   }
+}
+
+function checkTypeWhenAny(buildSummaryEntry, deployment, defaultType) {
+  if (deployment.type === 'any') {
+    if (defaultType === '*') {
+      return true
+    }
+
+    return buildSummaryEntry.type === defaultType
+  }
+
+  return false
 }
 
 function createDispatchList(

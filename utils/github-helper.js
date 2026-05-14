@@ -92,7 +92,9 @@ function getAllInputs() {
     const overwriteTenant = core.getInput('overwrite_tenant')
     const reviewers = core.getInput('reviewers')
     const checkRunName = core.getInput('check_run_name')
-    const originRepositoryFullName = core.getInput('origin_repository_full_name')
+    const originRepositoryFullName = core.getInput(
+      'origin_repository_full_name'
+    )
     const originPrNumber = core.getInput('origin_pr_number')
     const originRef = core.getInput('origin_ref')
 

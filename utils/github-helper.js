@@ -92,6 +92,11 @@ function getAllInputs() {
     const overwriteTenant = core.getInput('overwrite_tenant')
     const reviewers = core.getInput('reviewers')
     const checkRunName = core.getInput('check_run_name')
+    const originRepositoryFullName = core.getInput(
+      'origin_repository_full_name'
+    )
+    const originPrNumber = core.getInput('origin_pr_number')
+    const originRef = core.getInput('origin_ref')
 
     return {
       dispatchesFilePath,
@@ -110,7 +115,10 @@ function getAllInputs() {
       overwriteEnv,
       overwriteTenant,
       reviewers,
-      checkRunName
+      checkRunName,
+      originRepositoryFullName,
+      originPrNumber,
+      originRef
     }
   } catch (e) {
     throw new Error(`Error while obtaining all Github inputs: ${e}`)

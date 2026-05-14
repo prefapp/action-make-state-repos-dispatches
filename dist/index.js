@@ -54293,7 +54293,10 @@ async function makeDispatches(gitController) {
     overwriteEnv,
     overwriteTenant,
     reviewers,
-    checkRunName
+    checkRunName,
+    originRepositoryFullName,
+    originPrNumber,
+    originRef
   } = gitController.getAllInputs()
 
   try {
@@ -54357,7 +54360,10 @@ async function makeDispatches(gitController) {
       registriesConfig,
       overwriteVersion,
       overwriteTenant,
-      overwriteEnv
+      overwriteEnv,
+      originRepositoryFullName,
+      originPrNumber,
+      originRef
     )
 
     if (dispatchList.length !== 0) {
@@ -54505,7 +54511,10 @@ function createDispatchList(
   registriesConfig,
   versionOverride = '',
   tenantOverride = '',
-  envOverride = ''
+  envOverride = '',
+  originRepositoryFullName = '',
+  originPrNumber = '',
+  originRef = ''
 ) {
   try {
     const dispatchList = []
@@ -54607,6 +54616,9 @@ function createDispatchList(
                 `dispatch-image-${clusterConfig[chosenCluster].type}`,
               reviewers: reviewersList,
               repository_caller: repo,
+              origin_repository_full_name: originRepositoryFullName,
+              origin_pr_number: originPrNumber,
+              origin_ref: originRef,
               technology: clusterConfig[chosenCluster].type,
               platform: chosenCluster,
               base_folder: basePath
@@ -55000,6 +55012,11 @@ function getAllInputs() {
     const overwriteTenant = core.getInput('overwrite_tenant')
     const reviewers = core.getInput('reviewers')
     const checkRunName = core.getInput('check_run_name')
+    const originRepositoryFullName = core.getInput(
+      'origin_repository_full_name'
+    )
+    const originPrNumber = core.getInput('origin_pr_number')
+    const originRef = core.getInput('origin_ref')
 
     return {
       dispatchesFilePath,
@@ -55018,7 +55035,10 @@ function getAllInputs() {
       overwriteEnv,
       overwriteTenant,
       reviewers,
-      checkRunName
+      checkRunName,
+      originRepositoryFullName,
+      originPrNumber,
+      originRef
     }
   } catch (e) {
     throw new Error(`Error while obtaining all Github inputs: ${e}`)

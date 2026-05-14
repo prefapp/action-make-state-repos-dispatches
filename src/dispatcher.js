@@ -48,7 +48,10 @@ async function makeDispatches(gitController) {
     overwriteEnv,
     overwriteTenant,
     reviewers,
-    checkRunName
+    checkRunName,
+    originRepositoryFullName,
+    originPrNumber,
+    originRef
   } = gitController.getAllInputs()
 
   try {
@@ -112,7 +115,10 @@ async function makeDispatches(gitController) {
       registriesConfig,
       overwriteVersion,
       overwriteTenant,
-      overwriteEnv
+      overwriteEnv,
+      originRepositoryFullName,
+      originPrNumber,
+      originRef
     )
 
     if (dispatchList.length !== 0) {
@@ -260,7 +266,10 @@ function createDispatchList(
   registriesConfig,
   versionOverride = '',
   tenantOverride = '',
-  envOverride = ''
+  envOverride = '',
+  originRepositoryFullName = '',
+  originPrNumber = '',
+  originRef = ''
 ) {
   try {
     const dispatchList = []
@@ -362,6 +371,9 @@ function createDispatchList(
                 `dispatch-image-${clusterConfig[chosenCluster].type}`,
               reviewers: reviewersList,
               repository_caller: repo,
+              origin_repository_full_name: originRepositoryFullName,
+              origin_pr_number: originPrNumber,
+              origin_ref: originRef,
               technology: clusterConfig[chosenCluster].type,
               platform: chosenCluster,
               base_folder: basePath

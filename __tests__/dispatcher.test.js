@@ -263,8 +263,7 @@ describe('The dispatcher', () => {
       'test-repo-caller',
       appConfig,
       clusterConfig,
-      registriesConfig,
-      '*'
+      registriesConfig
     )
 
     expect(result.length).toEqual(9)
@@ -364,8 +363,7 @@ describe('The dispatcher', () => {
       'test-repo-caller',
       appConfig,
       clusterConfig,
-      registriesConfig,
-      '*'
+      registriesConfig
     )
     expect(result.length).toEqual(1)
     expect(result[0]).toEqual({
@@ -409,8 +407,7 @@ describe('The dispatcher', () => {
         'test-repo-caller',
         appConfig,
         clusterConfig,
-        registriesConfig,
-        '*'
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.application} for ` +
@@ -439,8 +436,7 @@ describe('The dispatcher', () => {
         'test-repo-caller',
         {},
         clusterConfig,
-        registriesConfig,
-        '*'
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.application} application configuration does not exist`
@@ -477,8 +473,7 @@ describe('The dispatcher', () => {
       'test-repo-caller',
       appConfig,
       clusterConfig,
-      registriesConfig,
-      '*'
+      registriesConfig
     )
     expect(result.length).toEqual(1)
     expect(result[0]).toEqual({
@@ -521,8 +516,7 @@ describe('The dispatcher', () => {
       'test-repo-caller',
       appConfig,
       clusterConfig,
-      registriesConfig,
-      '*'
+      registriesConfig
     )
     expect(result.length).toEqual(1)
     expect(result[0].base_folder).toEqual('custom/base/path')
@@ -551,8 +545,7 @@ describe('The dispatcher', () => {
         'test-repo-caller',
         appConfig,
         clusterConfig,
-        registriesConfig,
-        '*'
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: tfworkspaces ` +
@@ -569,8 +562,7 @@ describe('The dispatcher', () => {
         'test-repo-caller',
         appConfig,
         clusterConfig,
-        registriesConfig,
-        '*'
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include env ${singleDispatch.env}`
@@ -586,8 +578,7 @@ describe('The dispatcher', () => {
         'test-repo-caller',
         appConfig,
         clusterConfig,
-        registriesConfig,
-        '*'
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include tenant ${singleDispatch.tenant}`
@@ -611,8 +602,7 @@ describe('The dispatcher', () => {
         'test-repo-caller',
         appConfig,
         {},
-        registriesConfig,
-        '*'
+        registriesConfig
       )
     }).toThrow(
       `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not exist`

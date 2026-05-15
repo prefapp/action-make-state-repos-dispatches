@@ -110,7 +110,6 @@ async function makeDispatches(gitController) {
       appConfig,
       clusterConfig,
       registriesConfig,
-      imageType,
       overwriteVersion,
       overwriteTenant,
       overwriteEnv
@@ -264,7 +263,6 @@ function createDispatchList(
   appConfig,
   clusterConfig,
   registriesConfig,
-  imageType,
   versionOverride = '',
   tenantOverride = '',
   envOverride = ''

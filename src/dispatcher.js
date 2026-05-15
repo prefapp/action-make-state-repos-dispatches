@@ -83,7 +83,7 @@ async function makeDispatches(gitController) {
 
     const reviewersList = getListFromInput(reviewers)
     const imageTypesList =
-      imageType === '*' ? ['releases', 'snapshots'] : [imageType]
+      imageType === '*' ? ['releases', 'snapshots', 'any'] : [imageType, 'any']
     const flavorsList =
       flavorFilter === '*' ? '*' : getListFromInput(flavorFilter)
     const envFilterList = envFilter === '*' ? '*' : getListFromInput(envFilter)
@@ -146,25 +146,30 @@ async function makeDispatches(gitController) {
             `flavor: ${data.flavor}, ` +
               `version: ${resolvedVersion}, ` +
               `image_type: ${data.type},` +
-              `image_repo: ${data.image_repo}, ` +
-              `registry: ${data.registry || defaultRegistries[data.type]}`
+              `image_repo: ${data.image_repo || 'N/A'}, ` +
+              `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}`
           )
 
           const imageData = buildSummaryObj.filter(
             entry =>
               entry.flavor === data.flavor &&
               entry.version === resolvedVersion &&
-              entry.image_type === data.type &&
-              entry.repository === data.image_repo &&
-              entry.registry === (data.registry || defaultRegistries[data.type])
+              (entry.image_type === data.type || data.type === 'any') &&
+              entry.repository ===
+                (data.image_repo === '' ? entry.repository : data.image_repo) &&
+              entry.registry ===
+                (data.registry ||
+                  (data.type === 'any'
+                    ? entry.registry
+                    : defaultRegistries[data.type]))
           )[0]
 
           if (!imageData)
             throw new Error(
               `Build summary not found for flavor: ${data.flavor}, ` +
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
-                `image_repo: ${data.image_repo}, ` +
-                `registry: ${data.registry || defaultRegistries[data.type]}. ` +
+                `image_repo: ${data.image_repo || 'N/A'}, ` +
+                `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}. ` +
                 `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
             )
 
@@ -333,10 +338,12 @@ function createDispatchList(
 
           if (makeDispatch) {
             showWarning = false
+
             const imageRepo =
               deployment.image_repository ||
-              `${registriesConfig[deployment.type].base_paths['services']}/` +
-                `${defaultImageRepository}`
+              (deployment.type === 'any'
+                ? ''
+                : `${registriesConfig[deployment.type].base_paths['services']}/${defaultImageRepository}`)
 
             const basePath =
               deployment.base_path ||
@@ -355,7 +362,9 @@ function createDispatchList(
               claim: deployment.claim,
               registry:
                 deployment.registry ||
-                registriesConfig[deployment.type].registry,
+                (deployment.type === 'any'
+                  ? ''
+                  : registriesConfig[deployment.type].registry),
               image_repo: imageRepo,
               dispatch_event_type:
                 deployment.dispatch_event_type ||

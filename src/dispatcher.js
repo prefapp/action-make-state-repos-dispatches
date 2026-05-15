@@ -157,7 +157,7 @@ async function makeDispatches(gitController) {
               entry.version === resolvedVersion &&
               (entry.image_type === data.type || data.type === 'any') &&
               entry.repository ===
-                (data.type === 'any' ? entry.repository : data.image_repo) &&
+                (data.image_repo === '' ? entry.repository : data.image_repo) &&
               entry.registry ===
                 (data.registry ||
                   (data.type === 'any'

@@ -148,7 +148,7 @@ async function makeDispatches(gitController) {
               `version: ${resolvedVersion}, ` +
               `image_type: ${data.type},` +
               `image_repo: ${data.image_repo || 'N/A'}, ` +
-              `registry: ${data.registry || data.type === 'any' ? 'N/A' : defaultRegistries[data.type]}`
+              `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}`
           )
 
           const imageData = buildSummaryObj.filter(
@@ -170,7 +170,7 @@ async function makeDispatches(gitController) {
               `Build summary not found for flavor: ${data.flavor}, ` +
                 `version: ${resolvedVersion}, image_type: ${data.type}, ` +
                 `image_repo: ${data.image_repo || 'N/A'}, ` +
-                `registry: ${data.registry || data.type === 'any' ? 'N/A' : defaultRegistries[data.type]}. ` +
+                `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}. ` +
                 `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
             )
 

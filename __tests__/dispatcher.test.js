@@ -210,6 +210,9 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      origin_repository_full_name: '',
+      origin_pr_number: '',
+      origin_ref: '',
       technology: 'aks-cluster',
       platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'
@@ -227,6 +230,9 @@ describe('The dispatcher', () => {
       image_keys: ['image_key23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      origin_repository_full_name: '',
+      origin_pr_number: '',
+      origin_ref: '',
       technology: 'vmss',
       platform: 'cluster23',
       base_folder: 'vmss/cluster23'
@@ -245,6 +251,9 @@ describe('The dispatcher', () => {
       service_name_list: ['service2', 'service23'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      origin_repository_full_name: '',
+      origin_pr_number: '',
+      origin_ref: '',
       technology: 'vmss',
       platform: 'cluster23',
       base_folder: 'vmss/cluster23'
@@ -292,6 +301,9 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      origin_repository_full_name: '',
+      origin_pr_number: '',
+      origin_ref: '',
       technology: 'aks-cluster',
       platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'
@@ -402,6 +414,9 @@ describe('The dispatcher', () => {
       service_name_list: ['service1'],
       reviewers: [],
       repository_caller: 'test-repo-caller',
+      origin_repository_full_name: '',
+      origin_pr_number: '',
+      origin_ref: '',
       technology: 'aks-cluster',
       platform: 'cluster1',
       base_folder: 'aks-cluster/cluster1'

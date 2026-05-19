@@ -104,6 +104,18 @@ inputs:
     description: Name of the check run where the build summary will be uploaded
     required: false
     default: ''
+  origin_repository_full_name:
+    description: Full name (owner/repo) of the source repo that triggered the deployment
+    required: false
+    default: ''
+  origin_pr_number:
+    description: PR number in the source repo that triggered the deployment
+    required: false
+    default: ''
+  origin_ref:
+    description: Branch/ref in the source repo that triggered the deployment
+    required: false
+    default: ''
 
 runs:
   using: node20

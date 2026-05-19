@@ -198,7 +198,10 @@ describe('github-helper', () => {
       overwriteEnv: 'overwrite_env-value',
       overwriteTenant: 'overwrite_tenant-value',
       reviewers: 'reviewers-value',
-      checkRunName: 'check_run_name-value'
+      checkRunName: 'check_run_name-value',
+      originRepositoryFullName: 'origin_repository_full_name-value',
+      originPrNumber: 'origin_pr_number-value',
+      originRef: 'origin_ref-value'
     })
   })
 

@@ -1,0 +1,4 @@
+type: aks-cluster
+name: cluster-any2
+tenants: [tenant-any2]
+envs: [env-any2]

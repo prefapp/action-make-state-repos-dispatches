@@ -106,5 +106,25 @@
     "registry": "releases.reg",
     "repository": "service/my-org/my-repo",
     "version": "version23"
+  },
+  {
+    "build_args": [],
+    "flavor": "flavor1",
+    "image_repo": "repo-any1",
+    "image_tag": "v2.3-flavor1-pro",
+    "image_type": "snapshots",
+    "registry": "registry-any1",
+    "repository": "repo-any1",
+    "version": "version-any1"
+  },
+  {
+    "build_args": [],
+    "flavor": "flavor2",
+    "image_repo": "repo-any2",
+    "image_tag": "v2.3-flavor2-pro",
+    "image_type": "releases",
+    "registry": "registry-any2",
+    "repository": "repo-any2",
+    "version": "version-any2"
   }
 ]

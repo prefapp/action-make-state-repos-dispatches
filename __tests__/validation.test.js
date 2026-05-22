@@ -225,6 +225,16 @@ describe('Yaml validation against Json schema', () => {
         type: 'tfworkspaces',
         tenants: ['tenant99', 'tenant2', 'tenant1'],
         envs: ['dev', 'env1', 'flavor99']
+      },
+      'cluster-any1': {
+        envs: ['env-any1'],
+        tenants: ['tenant-any1'],
+        type: 'aks-cluster'
+      },
+      'cluster-any2': {
+        envs: ['env-any2'],
+        tenants: ['tenant-any2'],
+        type: 'aks-cluster'
       }
     })
   })

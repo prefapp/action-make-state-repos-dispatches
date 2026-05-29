@@ -19,11 +19,11 @@ jobs:
           release-type: node
           target-branch: main
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Trigger PR-verify on release PRs
         if: ${{ steps.release.outputs.prs_created }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             let prs;

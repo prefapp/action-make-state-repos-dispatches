@@ -2,6 +2,8 @@ name: application99
 state_repo: 'org/app99'
 services:
   - repo: my-org/my-repo
+    platforms: ['cluster23']
     service_names: [app99-client]
   - repo: my-org/my-repo
+    platforms: ['cluster1']
     service_names: [app99-api]

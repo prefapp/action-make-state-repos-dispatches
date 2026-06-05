@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.3.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.2.0...v4.3.0) (2026-05-29)
+
+
+### Features
+
+* Allow `any` in make dispatches config ([#150](https://github.com/prefapp/action-make-state-repos-dispatches/issues/150)) ([e917cd5](https://github.com/prefapp/action-make-state-repos-dispatches/commit/e917cd547ce4a8c74ab9aa7c76670ffb4aab03c1))
+* update action to node 24 ([#156](https://github.com/prefapp/action-make-state-repos-dispatches/issues/156)) ([bba7cda](https://github.com/prefapp/action-make-state-repos-dispatches/commit/bba7cda0c04700a7ce0bc3eb61d400de142de968))
+
 ## [4.2.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.1.1...v4.2.0) (2026-05-07)
 
 ### Features

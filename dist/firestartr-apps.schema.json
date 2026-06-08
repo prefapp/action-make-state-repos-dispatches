@@ -8,6 +8,10 @@
     "state_repo": {
       "type": "string"
     },
+    "platforms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "services": {
       "type": "array",
       "items": {
@@ -15,6 +19,10 @@
         "properties": {
           "repo": {
             "type": "string"
+          },
+          "platforms": {
+            "type": "array",
+            "items": { "type": "string" }
           },
           "service_names": {
             "type": "array",

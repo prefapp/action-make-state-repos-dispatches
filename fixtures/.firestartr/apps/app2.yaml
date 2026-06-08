@@ -2,4 +2,5 @@ name: application23
 state_repo: 'org/state-app-app23'
 services:
   - repo: my-org/my-repo
+    platforms: ['cluster-any2', 'cluster-any1']
     service_names: ['service2', 'service3', 'service23']

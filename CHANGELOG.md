@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.0...v4.3.1) (2026-06-08)
+
+
+### Bug Fixes
+
+* Update app schema ([#153](https://github.com/prefapp/action-make-state-repos-dispatches/issues/153)) ([5c0c61e](https://github.com/prefapp/action-make-state-repos-dispatches/commit/5c0c61e8386f0419ac7db0d8aa0d077f6d2a1378))
+
 ## [4.3.0](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.2.0...v4.3.0) (2026-05-29)
 
 

@@ -250,6 +250,91 @@ describe('The dispatcher', () => {
     expect(result).toBeUndefined()
   })
 
+  const prereleaseBuildSummary = (version, imageTag) =>
+    JSON.stringify([
+      {
+        build_args: {},
+        flavor: 'flavor1',
+        image_repo: 'my-org/my-repo',
+        image_tag: imageTag,
+        image_type: 'snapshots',
+        platforms: ['linux/arm64', 'linux/amd64'],
+        registry: 'registry1',
+        repository: 'service/my-org/my-repo',
+        version
+      }
+    ])
+  const setUpPrereleaseDispatch = (buildSummary, gitControllerMock) => {
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_prerelease.yaml'
+      allInputs.buildSummary = buildSummary
+      return allInputs
+    }
+    gitControllerMock.getLatestPrerelease = () => ({ tag_name: 'tr6' })
+    gitControllerMock.getDereferencedTag = () =>
+      '7682dda9611e3a24f0093263c476f0cd0374968e'
+  }
+
+  it('uses the dereferenced tag when the build summary is keyed by the commit sha', async () => {
+    const gitControllerMock = getGitControllerMock()
+    setUpPrereleaseDispatch(
+      prereleaseBuildSummary('7682dda', '7682dda_default'),
+      gitControllerMock
+    )
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:7682dda_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('falls back to the tag itself when the build summary is keyed by the tag name', async () => {
+    const gitControllerMock = getGitControllerMock()
+    setUpPrereleaseDispatch(
+      prereleaseBuildSummary('tr6', 'tr6_default'),
+      gitControllerMock
+    )
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:tr6_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('fails when neither the dereferenced tag nor the tag itself match the build summary', async () => {
+    const gitControllerMock = getGitControllerMock()
+    setUpPrereleaseDispatch(
+      prereleaseBuildSummary('other', 'other_default'),
+      gitControllerMock
+    )
+    const handleFailure = jest.spyOn(gitControllerMock, 'handleFailure')
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Build summary not found for flavor: flavor1, version: tr6'
+      )
+    )
+  })
+
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = getAllDispatches()
     const registriesConfig = configHelper.getRegistriesConfig(

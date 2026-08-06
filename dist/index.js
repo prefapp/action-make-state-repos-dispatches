@@ -54377,6 +54377,18 @@ async function makeDispatches(gitController) {
             data.version,
             gitController
           )
+
+          // For `$latest_prerelease`, snapshots are built keyed by the
+          // dereferenced commit (short SHA). Check for an image built with the
+          // dereferenced tag first, then fall back to the tag itself.
+          const resolvedVersions = [resolvedVersion]
+          if (data.version === '$latest_prerelease' && resolvedVersion) {
+            const dereferencedTag =
+              await gitController.getDereferencedTag(resolvedVersion)
+            if (dereferencedTag)
+              resolvedVersions.unshift(dereferencedTag.substring(0, 7))
+          }
+
           const stateRepoName =
             data.state_repo || appConfig[data.app].state_repo
           const buildSummaryObj = await getBuildSummaryData(data.version)
@@ -54396,25 +54408,32 @@ async function makeDispatches(gitController) {
           logger.debug(
             '🔍 Filtering by:',
             `flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, ` +
+              `version: ${resolvedVersions.join(', ')}, ` +
               `image_type: ${data.type},` +
               `image_repo: ${data.image_repo || 'N/A'}, ` +
               `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}`
           )
 
-          const imageData = buildSummaryObj.filter(
-            entry =>
-              entry.flavor === data.flavor &&
-              entry.version === resolvedVersion &&
-              (entry.image_type === data.type || data.type === 'any') &&
-              entry.repository ===
-                (data.image_repo === '' ? entry.repository : data.image_repo) &&
-              entry.registry ===
-                (data.registry ||
-                  (data.type === 'any'
-                    ? entry.registry
-                    : defaultRegistries[data.type]))
-          )[0]
+          let imageData = null
+          for (const candidateVersion of resolvedVersions) {
+            imageData = buildSummaryObj.filter(
+              entry =>
+                entry.flavor === data.flavor &&
+                entry.version === candidateVersion &&
+                (entry.image_type === data.type || data.type === 'any') &&
+                entry.repository ===
+                  (data.image_repo === ''
+                    ? entry.repository
+                    : data.image_repo) &&
+                entry.registry ===
+                  (data.registry ||
+                    (data.type === 'any'
+                      ? entry.registry
+                      : defaultRegistries[data.type]))
+            )[0]
+
+            if (imageData) break
+          }
 
           if (!imageData)
             throw new Error(

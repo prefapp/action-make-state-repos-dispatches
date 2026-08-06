@@ -335,6 +335,32 @@ describe('The dispatcher', () => {
     )
   })
 
+  it('uses the dereferenced tag for snapshots with a literal tag version', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_snapshot_tag.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        '1a2b3cd',
+        '1a2b3cd_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getDereferencedTag = () =>
+      '1a2b3cdef0123456789abcdef0123456789abcd'
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:1a2b3cd_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = getAllDispatches()
     const registriesConfig = configHelper.getRegistriesConfig(
@@ -1043,11 +1069,11 @@ describe('The dispatcher', () => {
 
   it('correctly throws an error when one happens while obtaining the latest build summary', async () => {
     await expect(
-      dispatcher.getLatestBuildSummary('a', {}, 'b')
+      dispatcher.getLatestBuildSummary('a', 'releases', {}, 'b')
     ).rejects.toThrow(`Error while getting the latest build summary`)
   })
 
-  it('first checks for the build summary of the dereferenced tag of $latest_prerelease', async () => {
+  it('first checks for the build summary of the dereferenced tag for snapshots', async () => {
     const gitControllerMock = getGitControllerMock()
     const getSummaryDataForRef = jest.fn(() => {
       return {
@@ -1058,6 +1084,7 @@ describe('The dispatcher', () => {
 
     const result = await dispatcher.getLatestBuildSummary(
       '$latest_prerelease',
+      'snapshots',
       gitControllerMock,
       'check'
     )
@@ -1084,6 +1111,7 @@ describe('The dispatcher', () => {
 
     const result = await dispatcher.getLatestBuildSummary(
       '$latest_prerelease',
+      'snapshots',
       gitControllerMock,
       'check'
     )
@@ -1110,6 +1138,7 @@ describe('The dispatcher', () => {
     await expect(
       dispatcher.getLatestBuildSummary(
         '$latest_prerelease',
+        'snapshots',
         gitControllerMock,
         'check'
       )
@@ -1124,6 +1153,7 @@ describe('The dispatcher', () => {
 
     const result = await dispatcher.getLatestBuildSummary(
       '$latest_prerelease',
+      'snapshots',
       gitControllerMock,
       'check'
     )

@@ -54313,8 +54313,8 @@ async function makeDispatches(gitController) {
     )
     logger.debug('Dispatches file content (validated)', dispatchesData)
 
-    let getBuildSummaryData = async version =>
-      await getLatestBuildSummary(version, gitController, checkRunName)
+    let getBuildSummaryData = async (version, type) =>
+      await getLatestBuildSummary(version, type, gitController, checkRunName)
 
     if (buildSummary) {
       const parsedBuildSummary = JSON.parse(buildSummary)
@@ -54378,11 +54378,11 @@ async function makeDispatches(gitController) {
             gitController
           )
 
-          // For `$latest_prerelease`, snapshots are built keyed by the
-          // dereferenced commit (short SHA). Check for an image built with the
-          // dereferenced tag first, then fall back to the tag itself.
+          // Snapshots are built keyed by the dereferenced commit (short SHA).
+          // Check for an image built with the dereferenced tag first, then
+          // fall back to the tag itself.
           const resolvedVersions = [resolvedVersion]
-          if (data.version === '$latest_prerelease' && resolvedVersion) {
+          if (data.type === 'snapshots' && resolvedVersion) {
             const dereferencedTag =
               await gitController.getDereferencedTag(resolvedVersion)
             if (dereferencedTag)
@@ -54391,7 +54391,10 @@ async function makeDispatches(gitController) {
 
           const stateRepoName =
             data.state_repo || appConfig[data.app].state_repo
-          const buildSummaryObj = await getBuildSummaryData(data.version)
+          const buildSummaryObj = await getBuildSummaryData(
+            data.version,
+            data.type
+          )
 
           if (!buildSummaryObj)
             throw new Error(
@@ -54667,7 +54670,12 @@ function createDispatchList(
   }
 }
 
-async function getLatestBuildSummary(version, gitController, checkRunName) {
+async function getLatestBuildSummary(
+  version,
+  type,
+  gitController,
+  checkRunName
+) {
   try {
     const ref = await refHelper.getLatestRef(version, gitController, false)
 
@@ -54675,7 +54683,7 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
 
     let summaryData
 
-    if (version === '$latest_prerelease') {
+    if (type === 'snapshots') {
       const dereferencedRef = await gitController.getDereferencedTag(ref)
 
       if (dereferencedRef) {

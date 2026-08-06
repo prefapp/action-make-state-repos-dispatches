@@ -54818,10 +54818,7 @@ async function getLatestBuildSummary(version, gitController, checkRunName) {
         )
       }
     } else {
-      summaryData = await gitController.getSummaryDataForRef(
-        ref,
-        checkRunName
-      )
+      summaryData = await gitController.getSummaryDataForRef(ref, checkRunName)
     }
 
     if (!summaryData || !summaryData.summary) {

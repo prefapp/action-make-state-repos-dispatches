@@ -136,13 +136,19 @@ async function makeDispatches(gitController) {
           // Snapshots are built keyed by the dereferenced commit (short SHA).
           // Check for an image built with the dereferenced tag first, then
           // fall back to the tag itself.
+          let dereferencedTag = null
           const resolvedVersions = [resolvedVersion]
           if (data.type === 'snapshots' && resolvedVersion) {
-            const dereferencedTag =
+            dereferencedTag =
               await gitController.getDereferencedTag(resolvedVersion)
             if (dereferencedTag)
               resolvedVersions.unshift(dereferencedTag.substring(0, 7))
           }
+
+          const commitRef = dereferencedTag || resolvedVersion
+          const commitUrl = commitRef
+            ? `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commitRef}`
+            : ''
 
           const stateRepoName =
             data.state_repo || appConfig[data.app].state_repo
@@ -153,9 +159,7 @@ async function makeDispatches(gitController) {
 
           if (!buildSummaryObj)
             throw new Error(
-              `No build summary found for version ${data.version}, ` +
-                `image_type: ${data.type}. ` +
-                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
+              `No build summary found for version ${data.version}, image_type: ${data.type}.${commitUrl ? ` Commit: ${commitUrl}` : ''}`
             )
 
           logger.debug(
@@ -195,11 +199,7 @@ async function makeDispatches(gitController) {
 
           if (!imageData)
             throw new Error(
-              `Build summary not found for flavor: ${data.flavor}, ` +
-                `version: ${resolvedVersion}, image_type: ${data.type}, ` +
-                `image_repo: ${data.image_repo || 'N/A'}, ` +
-                `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}. ` +
-                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
+              `Build summary not found for flavor: ${data.flavor}, version: ${resolvedVersion || data.version}, image_type: ${data.type}, image_repo: ${data.image_repo || 'N/A'}, registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}.${commitUrl ? ` Commit: ${commitUrl}` : ''}`
             )
 
           logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -437,9 +437,10 @@ async function getLatestBuildSummary(
     if (!ref) return null
 
     let summaryData
+    let dereferencedRef
 
     if (type === 'snapshots') {
-      const dereferencedRef = await gitController.getDereferencedTag(ref)
+      dereferencedRef = await gitController.getDereferencedTag(ref)
 
       if (dereferencedRef) {
         summaryData = await gitController.getSummaryDataForRef(
@@ -460,10 +461,11 @@ async function getLatestBuildSummary(
 
     if (!summaryData || !summaryData.summary) {
       const payloadCtx = gitController.getPayloadContext()
+      const commitRef = dereferencedRef || ref
 
       throw new Error(
         `No build summary found for version ${version} ` +
-          `(commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${ref})`
+          `(commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commitRef})`
       )
     }
 

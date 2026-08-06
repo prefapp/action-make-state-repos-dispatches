@@ -333,6 +333,38 @@ describe('The dispatcher', () => {
         'Build summary not found for flavor: flavor1, version: tr6'
       )
     )
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '/commit/7682dda9611e3a24f0093263c476f0cd0374968e'
+      )
+    )
+  })
+
+  it('omits the commit URL when the version cannot be resolved', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_prerelease.yaml'
+      allInputs.buildSummary = ''
+      return allInputs
+    }
+    gitControllerMock.getLatestPrerelease = () => null
+    const handleFailure = jest.spyOn(gitControllerMock, 'handleFailure')
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'No build summary found for version $latest_prerelease, image_type: snapshots.'
+      )
+    )
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.not.stringContaining('commit/')
+    )
   })
 
   it('uses the dereferenced tag for snapshots with a literal tag version', async () => {
@@ -1143,7 +1175,8 @@ describe('The dispatcher', () => {
         'check'
       )
     ).rejects.toThrow(
-      'Error while getting the latest build summary: No build summary found for version $latest_prerelease'
+      'Error while getting the latest build summary: No build summary found for version $latest_prerelease ' +
+        '(commit: https://github.com/payload-ctx-owner/payload-ctx-repo/commit/dereferenced-commit-sha)'
     )
   })
 

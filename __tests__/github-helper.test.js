@@ -133,6 +133,32 @@ jest.mock('@actions/github', () => ({
               }
             }
           }
+        },
+        git: {
+          getRef: payload => {
+            if (payload.ref.includes('throw')) {
+              throw new Error()
+            } else if (payload.ref.includes('annotated')) {
+              return {
+                data: { object: { sha: 'tag-object-sha', type: 'tag' } }
+              }
+            } else {
+              return {
+                data: { object: { sha: 'commit-sha', type: 'commit' } }
+              }
+            }
+          },
+          getTag: payload => {
+            if (payload.tag_sha === 'throw') {
+              throw new Error()
+            } else {
+              return {
+                data: {
+                  object: { sha: 'dereferenced-commit-sha', type: 'commit' }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -391,6 +417,25 @@ describe('github-helper', () => {
     await expect(ghHelper.getLastBranchCommit(branchPayload)).rejects.toThrow(
       `Error getting last branch commit for ${branchPayload}`
     )
+  })
+
+  it('can get the commit a lightweight tag dereferences to', async () => {
+    const dereferencedTag = await ghHelper.getDereferencedTag('v1.2.3')
+
+    expect(dereferencedTag).toEqual('commit-sha')
+  })
+
+  it('can get the commit an annotated tag dereferences to', async () => {
+    const dereferencedTag =
+      await ghHelper.getDereferencedTag('annotated-v1.2.3')
+
+    expect(dereferencedTag).toEqual('dereferenced-commit-sha')
+  })
+
+  it('returns null when a tag cannot be dereferenced', async () => {
+    const dereferencedTag = await ghHelper.getDereferencedTag('throw-v1.2.3')
+
+    expect(dereferencedTag).toEqual(null)
   })
 
   it('can get the contents of a file', async () => {

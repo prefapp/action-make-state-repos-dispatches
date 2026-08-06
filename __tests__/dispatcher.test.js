@@ -73,6 +73,12 @@ const baseGitControllerMock = {
       summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
     }
   },
+  getLatestPrerelease: () => {
+    return { tag_name: 'v1.1.0-pre' }
+  },
+  getDereferencedTag: () => {
+    return 'dereferenced-commit-sha'
+  },
   dispatch: (stateRepoName, eventTypeName, matrix) => {
     const result = []
     for (const dispatch of matrix) {
@@ -954,5 +960,89 @@ describe('The dispatcher', () => {
     await expect(
       dispatcher.getLatestBuildSummary('a', {}, 'b')
     ).rejects.toThrow(`Error while getting the latest build summary`)
+  })
+
+  it('first checks for the build summary of the dereferenced tag of $latest_prerelease', async () => {
+    const gitControllerMock = getGitControllerMock()
+    const getSummaryDataForRef = jest.fn(() => {
+      return {
+        summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
+      }
+    })
+    gitControllerMock.getSummaryDataForRef = getSummaryDataForRef
+
+    const result = await dispatcher.getLatestBuildSummary(
+      '$latest_prerelease',
+      gitControllerMock,
+      'check'
+    )
+
+    expect(getSummaryDataForRef).toHaveBeenCalledWith(
+      'dereferenced-commit-sha',
+      'check'
+    )
+    expect(result).toEqual(
+      JSON.parse(fs.readFileSync('fixtures/build_summary.json', 'utf-8'))
+    )
+  })
+
+  it('falls back to checking the tag itself when no build summary is found for the dereferenced tag', async () => {
+    const gitControllerMock = getGitControllerMock()
+    const getSummaryDataForRef = jest.fn(ref => {
+      if (ref === 'dereferenced-commit-sha') return false
+
+      return {
+        summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
+      }
+    })
+    gitControllerMock.getSummaryDataForRef = getSummaryDataForRef
+
+    const result = await dispatcher.getLatestBuildSummary(
+      '$latest_prerelease',
+      gitControllerMock,
+      'check'
+    )
+
+    expect(getSummaryDataForRef).toHaveBeenNthCalledWith(
+      1,
+      'dereferenced-commit-sha',
+      'check'
+    )
+    expect(getSummaryDataForRef).toHaveBeenNthCalledWith(
+      2,
+      'v1.1.0-pre',
+      'check'
+    )
+    expect(result).toEqual(
+      JSON.parse(fs.readFileSync('fixtures/build_summary.json', 'utf-8'))
+    )
+  })
+
+  it('throws an error when no build summary is found for either the dereferenced tag or the tag itself', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getSummaryDataForRef = _ => false
+
+    await expect(
+      dispatcher.getLatestBuildSummary(
+        '$latest_prerelease',
+        gitControllerMock,
+        'check'
+      )
+    ).rejects.toThrow(
+      'Error while getting the latest build summary: No build summary found for version $latest_prerelease'
+    )
+  })
+
+  it('returns null when no latest prerelease exists', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getLatestPrerelease = _ => null
+
+    const result = await dispatcher.getLatestBuildSummary(
+      '$latest_prerelease',
+      gitControllerMock,
+      'check'
+    )
+
+    expect(result).toEqual(null)
   })
 })

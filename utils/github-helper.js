@@ -224,6 +224,39 @@ function sortReleasesByTime(releases) {
   })
 }
 
+async function getDereferencedTag(tagName) {
+  try {
+    const octokit = module.exports.getReadOnlyOctokit()
+    const ctx = getPayloadContext()
+
+    const tagRefResponse = await octokit.rest.git.getRef({
+      owner: ctx.owner,
+      repo: ctx.repo,
+      ref: `tags/${tagName}`
+    })
+
+    const { type: tagType, sha: tagSha } = tagRefResponse.data.object
+
+    if (tagType === 'commit') return tagSha
+
+    if (tagType === 'tag') {
+      const tagResponse = await octokit.rest.git.getTag({
+        owner: ctx.owner,
+        repo: ctx.repo,
+        tag_sha: tagSha
+      })
+
+      return tagResponse.data.object.sha
+    }
+
+    return null
+  } catch (e) {
+    console.error(e)
+
+    return null
+  }
+}
+
 async function getLastBranchCommit(payload, short = true) {
   try {
     const octokit = module.exports.getReadOnlyOctokit()
@@ -370,6 +403,7 @@ module.exports = {
   getAppOctokit,
   getLatestRelease,
   getLatestPrerelease,
+  getDereferencedTag,
   sortReleasesByTime,
   getLastBranchCommit,
   getFileContent,

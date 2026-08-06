@@ -136,6 +136,13 @@ async function makeDispatches(gitController) {
             data.state_repo || appConfig[data.app].state_repo
           const buildSummaryObj = await getBuildSummaryData(data.version)
 
+          if (!buildSummaryObj)
+            throw new Error(
+              `No build summary found for version ${data.version}, ` +
+                `image_type: ${data.type}. ` +
+                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
+            )
+
           logger.debug(
             '📜 Summary builds >',
             JSON.stringify(buildSummaryObj, null, 2)
@@ -399,10 +406,30 @@ function createDispatchList(
 async function getLatestBuildSummary(version, gitController, checkRunName) {
   try {
     const ref = await refHelper.getLatestRef(version, gitController, false)
-    const summaryData = await gitController.getSummaryDataForRef(
-      ref,
-      checkRunName
-    )
+
+    if (!ref) return null
+
+    let summaryData
+
+    if (version === '$latest_prerelease') {
+      const dereferencedRef = await gitController.getDereferencedTag(ref)
+
+      if (dereferencedRef) {
+        summaryData = await gitController.getSummaryDataForRef(
+          dereferencedRef,
+          checkRunName
+        )
+      }
+
+      if (!summaryData || !summaryData.summary) {
+        summaryData = await gitController.getSummaryDataForRef(
+          ref,
+          checkRunName
+        )
+      }
+    } else {
+      summaryData = await gitController.getSummaryDataForRef(ref, checkRunName)
+    }
 
     if (!summaryData || !summaryData.summary) {
       const payloadCtx = gitController.getPayloadContext()

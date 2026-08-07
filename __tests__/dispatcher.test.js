@@ -393,25 +393,20 @@ describe('The dispatcher', () => {
     ])
   })
 
-  it('uses the dereferenced ref for snapshots with a branch version', async () => {
+  it('uses the branch name when the build summary is keyed by the branch name', async () => {
     const gitControllerMock = getGitControllerMock()
     gitControllerMock.getAllInputs = () => {
       allInputs.imageType = '*'
       allInputs.dispatchesFilePath = 'dispatches_file_snapshot_branch.yaml'
       allInputs.buildSummary = prereleaseBuildSummary(
-        'abcdef0',
-        'abcdef0_default'
+        'my-branch',
+        'my-branch_default'
       )
       return allInputs
     }
     gitControllerMock.getLastBranchCommit = (payload, short = true) =>
       short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
-    gitControllerMock.getDereferencedRef = ref => {
-      if (ref === '$branch_my-branch') {
-        return 'abcdef0123456789abcdef0123456789abcdef0'
-      }
-      return null
-    }
+    gitControllerMock.getDereferencedRef = () => null
 
     const dispatches = await dispatcher.makeDispatches(
       gitControllerMock,
@@ -420,7 +415,7 @@ describe('The dispatcher', () => {
 
     expect(dispatches).toEqual([
       [
-        'registry1/service/my-org/my-repo:abcdef0_default published in org/state-app-app1'
+        'registry1/service/my-org/my-repo:my-branch_default published in org/state-app-app1'
       ]
     ])
   })

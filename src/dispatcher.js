@@ -133,19 +133,21 @@ async function makeDispatches(gitController) {
             gitController
           )
 
-          // Snapshots are built keyed by the dereferenced commit (short SHA).
-          // Check for an image built with the dereferenced tag first, then
-          // fall back to the tag itself.
-          let dereferencedRef = null
+          // Snapshots are built keyed by a dereferenced identifier: the
+          // dereferenced commit (short SHA) for tags, or the branch name for
+          // branches. Check those first, then fall back to the resolved ref.
+          const isBranch = data.version.startsWith('$branch_')
           const resolvedVersions = [resolvedVersion]
+          let dereferencedRef = null
           if (data.type === 'snapshots' && resolvedVersion) {
-            const dereferenceTarget = data.version.startsWith('$branch_')
-              ? data.version
-              : resolvedVersion
-            dereferencedRef =
-              await gitController.getDereferencedRef(dereferenceTarget)
-            if (dereferencedRef)
-              resolvedVersions.unshift(dereferencedRef.substring(0, 7))
+            if (isBranch) {
+              resolvedVersions.push(data.version.replace(/^\$branch_/, ''))
+            } else {
+              dereferencedRef =
+                await gitController.getDereferencedRef(resolvedVersion)
+              if (dereferencedRef)
+                resolvedVersions.unshift(dereferencedRef.substring(0, 7))
+            }
           }
 
           const commitRef = dereferencedRef || resolvedVersion

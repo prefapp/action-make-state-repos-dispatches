@@ -136,16 +136,19 @@ async function makeDispatches(gitController) {
           // Snapshots are built keyed by the dereferenced commit (short SHA).
           // Check for an image built with the dereferenced tag first, then
           // fall back to the tag itself.
-          let dereferencedTag = null
+          let dereferencedRef = null
           const resolvedVersions = [resolvedVersion]
           if (data.type === 'snapshots' && resolvedVersion) {
-            dereferencedTag =
-              await gitController.getDereferencedTag(resolvedVersion)
-            if (dereferencedTag)
-              resolvedVersions.unshift(dereferencedTag.substring(0, 7))
+            const dereferenceTarget = data.version.startsWith('$branch_')
+              ? data.version
+              : resolvedVersion
+            dereferencedRef =
+              await gitController.getDereferencedRef(dereferenceTarget)
+            if (dereferencedRef)
+              resolvedVersions.unshift(dereferencedRef.substring(0, 7))
           }
 
-          const commitRef = dereferencedTag || resolvedVersion
+          const commitRef = dereferencedRef || resolvedVersion
           const commitUrl = commitRef
             ? `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commitRef}`
             : ''
@@ -440,7 +443,9 @@ async function getLatestBuildSummary(
     let dereferencedRef
 
     if (type === 'snapshots') {
-      dereferencedRef = await gitController.getDereferencedTag(ref)
+      const dereferenceTarget = version.startsWith('$branch_') ? version : ref
+      dereferencedRef =
+        await gitController.getDereferencedRef(dereferenceTarget)
 
       if (dereferencedRef) {
         summaryData = await gitController.getSummaryDataForRef(

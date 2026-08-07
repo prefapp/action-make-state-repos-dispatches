@@ -76,7 +76,7 @@ const baseGitControllerMock = {
   getLatestPrerelease: () => {
     return { tag_name: 'v1.1.0-pre' }
   },
-  getDereferencedTag: () => {
+  getDereferencedRef: () => {
     return 'dereferenced-commit-sha'
   },
   dispatch: (stateRepoName, eventTypeName, matrix) => {
@@ -272,7 +272,7 @@ describe('The dispatcher', () => {
       return allInputs
     }
     gitControllerMock.getLatestPrerelease = () => ({ tag_name: 'tr6' })
-    gitControllerMock.getDereferencedTag = () =>
+    gitControllerMock.getDereferencedRef = () =>
       '7682dda9611e3a24f0093263c476f0cd0374968e'
   }
 
@@ -378,7 +378,7 @@ describe('The dispatcher', () => {
       )
       return allInputs
     }
-    gitControllerMock.getDereferencedTag = () =>
+    gitControllerMock.getDereferencedRef = () =>
       '1a2b3cdef0123456789abcdef0123456789abcd'
 
     const dispatches = await dispatcher.makeDispatches(
@@ -389,6 +389,38 @@ describe('The dispatcher', () => {
     expect(dispatches).toEqual([
       [
         'registry1/service/my-org/my-repo:1a2b3cd_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('uses the dereferenced ref for snapshots with a branch version', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_snapshot_branch.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        'abcdef0',
+        'abcdef0_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getLastBranchCommit = (payload, short = true) =>
+      short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
+    gitControllerMock.getDereferencedRef = ref => {
+      if (ref === '$branch_my-branch') {
+        return 'abcdef0123456789abcdef0123456789abcdef0'
+      }
+      return null
+    }
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:abcdef0_default published in org/state-app-app1'
       ]
     ])
   })

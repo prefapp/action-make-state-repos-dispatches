@@ -224,15 +224,19 @@ function sortReleasesByTime(releases) {
   })
 }
 
-async function getDereferencedTag(tagName) {
+async function getDereferencedRef(ref) {
   try {
     const octokit = module.exports.getReadOnlyOctokit()
     const ctx = getPayloadContext()
 
+    const isBranch = ref.startsWith('$branch_')
+    const refName = isBranch ? ref.replace(/^\$branch_/, '') : ref
+    const refType = isBranch ? 'heads' : 'tags'
+
     const tagRefResponse = await octokit.rest.git.getRef({
       owner: ctx.owner,
       repo: ctx.repo,
-      ref: `tags/${tagName}`
+      ref: `${refType}/${refName}`
     })
 
     const { type: tagType, sha: tagSha } = tagRefResponse.data.object
@@ -403,7 +407,7 @@ module.exports = {
   getAppOctokit,
   getLatestRelease,
   getLatestPrerelease,
-  getDereferencedTag,
+  getDereferencedRef,
   sortReleasesByTime,
   getLastBranchCommit,
   getFileContent,

@@ -142,6 +142,10 @@ jest.mock('@actions/github', () => ({
               return {
                 data: { object: { sha: 'tag-object-sha', type: 'tag' } }
               }
+            } else if (payload.ref.includes('heads/')) {
+              return {
+                data: { object: { sha: 'branch-commit-sha', type: 'commit' } }
+              }
             } else {
               return {
                 data: { object: { sha: 'commit-sha', type: 'commit' } }
@@ -420,22 +424,37 @@ describe('github-helper', () => {
   })
 
   it('can get the commit a lightweight tag dereferences to', async () => {
-    const dereferencedTag = await ghHelper.getDereferencedTag('v1.2.3')
+    const dereferencedRef = await ghHelper.getDereferencedRef('v1.2.3')
 
-    expect(dereferencedTag).toEqual('commit-sha')
+    expect(dereferencedRef).toEqual('commit-sha')
   })
 
   it('can get the commit an annotated tag dereferences to', async () => {
-    const dereferencedTag =
-      await ghHelper.getDereferencedTag('annotated-v1.2.3')
+    const dereferencedRef =
+      await ghHelper.getDereferencedRef('annotated-v1.2.3')
 
-    expect(dereferencedTag).toEqual('dereferenced-commit-sha')
+    expect(dereferencedRef).toEqual('dereferenced-commit-sha')
+  })
+
+  it('can get the commit a branch dereferences to', async () => {
+    const dereferencedRef =
+      await ghHelper.getDereferencedRef('$branch_my-branch')
+
+    expect(dereferencedRef).toEqual('branch-commit-sha')
   })
 
   it('returns null when a tag cannot be dereferenced', async () => {
-    const dereferencedTag = await ghHelper.getDereferencedTag('throw-v1.2.3')
+    const dereferencedRef = await ghHelper.getDereferencedRef('throw-v1.2.3')
 
-    expect(dereferencedTag).toEqual(null)
+    expect(dereferencedRef).toEqual(null)
+  })
+
+  it('returns null when a branch cannot be dereferenced', async () => {
+    const dereferencedRef = await ghHelper.getDereferencedRef(
+      '$branch_throw-branch'
+    )
+
+    expect(dereferencedRef).toEqual(null)
   })
 
   it('can get the contents of a file', async () => {

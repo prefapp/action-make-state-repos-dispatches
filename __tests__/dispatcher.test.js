@@ -420,6 +420,55 @@ describe('The dispatcher', () => {
     ])
   })
 
+  it('resolves branch-keyed build summaries for any dispatches when image_type is snapshots', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = 'snapshots'
+      allInputs.dispatchesFilePath = 'dispatches_file_any_branch.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        'my-branch',
+        'my-branch_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getLastBranchCommit = (payload, short = true) =>
+      short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
+    gitControllerMock.getDereferencedRef = () => null
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:my-branch_default published in org/state-app-app-any1'
+      ]
+    ])
+  })
+
+  it('does not resolve branch-keyed build summaries for any dispatches when image_type is not snapshots', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = 'releases'
+      allInputs.dispatchesFilePath = 'dispatches_file_any_branch.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        'my-branch',
+        'my-branch_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getLastBranchCommit = (payload, short = true) =>
+      short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+  })
+
   it('can get a dispatch object from a YAML config', async () => {
     const dispatches = getAllDispatches()
     const registriesConfig = configHelper.getRegistriesConfig(

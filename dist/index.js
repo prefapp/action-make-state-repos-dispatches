@@ -54381,10 +54381,13 @@ async function makeDispatches(gitController) {
           // Snapshots are built keyed by a dereferenced identifier: the
           // dereferenced commit (short SHA) for tags, or the branch name for
           // branches. Check those first, then fall back to the resolved ref.
+          // `any` dispatches get the same treatment when dispatching snapshots.
           const isBranch = data.version.startsWith('$branch_')
           const resolvedVersions = [resolvedVersion]
           let dereferencedRef = null
-          if (data.type === 'snapshots' && resolvedVersion) {
+          const isSnapshotDispatch =
+            data.type === 'snapshots' || imageType === 'snapshots'
+          if (isSnapshotDispatch && resolvedVersion) {
             if (isBranch) {
               resolvedVersions.push(data.version.replace(/^\$branch_/, ''))
             } else {

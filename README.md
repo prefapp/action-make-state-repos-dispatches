@@ -182,7 +182,7 @@ So, what are you waiting for? Go ahead and start customizing your action!
 1. Create a pull request and get feedback on your action
 1. Merge the pull request into the `main` branch
 
-Your action is now published! :rocket: 
+Your action is now published! :rocket:
 
 For information about versioning your action, see
 [Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)

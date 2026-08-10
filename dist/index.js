@@ -54313,8 +54313,8 @@ async function makeDispatches(gitController) {
     )
     logger.debug('Dispatches file content (validated)', dispatchesData)
 
-    let getBuildSummaryData = async version =>
-      await getLatestBuildSummary(version, gitController, checkRunName)
+    let getBuildSummaryData = async (version, type) =>
+      await getLatestBuildSummary(version, type, gitController, checkRunName)
 
     if (buildSummary) {
       const parsedBuildSummary = JSON.parse(buildSummary)
@@ -54377,9 +54377,43 @@ async function makeDispatches(gitController) {
             data.version,
             gitController
           )
+
+          // Snapshots are built keyed by a dereferenced identifier: the
+          // dereferenced commit (short SHA) for tags, or the branch name for
+          // branches. Check those first, then fall back to the resolved ref.
+          // `any` dispatches get the same treatment when dispatching snapshots.
+          const isBranch = data.version.startsWith('$branch_')
+          const resolvedVersions = [resolvedVersion]
+          let dereferencedRef = null
+          const isSnapshotDispatch =
+            data.type === 'snapshots' || imageType === 'snapshots'
+          if (isSnapshotDispatch && resolvedVersion) {
+            if (isBranch) {
+              resolvedVersions.push(data.version.replace(/^\$branch_/, ''))
+            } else {
+              dereferencedRef =
+                await gitController.getDereferencedRef(resolvedVersion)
+              if (dereferencedRef)
+                resolvedVersions.unshift(dereferencedRef.substring(0, 7))
+            }
+          }
+
+          const commitRef = dereferencedRef || resolvedVersion
+          const commitUrl = commitRef
+            ? `https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commitRef}`
+            : ''
+
           const stateRepoName =
             data.state_repo || appConfig[data.app].state_repo
-          const buildSummaryObj = await getBuildSummaryData(data.version)
+          const buildSummaryObj = await getBuildSummaryData(
+            data.version,
+            data.type
+          )
+
+          if (!buildSummaryObj)
+            throw new Error(
+              `No build summary found for version ${data.version}, image_type: ${data.type}.${commitUrl ? ` Commit: ${commitUrl}` : ''}`
+            )
 
           logger.debug(
             '📜 Summary builds >',
@@ -54389,33 +54423,36 @@ async function makeDispatches(gitController) {
           logger.debug(
             '🔍 Filtering by:',
             `flavor: ${data.flavor}, ` +
-              `version: ${resolvedVersion}, ` +
+              `version: ${resolvedVersions.join(', ')}, ` +
               `image_type: ${data.type},` +
               `image_repo: ${data.image_repo || 'N/A'}, ` +
               `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}`
           )
 
-          const imageData = buildSummaryObj.filter(
-            entry =>
-              entry.flavor === data.flavor &&
-              entry.version === resolvedVersion &&
-              (entry.image_type === data.type || data.type === 'any') &&
-              entry.repository ===
-                (data.image_repo === '' ? entry.repository : data.image_repo) &&
-              entry.registry ===
-                (data.registry ||
-                  (data.type === 'any'
-                    ? entry.registry
-                    : defaultRegistries[data.type]))
-          )[0]
+          let imageData = null
+          for (const candidateVersion of resolvedVersions) {
+            imageData = buildSummaryObj.filter(
+              entry =>
+                entry.flavor === data.flavor &&
+                entry.version === candidateVersion &&
+                (entry.image_type === data.type || data.type === 'any') &&
+                entry.repository ===
+                  (data.image_repo === ''
+                    ? entry.repository
+                    : data.image_repo) &&
+                entry.registry ===
+                  (data.registry ||
+                    (data.type === 'any'
+                      ? entry.registry
+                      : defaultRegistries[data.type]))
+            )[0]
+
+            if (imageData) break
+          }
 
           if (!imageData)
             throw new Error(
-              `Build summary not found for flavor: ${data.flavor}, ` +
-                `version: ${resolvedVersion}, image_type: ${data.type}, ` +
-                `image_repo: ${data.image_repo || 'N/A'}, ` +
-                `registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}. ` +
-                `Commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${resolvedVersion}`
+              `Build summary not found for flavor: ${data.flavor}, version: ${resolvedVersion || data.version}, image_type: ${data.type}, image_repo: ${data.image_repo || 'N/A'}, registry: ${data.registry || (data.type === 'any' ? 'N/A' : defaultRegistries[data.type])}.${commitUrl ? ` Commit: ${commitUrl}` : ''}`
             )
 
           logger.debug('🖼 Image data >', JSON.stringify(imageData, null, 2))
@@ -54641,20 +54678,49 @@ function createDispatchList(
   }
 }
 
-async function getLatestBuildSummary(version, gitController, checkRunName) {
+async function getLatestBuildSummary(
+  version,
+  type,
+  gitController,
+  checkRunName
+) {
   try {
     const ref = await refHelper.getLatestRef(version, gitController, false)
-    const summaryData = await gitController.getSummaryDataForRef(
-      ref,
-      checkRunName
-    )
+
+    if (!ref) return null
+
+    let summaryData
+    let dereferencedRef
+
+    if (type === 'snapshots') {
+      const dereferenceTarget = version.startsWith('$branch_') ? version : ref
+      dereferencedRef =
+        await gitController.getDereferencedRef(dereferenceTarget)
+
+      if (dereferencedRef) {
+        summaryData = await gitController.getSummaryDataForRef(
+          dereferencedRef,
+          checkRunName
+        )
+      }
+
+      if (!summaryData || !summaryData.summary) {
+        summaryData = await gitController.getSummaryDataForRef(
+          ref,
+          checkRunName
+        )
+      }
+    } else {
+      summaryData = await gitController.getSummaryDataForRef(ref, checkRunName)
+    }
 
     if (!summaryData || !summaryData.summary) {
       const payloadCtx = gitController.getPayloadContext()
+      const commitRef = dereferencedRef || ref
 
       throw new Error(
         `No build summary found for version ${version} ` +
-          `(commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${ref})`
+          `(commit: https://github.com/${payloadCtx.owner}/${payloadCtx.repo}/commit/${commitRef})`
       )
     }
 
@@ -55141,6 +55207,43 @@ function sortReleasesByTime(releases) {
   })
 }
 
+async function getDereferencedRef(ref) {
+  try {
+    const octokit = module.exports.getReadOnlyOctokit()
+    const ctx = getPayloadContext()
+
+    const isBranch = ref.startsWith('$branch_')
+    const refName = isBranch ? ref.replace(/^\$branch_/, '') : ref
+    const refType = isBranch ? 'heads' : 'tags'
+
+    const tagRefResponse = await octokit.rest.git.getRef({
+      owner: ctx.owner,
+      repo: ctx.repo,
+      ref: `${refType}/${refName}`
+    })
+
+    const { type: tagType, sha: tagSha } = tagRefResponse.data.object
+
+    if (tagType === 'commit') return tagSha
+
+    if (tagType === 'tag') {
+      const tagResponse = await octokit.rest.git.getTag({
+        owner: ctx.owner,
+        repo: ctx.repo,
+        tag_sha: tagSha
+      })
+
+      return tagResponse.data.object.sha
+    }
+
+    return null
+  } catch (e) {
+    console.error(e)
+
+    return null
+  }
+}
+
 async function getLastBranchCommit(payload, short = true) {
   try {
     const octokit = module.exports.getReadOnlyOctokit()
@@ -55287,6 +55390,7 @@ module.exports = {
   getAppOctokit,
   getLatestRelease,
   getLatestPrerelease,
+  getDereferencedRef,
   sortReleasesByTime,
   getLastBranchCommit,
   getFileContent,

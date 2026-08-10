@@ -73,6 +73,12 @@ const baseGitControllerMock = {
       summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
     }
   },
+  getLatestPrerelease: () => {
+    return { tag_name: 'v1.1.0-pre' }
+  },
+  getDereferencedRef: () => {
+    return 'dereferenced-commit-sha'
+  },
   dispatch: (stateRepoName, eventTypeName, matrix) => {
     const result = []
     for (const dispatch of matrix) {
@@ -235,6 +241,225 @@ describe('The dispatcher', () => {
     gitControllerMock.getSummaryDataForRef = (ref, checkRunName) => {
       throw new Error('No build summary found mock')
     }
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+  })
+
+  const prereleaseBuildSummary = (version, imageTag) =>
+    JSON.stringify([
+      {
+        build_args: {},
+        flavor: 'flavor1',
+        image_repo: 'my-org/my-repo',
+        image_tag: imageTag,
+        image_type: 'snapshots',
+        platforms: ['linux/arm64', 'linux/amd64'],
+        registry: 'registry1',
+        repository: 'service/my-org/my-repo',
+        version
+      }
+    ])
+  const setUpPrereleaseDispatch = (buildSummary, gitControllerMock) => {
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_prerelease.yaml'
+      allInputs.buildSummary = buildSummary
+      return allInputs
+    }
+    gitControllerMock.getLatestPrerelease = () => ({ tag_name: 'tr6' })
+    gitControllerMock.getDereferencedRef = () =>
+      '7682dda9611e3a24f0093263c476f0cd0374968e'
+  }
+
+  it('uses the dereferenced tag when the build summary is keyed by the commit sha', async () => {
+    const gitControllerMock = getGitControllerMock()
+    setUpPrereleaseDispatch(
+      prereleaseBuildSummary('7682dda', '7682dda_default'),
+      gitControllerMock
+    )
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:7682dda_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('falls back to the tag itself when the build summary is keyed by the tag name', async () => {
+    const gitControllerMock = getGitControllerMock()
+    setUpPrereleaseDispatch(
+      prereleaseBuildSummary('tr6', 'tr6_default'),
+      gitControllerMock
+    )
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:tr6_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('fails when neither the dereferenced tag nor the tag itself match the build summary', async () => {
+    const gitControllerMock = getGitControllerMock()
+    setUpPrereleaseDispatch(
+      prereleaseBuildSummary('other', 'other_default'),
+      gitControllerMock
+    )
+    const handleFailure = jest.spyOn(gitControllerMock, 'handleFailure')
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Build summary not found for flavor: flavor1, version: tr6'
+      )
+    )
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '/commit/7682dda9611e3a24f0093263c476f0cd0374968e'
+      )
+    )
+  })
+
+  it('omits the commit URL when the version cannot be resolved', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_prerelease.yaml'
+      allInputs.buildSummary = ''
+      return allInputs
+    }
+    gitControllerMock.getLatestPrerelease = () => null
+    const handleFailure = jest.spyOn(gitControllerMock, 'handleFailure')
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'No build summary found for version $latest_prerelease, image_type: snapshots.'
+      )
+    )
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.not.stringContaining('commit/')
+    )
+  })
+
+  it('uses the dereferenced tag for snapshots with a literal tag version', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_snapshot_tag.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        '1a2b3cd',
+        '1a2b3cd_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getDereferencedRef = () =>
+      '1a2b3cdef0123456789abcdef0123456789abcd'
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:1a2b3cd_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('uses the branch name when the build summary is keyed by the branch name', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file_snapshot_branch.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        'my-branch',
+        'my-branch_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getLastBranchCommit = (payload, short = true) =>
+      short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
+    gitControllerMock.getDereferencedRef = () => null
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:my-branch_default published in org/state-app-app1'
+      ]
+    ])
+  })
+
+  it('resolves branch-keyed build summaries for any dispatches when image_type is snapshots', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = 'snapshots'
+      allInputs.dispatchesFilePath = 'dispatches_file_any_branch.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        'my-branch',
+        'my-branch_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getLastBranchCommit = (payload, short = true) =>
+      short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
+    gitControllerMock.getDereferencedRef = () => null
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(dispatches).toEqual([
+      [
+        'registry1/service/my-org/my-repo:my-branch_default published in org/state-app-app-any1'
+      ]
+    ])
+  })
+
+  it('does not resolve branch-keyed build summaries for any dispatches when image_type is not snapshots', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = 'releases'
+      allInputs.dispatchesFilePath = 'dispatches_file_any_branch.yaml'
+      allInputs.buildSummary = prereleaseBuildSummary(
+        'my-branch',
+        'my-branch_default'
+      )
+      return allInputs
+    }
+    gitControllerMock.getLastBranchCommit = (payload, short = true) =>
+      short ? 'abcdef0' : 'abcdef0123456789abcdef0123456789abcdef0'
 
     const result = await dispatcher.makeDispatches(
       gitControllerMock,
@@ -952,7 +1177,96 @@ describe('The dispatcher', () => {
 
   it('correctly throws an error when one happens while obtaining the latest build summary', async () => {
     await expect(
-      dispatcher.getLatestBuildSummary('a', {}, 'b')
+      dispatcher.getLatestBuildSummary('a', 'releases', {}, 'b')
     ).rejects.toThrow(`Error while getting the latest build summary`)
+  })
+
+  it('first checks for the build summary of the dereferenced tag for snapshots', async () => {
+    const gitControllerMock = getGitControllerMock()
+    const getSummaryDataForRef = jest.fn(() => {
+      return {
+        summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
+      }
+    })
+    gitControllerMock.getSummaryDataForRef = getSummaryDataForRef
+
+    const result = await dispatcher.getLatestBuildSummary(
+      '$latest_prerelease',
+      'snapshots',
+      gitControllerMock,
+      'check'
+    )
+
+    expect(getSummaryDataForRef).toHaveBeenCalledWith(
+      'dereferenced-commit-sha',
+      'check'
+    )
+    expect(result).toEqual(
+      JSON.parse(fs.readFileSync('fixtures/build_summary.json', 'utf-8'))
+    )
+  })
+
+  it('falls back to checking the tag itself when no build summary is found for the dereferenced tag', async () => {
+    const gitControllerMock = getGitControllerMock()
+    const getSummaryDataForRef = jest.fn(ref => {
+      if (ref === 'dereferenced-commit-sha') return false
+
+      return {
+        summary: `\`\`\`yaml${fs.readFileSync('fixtures/build_summary.json', 'utf-8')}\`\`\``
+      }
+    })
+    gitControllerMock.getSummaryDataForRef = getSummaryDataForRef
+
+    const result = await dispatcher.getLatestBuildSummary(
+      '$latest_prerelease',
+      'snapshots',
+      gitControllerMock,
+      'check'
+    )
+
+    expect(getSummaryDataForRef).toHaveBeenNthCalledWith(
+      1,
+      'dereferenced-commit-sha',
+      'check'
+    )
+    expect(getSummaryDataForRef).toHaveBeenNthCalledWith(
+      2,
+      'v1.1.0-pre',
+      'check'
+    )
+    expect(result).toEqual(
+      JSON.parse(fs.readFileSync('fixtures/build_summary.json', 'utf-8'))
+    )
+  })
+
+  it('throws an error when no build summary is found for either the dereferenced tag or the tag itself', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getSummaryDataForRef = _ => false
+
+    await expect(
+      dispatcher.getLatestBuildSummary(
+        '$latest_prerelease',
+        'snapshots',
+        gitControllerMock,
+        'check'
+      )
+    ).rejects.toThrow(
+      'Error while getting the latest build summary: No build summary found for version $latest_prerelease ' +
+        '(commit: https://github.com/payload-ctx-owner/payload-ctx-repo/commit/dereferenced-commit-sha)'
+    )
+  })
+
+  it('returns null when no latest prerelease exists', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getLatestPrerelease = _ => null
+
+    const result = await dispatcher.getLatestBuildSummary(
+      '$latest_prerelease',
+      'snapshots',
+      gitControllerMock,
+      'check'
+    )
+
+    expect(result).toEqual(null)
   })
 })

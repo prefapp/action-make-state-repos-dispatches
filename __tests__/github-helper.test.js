@@ -133,6 +133,36 @@ jest.mock('@actions/github', () => ({
               }
             }
           }
+        },
+        git: {
+          getRef: payload => {
+            if (payload.ref.includes('throw')) {
+              throw new Error()
+            } else if (payload.ref.includes('annotated')) {
+              return {
+                data: { object: { sha: 'tag-object-sha', type: 'tag' } }
+              }
+            } else if (payload.ref.includes('heads/')) {
+              return {
+                data: { object: { sha: 'branch-commit-sha', type: 'commit' } }
+              }
+            } else {
+              return {
+                data: { object: { sha: 'commit-sha', type: 'commit' } }
+              }
+            }
+          },
+          getTag: payload => {
+            if (payload.tag_sha === 'throw') {
+              throw new Error()
+            } else {
+              return {
+                data: {
+                  object: { sha: 'dereferenced-commit-sha', type: 'commit' }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -391,6 +421,40 @@ describe('github-helper', () => {
     await expect(ghHelper.getLastBranchCommit(branchPayload)).rejects.toThrow(
       `Error getting last branch commit for ${branchPayload}`
     )
+  })
+
+  it('can get the commit a lightweight tag dereferences to', async () => {
+    const dereferencedRef = await ghHelper.getDereferencedRef('v1.2.3')
+
+    expect(dereferencedRef).toEqual('commit-sha')
+  })
+
+  it('can get the commit an annotated tag dereferences to', async () => {
+    const dereferencedRef =
+      await ghHelper.getDereferencedRef('annotated-v1.2.3')
+
+    expect(dereferencedRef).toEqual('dereferenced-commit-sha')
+  })
+
+  it('can get the commit a branch dereferences to', async () => {
+    const dereferencedRef =
+      await ghHelper.getDereferencedRef('$branch_my-branch')
+
+    expect(dereferencedRef).toEqual('branch-commit-sha')
+  })
+
+  it('returns null when a tag cannot be dereferenced', async () => {
+    const dereferencedRef = await ghHelper.getDereferencedRef('throw-v1.2.3')
+
+    expect(dereferencedRef).toEqual(null)
+  })
+
+  it('returns null when a branch cannot be dereferenced', async () => {
+    const dereferencedRef = await ghHelper.getDereferencedRef(
+      '$branch_throw-branch'
+    )
+
+    expect(dereferencedRef).toEqual(null)
   })
 
   it('can get the contents of a file', async () => {

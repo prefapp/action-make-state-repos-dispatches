@@ -1,0 +1,10 @@
+deployments:
+  - tenant: tenant-any1
+    platform: cluster-any1
+    claim: test-claim
+    env: env-any1
+    type: any
+    flavor: flavor1
+    version: $branch_my-branch
+    application: application-any1
+    service_names: ['service5']

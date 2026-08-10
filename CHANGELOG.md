@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.1...v4.3.2) (2026-08-10)
+
+
+### Bug Fixes
+
+* Allow checking for dereferenced tags when using snapshot images ([#159](https://github.com/prefapp/action-make-state-repos-dispatches/issues/159)) ([d5b764f](https://github.com/prefapp/action-make-state-repos-dispatches/commit/d5b764fbab39a908c8dcbe94a0f7d1ce36bf31a9))
+
 ## [4.3.1](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.0...v4.3.1) (2026-06-08)
 
 ### Bug Fixes

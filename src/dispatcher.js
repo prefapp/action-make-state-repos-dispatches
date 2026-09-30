@@ -15,6 +15,9 @@ const CONCRETE_IMAGE_TYPES = ['snapshots', 'releases']
  * summary entry being matched. Deriving it per entry keeps a single deployment
  * resolving to a single dispatch while still refusing entries that point at a
  * repository or registry the deployment never asked for.
+ *
+ * If both `image_repo` and `registry` are explicitly provided on the dispatch,
+ * they form a complete location and no registry config is required.
  */
 function resolveExpectedImageLocation(entry, dispatch, context) {
   if (!CONCRETE_IMAGE_TYPES.includes(entry.image_type)) {
@@ -23,6 +26,14 @@ function resolveExpectedImageLocation(entry, dispatch, context) {
         `${entry.version} has image_type '${entry.image_type}', expected one ` +
         `of ${CONCRETE_IMAGE_TYPES.join(', ')}`
     )
+  }
+
+  // Fully overridden location needs no config
+  if (dispatch.image_repo && dispatch.registry) {
+    return {
+      repository: dispatch.image_repo,
+      registry: dispatch.registry
+    }
   }
 
   const registryConfig = context.registriesConfig[entry.image_type]

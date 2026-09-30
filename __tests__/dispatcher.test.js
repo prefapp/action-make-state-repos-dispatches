@@ -1501,7 +1501,7 @@ describe('Resolving the image location of a dispatch', () => {
     }
   )
 
-  it('refuses to resolve an any dispatch when the registry config is missing', () => {
+  it('refuses to resolve an any dispatch when the registry config is missing and dispatch is not fully overridden', () => {
     const contextWithoutSnapshots = {
       ...imageLocationContext,
       registriesConfig: {
@@ -1509,6 +1509,7 @@ describe('Resolving the image location of a dispatch', () => {
       }
     }
 
+    // anyDispatch has image_repo: '' and registry: '' (not fully overridden)
     expect(() =>
       dispatcher.resolveExpectedImageLocation(
         snapshotsEntry,
@@ -1516,6 +1517,32 @@ describe('Resolving the image location of a dispatch', () => {
         contextWithoutSnapshots
       )
     ).toThrow(/No snapshots registry configuration found/)
+  })
+
+  it('resolves a fully overridden any dispatch without registry config', () => {
+    const contextWithoutSnapshots = {
+      ...imageLocationContext,
+      registriesConfig: {
+        releases: imageLocationContext.registriesConfig.releases
+      }
+    }
+
+    const fullyOverriddenDispatch = {
+      type: 'any',
+      image_repo: 'explicit/org/repo',
+      registry: 'explicit.registry.io'
+    }
+
+    expect(
+      dispatcher.resolveExpectedImageLocation(
+        snapshotsEntry,
+        fullyOverriddenDispatch,
+        contextWithoutSnapshots
+      )
+    ).toEqual({
+      repository: 'explicit/org/repo',
+      registry: 'explicit.registry.io'
+    })
   })
 
   it('keeps the typed dispatch location check unchanged', () => {

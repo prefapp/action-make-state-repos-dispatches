@@ -440,7 +440,10 @@ describe('Build summary validation against Json schema', () => {
     ['image_tag', 'tag/../escape'],
     ['image_tag', 'tag with spaces'],
     ['image_tag', 'tag;rm -rf /'],
-    ['image_tag', '$(whoami)']
+    ['image_tag', '$(whoami)'],
+    ['image_tag', '-leading'],
+    ['image_tag', '.leading'],
+    ['image_tag', 'x'.repeat(129)]
   ])('should reject an out of charset %s (%s)', (field, value) => {
     const entry = { ...validEntry, [field]: value }
 
@@ -455,6 +458,15 @@ describe('Build summary validation against Json schema', () => {
 
     expect(() => validateBuildSummary([entry])).not.toThrow()
   })
+
+  test.each([['x'.repeat(128)], ['_leading'], ['1.2.3-rc1'], ['a..b']])(
+    'should accept a valid image_tag (%s)',
+    imageTag => {
+      const entry = { ...validEntry, image_tag: imageTag }
+
+      expect(() => validateBuildSummary([entry])).not.toThrow()
+    }
+  )
 
   test('should reject when a single entry of an otherwise valid list is invalid', () => {
     const buildSummary = [

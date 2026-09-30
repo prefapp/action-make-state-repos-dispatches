@@ -21,11 +21,11 @@
         "pattern": "^[A-Za-z0-9._/-]+$"
       },
       "image_tag": {
-        "description": "Image tag, as normalized by the build workflow. Slashes are not possible because the build workflow normalizes every other character to a dash.",
+        "description": "Image tag, as normalized by the build workflow. Constrained to the OCI distribution reference grammar: first character must be alphanumeric or underscore, remaining up to 127 characters of alphanumeric, underscore, period, or hyphen. Total length ≤ 128. A registry that accepts a non-conforming tag has already violated the spec; rejecting here converts a non-portable reference into a clear error.",
         "type": "string",
         "minLength": 1,
-        "maxLength": 255,
-        "pattern": "^[A-Za-z0-9._-]+$"
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$"
       }
     },
     "required": ["registry", "repository", "image_tag"],

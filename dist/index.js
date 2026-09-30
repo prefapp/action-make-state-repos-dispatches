@@ -54252,6 +54252,62 @@ const minimatch = __nccwpck_require__(3772)
 const configHelper = __nccwpck_require__(4131)
 
 const TFWORKSPACE_PLATFORM_TYPE = 'tfworkspaces'
+const CONCRETE_IMAGE_TYPES = ['snapshots', 'releases']
+
+/**
+ * A `type: any` dispatch carries no repository or registry of its own, so its
+ * expected image location is derived from the concrete image type of the
+ * summary entry being matched. Deriving it per entry keeps a single deployment
+ * resolving to a single dispatch while still refusing entries that point at a
+ * repository or registry the deployment never asked for.
+ */
+function resolveExpectedImageLocation(entry, dispatch, context) {
+  if (!CONCRETE_IMAGE_TYPES.includes(entry.image_type)) {
+    throw new Error(
+      `Build summary entry for flavor ${entry.flavor} and version ` +
+        `${entry.version} has image_type '${entry.image_type}', expected one ` +
+        `of ${CONCRETE_IMAGE_TYPES.join(', ')}`
+    )
+  }
+
+  const registryConfig = context.registriesConfig[entry.image_type]
+
+  if (
+    !registryConfig ||
+    !registryConfig.base_paths ||
+    !registryConfig.base_paths.services
+  ) {
+    throw new Error(
+      `No ${entry.image_type} registry configuration found to resolve the ` +
+        `image location of a type "any" dispatch`
+    )
+  }
+
+  return {
+    repository:
+      dispatch.image_repo ||
+      `${registryConfig.base_paths.services}/${context.defaultImageRepository}`,
+    registry: dispatch.registry || registryConfig.registry
+  }
+}
+
+function matchesImageLocation(entry, dispatch, context) {
+  if (dispatch.type !== 'any') {
+    return (
+      entry.image_type === dispatch.type &&
+      entry.repository === dispatch.image_repo &&
+      entry.registry ===
+        (dispatch.registry || context.defaultRegistries[dispatch.type])
+    )
+  }
+
+  const expected = resolveExpectedImageLocation(entry, dispatch, context)
+
+  return (
+    entry.repository === expected.repository &&
+    entry.registry === expected.registry
+  )
+}
 
 function getListFromInput(input) {
   return input.replace(' ', '').split(',')
@@ -54318,6 +54374,9 @@ async function makeDispatches(gitController) {
 
     if (buildSummary) {
       const parsedBuildSummary = JSON.parse(buildSummary)
+
+      configHelper.validateBuildSummary(parsedBuildSummary)
+
       getBuildSummaryData = async _ => parsedBuildSummary
     }
 
@@ -54346,6 +54405,12 @@ async function makeDispatches(gitController) {
       defaultSnapshotsRegistry,
       defaultReleasesRegistry
     )
+
+    const imageLocationContext = {
+      registriesConfig,
+      defaultImageRepository,
+      defaultRegistries
+    }
 
     const dispatchList = createDispatchList(
       defaultImageRepository,
@@ -54435,16 +54500,7 @@ async function makeDispatches(gitController) {
               entry =>
                 entry.flavor === data.flavor &&
                 entry.version === candidateVersion &&
-                (entry.image_type === data.type || data.type === 'any') &&
-                entry.repository ===
-                  (data.image_repo === ''
-                    ? entry.repository
-                    : data.image_repo) &&
-                entry.registry ===
-                  (data.registry ||
-                    (data.type === 'any'
-                      ? entry.registry
-                      : defaultRegistries[data.type]))
+                matchesImageLocation(entry, data, imageLocationContext)
             )[0]
 
             if (imageData) break
@@ -54724,11 +54780,13 @@ async function getLatestBuildSummary(
       )
     }
 
-    const buildSummary = summaryData.summary
-      .replace('```yaml', '')
-      .replace('```', '')
+    const buildSummary = textHelper.parseFile(
+      summaryData.summary.replace('```yaml', '').replace('```', '')
+    )
 
-    return textHelper.parseFile(buildSummary)
+    configHelper.validateBuildSummary(buildSummary)
+
+    return buildSummary
   } catch (err) {
     throw new Error(
       `Error while getting the latest build summary: ${err.message}`
@@ -54779,7 +54837,9 @@ module.exports = {
   getLatestBuildSummary,
   getDispatchesFileContent,
   isDispatchValid,
-  updateSummaryTable
+  updateSummaryTable,
+  matchesImageLocation,
+  resolveExpectedImageLocation
 }
 
 
@@ -54848,6 +54908,16 @@ function configParse(fileContent, encoding = '') {
     return yamlData
   } catch (err) {
     throw new Error(`Error parsing YAML file: ${err.message}`)
+  }
+}
+
+function validateBuildSummary(buildSummary) {
+  const schemaFilePath = __nccwpck_require__.ab + "build-images-results.schema.json"
+
+  try {
+    validateSchema(buildSummary, __nccwpck_require__.ab + "build-images-results.schema.json")
+  } catch (err) {
+    throw new Error(`Invalid build summary: ${err.message}`)
   }
 }
 
@@ -54972,7 +55042,8 @@ module.exports = {
   configParse,
   getAppsConfig,
   getClustersConfig,
-  getRegistriesConfig
+  getRegistriesConfig,
+  validateBuildSummary
 }
 
 

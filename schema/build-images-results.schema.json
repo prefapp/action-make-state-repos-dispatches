@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Build images results",
+  "description": "Build summary produced by the image build workflows and consumed to dispatch images to state repositories. The registry, repository and image_tag fields compose the published image reference, so they are constrained to the character sets the build workflows can emit. Other fields (flavor, version, image_type, image_repo, build_args, platforms...) are build metadata that legitimately varies, and are therefore left unconstrained.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "registry": {
+        "description": "Registry host the image was published to, as produced by the build workflow.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255,
+        "pattern": "^[A-Za-z0-9._-]+$"
+      },
+      "repository": {
+        "description": "Repository path within the registry, including the configured services base path (for example 'service/my-org/my-repo').",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "pattern": "^[A-Za-z0-9._/-]+$"
+      },
+      "image_tag": {
+        "description": "Image tag, as normalized by the build workflow. Slashes are not possible because the build workflow normalizes every other character to a dash.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255,
+        "pattern": "^[A-Za-z0-9._-]+$"
+      }
+    },
+    "required": ["registry", "repository", "image_tag"],
+    "additionalProperties": true
+  }
+}

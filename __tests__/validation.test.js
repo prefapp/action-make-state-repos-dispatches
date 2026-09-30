@@ -6,7 +6,8 @@ const {
   configParse,
   getAppsConfig,
   getClustersConfig,
-  getRegistriesConfig
+  getRegistriesConfig,
+  validateBuildSummary
 } = require('../utils/config-helper')
 
 function getYamlContent(basePath, yamlFilePath) {
@@ -275,5 +276,131 @@ describe('Yaml validation against Json schema', () => {
     expect(() =>
       getClustersConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
     ).toThrow()
+  })
+})
+
+describe('Build summary validation against Json schema', () => {
+  const validEntry = {
+    registry: 'snapshots.reg',
+    repository: 'service/my-org/my-repo',
+    image_tag: 'abc1234_default'
+  }
+
+  test('should validate a build summary successfully against the Json Schema', () => {
+    const buildSummary = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '../fixtures/build_summary.json'),
+        'utf8'
+      )
+    )
+
+    expect(() => validateBuildSummary(buildSummary)).not.toThrow()
+  })
+
+  test('should validate an empty build summary', () => {
+    expect(() => validateBuildSummary([])).not.toThrow()
+  })
+
+  test('should accept unknown metadata fields on an entry', () => {
+    const entry = {
+      ...validEntry,
+      flavor: 'flavor1',
+      image_type: 'snapshots',
+      version: 'abc1234',
+      image_repo: 'my-org/my-repo',
+      build_args: [{ SOME_ARG: 'value' }],
+      platforms: ['linux/arm64', 'linux/amd64'],
+      workflow_run_id: '1234',
+      something_the_producer_may_add_later: true
+    }
+
+    expect(() => validateBuildSummary([entry])).not.toThrow()
+  })
+
+  test('should accept a version that is not constrained by the schema', () => {
+    const versions = [
+      'abc1234',
+      '1.2.3',
+      'v1.2.3-pre',
+      '$branch_feature/my-branch',
+      '$latest_release',
+      'my-branch_default'
+    ]
+
+    for (const version of versions) {
+      const entry = { ...validEntry, version }
+
+      expect(() => validateBuildSummary([entry])).not.toThrow()
+    }
+  })
+
+  test('should reject a build summary that is not a list', () => {
+    for (const buildSummary of [{}, 'a string', 42, null]) {
+      expect(() => validateBuildSummary(buildSummary)).toThrow(
+        /Invalid build summary/
+      )
+    }
+  })
+
+  test.each(['registry', 'repository', 'image_tag'])(
+    'should reject a summary entry missing %s',
+    field => {
+      const entry = { ...validEntry }
+      delete entry[field]
+
+      expect(() => validateBuildSummary([entry])).toThrow(
+        /Invalid build summary/
+      )
+    }
+  )
+
+  test.each(['registry', 'repository', 'image_tag'])(
+    'should reject an empty %s',
+    field => {
+      const entry = { ...validEntry, [field]: '' }
+
+      expect(() => validateBuildSummary([entry])).toThrow(
+        /Invalid build summary/
+      )
+    }
+  )
+
+  test.each([
+    ['registry', 'reg.example.com:5000'],
+    ['registry', 'reg.example.com/extra'],
+    ['registry', 'reg example.com'],
+    ['registry', 'reg/../../etc'],
+    ['repository', 'service\\repo'],
+    ['repository', 'service/my repo'],
+    ['repository', 'service/repo:tagged'],
+    ['repository', 'service/repo${IFS}'],
+    ['image_tag', 'tag/../escape'],
+    ['image_tag', 'tag with spaces'],
+    ['image_tag', 'tag;rm -rf /'],
+    ['image_tag', '$(whoami)']
+  ])('should reject an out of charset %s (%s)', (field, value) => {
+    const entry = { ...validEntry, [field]: value }
+
+    expect(() => validateBuildSummary([entry])).toThrow(/Invalid build summary/)
+  })
+
+  test('should accept a dot segment, leaving rejection to location matching', () => {
+    // A dot segment is inside the charset the build workflow can emit, so the
+    // schema does not reject it. It can never match the expected repository of
+    // a dispatch, which is what keeps it from being dispatched.
+    const entry = { ...validEntry, repository: '../../etc/passwd' }
+
+    expect(() => validateBuildSummary([entry])).not.toThrow()
+  })
+
+  test('should reject when a single entry of an otherwise valid list is invalid', () => {
+    const buildSummary = [
+      validEntry,
+      { ...validEntry, image_tag: 'evil/../../escape' }
+    ]
+
+    expect(() => validateBuildSummary(buildSummary)).toThrow(
+      /Invalid build summary/
+    )
   })
 })

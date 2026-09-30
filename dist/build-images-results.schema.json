@@ -7,7 +7,7 @@
     "type": "object",
     "properties": {
       "registry": {
-        "description": "Registry host the image was published to, as produced by the build workflow.",
+        "description": "Registry host the image was published to, as produced by the build workflow. A port is not possible: the build workflow derives this value by splitting the published image reference on ':' from the left, so it keeps only the first host segment. A registry that carries a port is rejected at config validation time by firestartr-registries.schema.json.",
         "type": "string",
         "minLength": 1,
         "maxLength": 255,

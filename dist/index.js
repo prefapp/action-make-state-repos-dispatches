@@ -55024,8 +55024,6 @@ function getRegistriesConfig(
         if (configData.registry === releasesRegistry) {
           registriesConfig['releases'] = configData
         }
-
-        if (registriesConfig.snapshots && registriesConfig.releases) break
       }
     }
 

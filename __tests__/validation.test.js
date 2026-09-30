@@ -202,6 +202,69 @@ describe('Yaml validation against Json schema', () => {
     ).toThrow()
   })
 
+  const writeRegistryConfigs = registries => {
+    const folderName = 'invalid_firestartr_docker_registries'
+    const baseContent = yaml.parse(
+      getYamlContent(
+        __dirname,
+        '../fixtures/.firestartr/docker_registries/registry_a.yaml'
+      )
+    )
+
+    deleteFolderIfExists(os.tmpdir(), folderName)
+
+    for (const [fileName, registry] of Object.entries(registries)) {
+      writeYamlContent(
+        os.tmpdir(),
+        `${folderName}/${fileName}`,
+        yaml.stringify({ ...baseContent, registry })
+      )
+    }
+
+    return path.join(os.tmpdir(), folderName)
+  }
+
+  test.each([
+    ['a port', 'releases.reg:5000'],
+    ['a path', 'releases.reg/extra'],
+    ['whitespace', 'releases reg'],
+    ['a leading space', ' releases.reg']
+  ])(
+    'should reject a .firestartr/docker_registries registry with %s',
+    (_description, registry) => {
+      const folderPath = writeRegistryConfigs({ 'a.yaml': registry })
+
+      expect(() =>
+        getRegistriesConfig(folderPath, 'snapshots.reg', 'releases.reg')
+      ).toThrow()
+    }
+  )
+
+  test.each(['releases.reg', 'localhost', 'ghcr.io', 'REG.example.com'])(
+    'should accept a portless .firestartr/docker_registries registry (%s)',
+    registry => {
+      const folderPath = writeRegistryConfigs({ 'a.yaml': registry })
+      const config = getRegistriesConfig(folderPath, registry, 'unused.reg')
+
+      expect(config.snapshots).toBeDefined()
+      expect(config.snapshots.registry).toEqual(registry)
+    }
+  )
+
+  test('should fail on a ported registry that no deployment resolves', () => {
+    // Reading stopped once both defaults were resolved, so a ported registry
+    // left in a later-sorting file was never validated.
+    const folderPath = writeRegistryConfigs({
+      'a_snapshots.yaml': 'snapshots.reg',
+      'b_releases.yaml': 'releases.reg',
+      'z_leftover.yaml': 'legacy.reg:5000'
+    })
+
+    expect(() =>
+      getRegistriesConfig(folderPath, 'snapshots.reg', 'releases.reg')
+    ).toThrow()
+  })
+
   test('should validate .firestartr/platforms configs successfully against the Json Schema', () => {
     const yamlData = getClustersConfig(
       path.join(__dirname, '../fixtures/.firestartr/clusters')

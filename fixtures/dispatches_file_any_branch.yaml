@@ -7,4 +7,6 @@ deployments:
     flavor: flavor1
     version: $branch_my-branch
     application: application-any1
+    registry: registry1
+    image_repository: service/my-org/my-repo
     service_names: ['service5']

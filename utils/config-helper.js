@@ -40,6 +40,19 @@ function configParse(fileContent, encoding = '') {
   }
 }
 
+function validateBuildSummary(buildSummary) {
+  const schemaFilePath = path.join(
+    __dirname,
+    '../schema/build-images-results.schema.json'
+  )
+
+  try {
+    validateSchema(buildSummary, schemaFilePath)
+  } catch (err) {
+    throw new Error(`Invalid build summary: ${err.message}`)
+  }
+}
+
 function getAppsConfig(appFolderPath) {
   try {
     const appConfig = {}
@@ -152,8 +165,6 @@ function getRegistriesConfig(
         if (configData.registry === releasesRegistry) {
           registriesConfig['releases'] = configData
         }
-
-        if (registriesConfig.snapshots && registriesConfig.releases) break
       }
     }
 
@@ -170,5 +181,6 @@ module.exports = {
   configParse,
   getAppsConfig,
   getClustersConfig,
-  getRegistriesConfig
+  getRegistriesConfig,
+  validateBuildSummary
 }

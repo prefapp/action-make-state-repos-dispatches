@@ -3,7 +3,11 @@
   "type": "object",
   "properties": {
     "name": { "type": "string" },
-    "registry": { "type": "string" },
+    "registry": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "description": "Registry host, without a port. The build workflows derive the registry, repository and image tag by splitting the published image reference on ':', so a registry that includes a port yields an empty repository and an unusable image tag, and no dispatch can ever match it. Expose such a registry on the default HTTPS port, or front it with a proxy on 443."
+    },
     "image_types": {
       "type": "array",
       "items": { "type": "string" },

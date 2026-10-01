@@ -130,7 +130,7 @@ describe('The dispatcher', () => {
       'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
     expect(dispatches[5]).toEqual([
-      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+      'snapshots.reg/service/my-org/my-repo:v2.3-flavor1-pro published in org/state-app-app-any1'
     ])
   })
 
@@ -160,7 +160,7 @@ describe('The dispatcher', () => {
       'registry23/repo23:v2.3-flavor2-pro published in test-overwrite-state-repo'
     ])
     expect(dispatches[5]).toEqual([
-      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+      'snapshots.reg/service/my-org/my-repo:v2.3-flavor1-pro published in org/state-app-app-any1'
     ])
   })
 
@@ -190,7 +190,7 @@ describe('The dispatcher', () => {
       'snapshots.reg/service/my-org/my-repo:v444 published in org/state-app-app4'
     ])
     expect(dispatches[3]).toEqual([
-      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+      'snapshots.reg/service/my-org/my-repo:v2.3-flavor1-pro published in org/state-app-app-any1'
     ])
 
     dispatchesExpectedLengths = [1, 1, 1, 1, 1]
@@ -217,8 +217,104 @@ describe('The dispatcher', () => {
       'registry-releases1/service/my-org/my-repo:v1.1.0-pro published in org/state-app-app-releases1'
     ])
     expect(dispatches[3]).toEqual([
-      'registry-any1/repo-any1:v2.3-flavor1-pro published in org/state-app-app-any1'
+      'snapshots.reg/service/my-org/my-repo:v2.3-flavor1-pro published in org/state-app-app-any1'
     ])
+  })
+
+  it('does not dispatch an any deployment an image from a foreign repository', async () => {
+    const buildSummary = JSON.parse(
+      fs.readFileSync('fixtures/build_summary.json', 'utf-8')
+    )
+    const anyEntry = buildSummary.find(e => e.version === 'version-any1')
+
+    anyEntry.registry = 'attacker.example.com'
+    anyEntry.repository = 'attacker/evil'
+    anyEntry.image_tag = 'pwn'
+
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file.yaml'
+      allInputs.buildSummary = JSON.stringify(buildSummary)
+      return allInputs
+    }
+    const handleFailure = jest.spyOn(gitControllerMock, 'handleFailure')
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining('Build summary not found for flavor: flavor1')
+    )
+  })
+
+  it('skips a foreign entry instead of matching it when an any dispatch has a valid entry', async () => {
+    const buildSummary = JSON.parse(
+      fs.readFileSync('fixtures/build_summary.json', 'utf-8')
+    )
+    const anyEntry = buildSummary.find(e => e.version === 'version-any1')
+
+    // Placed before the valid entry, so it is the first candidate considered.
+    buildSummary.splice(buildSummary.indexOf(anyEntry), 0, {
+      ...anyEntry,
+      registry: 'attacker.example.com',
+      repository: 'attacker/evil',
+      image_tag: 'pwn'
+    })
+
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file.yaml'
+      allInputs.buildSummary = JSON.stringify(buildSummary)
+      return allInputs
+    }
+
+    const dispatches = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    const anyDispatches = dispatches
+      .flat()
+      .filter(entry => entry.includes('state-app-app-any1'))
+
+    expect(anyDispatches).toEqual([
+      'snapshots.reg/service/my-org/my-repo:v2.3-flavor1-pro published in org/state-app-app-any1'
+    ])
+  })
+
+  it('fails the run when the build summary does not match the schema', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getAllInputs = () => {
+      allInputs.imageType = '*'
+      allInputs.dispatchesFilePath = 'dispatches_file.yaml'
+      allInputs.buildSummary = JSON.stringify([
+        {
+          flavor: 'flavor99',
+          image_type: 'snapshots',
+          version: 'version99',
+          registry: 'attacker.example.com/../..',
+          repository: 'attacker/evil',
+          image_tag: 'pwn'
+        }
+      ])
+      return allInputs
+    }
+    const handleFailure = jest.spyOn(gitControllerMock, 'handleFailure')
+
+    const result = await dispatcher.makeDispatches(
+      gitControllerMock,
+      imageHelperMock
+    )
+
+    expect(result).toBeUndefined()
+    expect(handleFailure).toHaveBeenCalledWith(
+      expect.stringContaining('Invalid build summary')
+    )
   })
 
   it('returns undefined when no data for the current build is found (the error is captured)', async () => {
@@ -1268,5 +1364,224 @@ describe('The dispatcher', () => {
     )
 
     expect(result).toEqual(null)
+  })
+
+  it('rejects a build summary that does not match the schema', async () => {
+    const gitControllerMock = getGitControllerMock()
+    gitControllerMock.getSummaryDataForRef = () => ({
+      summary: `\`\`\`yaml${JSON.stringify([
+        {
+          flavor: 'flavor1',
+          image_type: 'snapshots',
+          version: 'tr6',
+          registry: 'evil.example.com/../..',
+          repository: 'service/my-org/my-repo',
+          image_tag: 'tr6_default'
+        }
+      ])}\`\`\``
+    })
+
+    await expect(
+      dispatcher.getLatestBuildSummary(
+        '$latest_prerelease',
+        'snapshots',
+        gitControllerMock,
+        'check'
+      )
+    ).rejects.toThrow(/Invalid build summary/)
+  })
+})
+
+describe('Resolving the image location of a dispatch', () => {
+  const imageLocationContext = {
+    defaultImageRepository: 'my-org/my-repo',
+    defaultRegistries: { snapshots: 'snapshots.reg', releases: 'releases.reg' },
+    registriesConfig: {
+      snapshots: {
+        registry: 'snapshots.reg',
+        base_paths: { services: 'service' }
+      },
+      releases: {
+        registry: 'releases.reg',
+        base_paths: { services: 'service' }
+      }
+    }
+  }
+
+  const anyDispatch = { type: 'any', image_repo: '', registry: '' }
+
+  const snapshotsEntry = {
+    flavor: 'flavor1',
+    image_type: 'snapshots',
+    version: 'abc1234',
+    registry: 'snapshots.reg',
+    repository: 'service/my-org/my-repo',
+    image_tag: 'abc1234_default'
+  }
+
+  const releasesEntry = {
+    ...snapshotsEntry,
+    image_type: 'releases',
+    registry: 'releases.reg'
+  }
+
+  it('derives the expected location of an any dispatch from the entry image type', () => {
+    expect(
+      dispatcher.resolveExpectedImageLocation(
+        snapshotsEntry,
+        anyDispatch,
+        imageLocationContext
+      )
+    ).toEqual({
+      repository: 'service/my-org/my-repo',
+      registry: 'snapshots.reg'
+    })
+
+    expect(
+      dispatcher.resolveExpectedImageLocation(
+        releasesEntry,
+        anyDispatch,
+        imageLocationContext
+      )
+    ).toEqual({
+      repository: 'service/my-org/my-repo',
+      registry: 'releases.reg'
+    })
+  })
+
+  it('honours an explicit override on an any dispatch', () => {
+    const dispatch = {
+      type: 'any',
+      image_repo: 'wips/org/repo1',
+      registry: 'registry1'
+    }
+
+    expect(
+      dispatcher.resolveExpectedImageLocation(
+        snapshotsEntry,
+        dispatch,
+        imageLocationContext
+      )
+    ).toEqual({ repository: 'wips/org/repo1', registry: 'registry1' })
+  })
+
+  it.each([
+    ['a foreign repository', { repository: 'attacker/evil' }],
+    ['a foreign registry', { registry: 'attacker.example.com' }],
+    ['a dot segment repository', { repository: '../../etc/passwd' }],
+    ['the registry of the other image type', { registry: 'releases.reg' }]
+  ])('refuses to match an any dispatch against %s', (_desc, override) => {
+    expect(
+      dispatcher.matchesImageLocation(
+        snapshotsEntry,
+        anyDispatch,
+        imageLocationContext
+      )
+    ).toEqual(true)
+
+    expect(
+      dispatcher.matchesImageLocation(
+        { ...snapshotsEntry, ...override },
+        anyDispatch,
+        imageLocationContext
+      )
+    ).toEqual(false)
+  })
+
+  it.each(['any', 'charts', '', 'Snapshots', undefined])(
+    'refuses to resolve an any dispatch against image_type %s',
+    imageType => {
+      expect(() =>
+        dispatcher.resolveExpectedImageLocation(
+          { ...snapshotsEntry, image_type: imageType },
+          anyDispatch,
+          imageLocationContext
+        )
+      ).toThrow(/expected one of snapshots, releases/)
+    }
+  )
+
+  it('refuses to resolve an any dispatch when the registry config is missing and dispatch is not fully overridden', () => {
+    const contextWithoutSnapshots = {
+      ...imageLocationContext,
+      registriesConfig: {
+        releases: imageLocationContext.registriesConfig.releases
+      }
+    }
+
+    // anyDispatch has image_repo: '' and registry: '' (not fully overridden)
+    expect(() =>
+      dispatcher.resolveExpectedImageLocation(
+        snapshotsEntry,
+        anyDispatch,
+        contextWithoutSnapshots
+      )
+    ).toThrow(/No snapshots registry configuration found/)
+  })
+
+  it('resolves a fully overridden any dispatch without registry config', () => {
+    const contextWithoutSnapshots = {
+      ...imageLocationContext,
+      registriesConfig: {
+        releases: imageLocationContext.registriesConfig.releases
+      }
+    }
+
+    const fullyOverriddenDispatch = {
+      type: 'any',
+      image_repo: 'explicit/org/repo',
+      registry: 'explicit.registry.io'
+    }
+
+    expect(
+      dispatcher.resolveExpectedImageLocation(
+        snapshotsEntry,
+        fullyOverriddenDispatch,
+        contextWithoutSnapshots
+      )
+    ).toEqual({
+      repository: 'explicit/org/repo',
+      registry: 'explicit.registry.io'
+    })
+  })
+
+  it('keeps the typed dispatch location check unchanged', () => {
+    const snapshotsDispatch = {
+      type: 'snapshots',
+      image_repo: 'service/my-org/my-repo',
+      registry: 'snapshots.reg'
+    }
+
+    expect(
+      dispatcher.matchesImageLocation(
+        snapshotsEntry,
+        snapshotsDispatch,
+        imageLocationContext
+      )
+    ).toEqual(true)
+
+    expect(
+      dispatcher.matchesImageLocation(
+        releasesEntry,
+        snapshotsDispatch,
+        imageLocationContext
+      )
+    ).toEqual(false)
+
+    expect(
+      dispatcher.matchesImageLocation(
+        { ...snapshotsEntry, repository: 'attacker/evil' },
+        snapshotsDispatch,
+        imageLocationContext
+      )
+    ).toEqual(false)
+
+    expect(
+      dispatcher.matchesImageLocation(
+        { ...snapshotsEntry, registry: 'attacker.example.com' },
+        snapshotsDispatch,
+        imageLocationContext
+      )
+    ).toEqual(false)
   })
 })

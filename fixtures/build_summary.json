@@ -5,7 +5,7 @@
     "image_repo": "my-org/my-repo",
     "image_tag": "version99",
     "image_type": "snapshots",
-    "registry": "",
+    "registry": "snapshots.reg",
     "repository": "service/my-org/my-repo",
     "version": "version99"
   },
@@ -110,21 +110,21 @@
   {
     "build_args": [],
     "flavor": "flavor1",
-    "image_repo": "repo-any1",
+    "image_repo": "my-org/my-repo",
     "image_tag": "v2.3-flavor1-pro",
     "image_type": "snapshots",
-    "registry": "registry-any1",
-    "repository": "repo-any1",
+    "registry": "snapshots.reg",
+    "repository": "service/my-org/my-repo",
     "version": "version-any1"
   },
   {
     "build_args": [],
     "flavor": "flavor2",
-    "image_repo": "repo-any2",
+    "image_repo": "my-org/my-repo",
     "image_tag": "v2.3-flavor2-pro",
     "image_type": "releases",
-    "registry": "registry-any2",
-    "repository": "repo-any2",
+    "registry": "releases.reg",
+    "repository": "service/my-org/my-repo",
     "version": "version-any2"
   }
 ]

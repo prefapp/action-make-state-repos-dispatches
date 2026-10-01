@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.3](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.2...v4.3.3) (2026-10-01)
+
+
+### Bug Fixes
+
+* Implement stronger wards against possible attacks ([#161](https://github.com/prefapp/action-make-state-repos-dispatches/issues/161)) ([08a0833](https://github.com/prefapp/action-make-state-repos-dispatches/commit/08a083360227d3592ce644f43a8539e7a0034c3c))
+
 ## [4.3.2](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.1...v4.3.2) (2026-08-10)
 
 

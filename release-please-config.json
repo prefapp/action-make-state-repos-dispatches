@@ -1,10 +1,8 @@
 {
-    "bootstrap-sha": "CHANGE_ME",
-    "release-type": "node",
-    "packages": {
-
-        ".": {}
-
+  "release-type": "node",
+  "packages": {
+    ".": {
+      "include-component-in-tag": false
     }
-
+  }
 }

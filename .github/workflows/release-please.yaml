@@ -57,7 +57,7 @@ jobs:
           echo $path_released | jq -cr '.[]' | while read -r release; do
             version=$(echo "$manifest" | jq -cr ".\"$release\"")
             major=$(echo "$version" | cut -d. -f1)
-            TAG_NAME="${release/*\//}-v${major}"
+            TAG_NAME="v${major}"
             git tag -fa "$TAG_NAME"  -m "Update major version tag"
             git push origin "$TAG_NAME" --force
           done

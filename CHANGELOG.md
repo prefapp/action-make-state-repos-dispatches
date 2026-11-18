@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.4](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.3...v4.3.4) (2026-11-18)
+
+
+### Bug Fixes
+
+* validate release-please pipeline ([#171](https://github.com/prefapp/action-make-state-repos-dispatches/issues/171)) ([e86689b](https://github.com/prefapp/action-make-state-repos-dispatches/commit/e86689bec03b0fc680bdc8487af67ce76ab128e8))
+
 ## [4.3.3](https://github.com/prefapp/action-make-state-repos-dispatches/compare/v4.3.2...v4.3.3) (2026-10-01)
 
 

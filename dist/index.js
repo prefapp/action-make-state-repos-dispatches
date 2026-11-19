@@ -54346,7 +54346,7 @@ async function makeDispatches(gitController) {
   const {
     dispatchesFilePath,
     appsFolderPath,
-    clustersFolderPath,
+    platformsFolderPath,
     registriesFolderPath,
     imageType,
     defaultReleasesRegistry,
@@ -54410,7 +54410,7 @@ async function makeDispatches(gitController) {
     const repoContext = gitController.getRepoContext()
     const defaultImageRepository = `${repoContext.owner}/${repoContext.repo}`
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
-    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
+    const clusterConfig = configHelper.getPlatformsConfig(platformsFolderPath)
     const registriesConfig = configHelper.getRegistriesConfig(
       registriesFolderPath,
       defaultSnapshotsRegistry,
@@ -54625,21 +54625,21 @@ function createDispatchList(
       if (!clusterConfig[chosenCluster]) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration does not exist`
+            `platform configuration does not exist`
         )
       }
 
       if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration does not include tenant ${deployment.tenant}`
+            `platform configuration does not include tenant ${deployment.tenant}`
         )
       }
 
       if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration does not include env ${deployment.env}`
+            `platform configuration does not include env ${deployment.env}`
         )
       }
 
@@ -54967,16 +54967,16 @@ function getAppsConfig(appFolderPath) {
   }
 }
 
-function getClustersConfig(clustersFolderPath) {
+function getPlatformsConfig(platformsFolderPath) {
   try {
-    const clustersConfig = {}
-    const configFileList = fs.readdirSync(clustersFolderPath)
+    const platformsConfig = {}
+    const configFileList = fs.readdirSync(platformsFolderPath)
     const schemaFilePath = __nccwpck_require__.ab + "firestartr-platforms.schema.json"
 
     for (const configFileName of configFileList) {
       if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
         const configFileContent = fs.readFileSync(
-          path.join(clustersFolderPath, configFileName),
+          path.join(platformsFolderPath, configFileName),
           'utf-8'
         )
         const configData = YAML.parse(configFileContent)
@@ -54987,7 +54987,7 @@ function getClustersConfig(clustersFolderPath) {
           throw new Error(`File ${configFileName}: ${err.message}`)
         }
 
-        clustersConfig[configData.name] = {
+        platformsConfig[configData.name] = {
           type: configData.type,
           tenants: configData.tenants,
           envs: configData.envs
@@ -54995,11 +54995,11 @@ function getClustersConfig(clustersFolderPath) {
       }
     }
 
-    return clustersConfig
+    return platformsConfig
   } catch (err) {
     throw new Error(
-      `Error getting cluster configs from folder ` +
-        `${clustersFolderPath}: ${err.message}`
+      `Error getting platform configs from folder ` +
+        `${platformsFolderPath}: ${err.message}`
     )
   }
 }
@@ -55050,7 +55050,7 @@ function getRegistriesConfig(
 module.exports = {
   configParse,
   getAppsConfig,
-  getClustersConfig,
+  getPlatformsConfig,
   getRegistriesConfig,
   validateBuildSummary
 }
@@ -55130,7 +55130,7 @@ function getAllInputs() {
       required: true
     })
     const appsFolderPath = core.getInput('apps_folder', { required: true })
-    const clustersFolderPath = core.getInput('platform_folder', {
+    const platformsFolderPath = core.getInput('platform_folder', {
       required: true
     })
     const registriesFolderPath = core.getInput('registries_folder', {
@@ -55159,7 +55159,7 @@ function getAllInputs() {
     return {
       dispatchesFilePath,
       appsFolderPath,
-      clustersFolderPath,
+      platformsFolderPath,
       registriesFolderPath,
       imageType,
       defaultReleasesRegistry,

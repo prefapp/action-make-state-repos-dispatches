@@ -91,10 +91,10 @@ function getAppsConfig(appFolderPath) {
   }
 }
 
-function getClustersConfig(clustersFolderPath) {
+function getPlatformsConfig(platformsFolderPath) {
   try {
-    const clustersConfig = {}
-    const configFileList = fs.readdirSync(clustersFolderPath)
+    const platformsConfig = {}
+    const configFileList = fs.readdirSync(platformsFolderPath)
     const schemaFilePath = path.join(
       __dirname,
       '../schema/firestartr-platforms.schema.json'
@@ -103,7 +103,7 @@ function getClustersConfig(clustersFolderPath) {
     for (const configFileName of configFileList) {
       if (configFileName.endsWith('.yaml') || configFileName.endsWith('.yml')) {
         const configFileContent = fs.readFileSync(
-          path.join(clustersFolderPath, configFileName),
+          path.join(platformsFolderPath, configFileName),
           'utf-8'
         )
         const configData = YAML.parse(configFileContent)
@@ -114,7 +114,7 @@ function getClustersConfig(clustersFolderPath) {
           throw new Error(`File ${configFileName}: ${err.message}`)
         }
 
-        clustersConfig[configData.name] = {
+        platformsConfig[configData.name] = {
           type: configData.type,
           tenants: configData.tenants,
           envs: configData.envs
@@ -122,11 +122,11 @@ function getClustersConfig(clustersFolderPath) {
       }
     }
 
-    return clustersConfig
+    return platformsConfig
   } catch (err) {
     throw new Error(
-      `Error getting cluster configs from folder ` +
-        `${clustersFolderPath}: ${err.message}`
+      `Error getting platform configs from folder ` +
+        `${platformsFolderPath}: ${err.message}`
     )
   }
 }
@@ -180,7 +180,7 @@ function getRegistriesConfig(
 module.exports = {
   configParse,
   getAppsConfig,
-  getClustersConfig,
+  getPlatformsConfig,
   getRegistriesConfig,
   validateBuildSummary
 }

@@ -9,7 +9,10 @@ const defaultDispatchesFilePath = 'fixtures/dispatches_file.yaml'
 const allInputs = {
   dispatchesFilePath: 'dispatches_file.yaml',
   appsFolderPath: path.join(__dirname, '../fixtures/.firestartr/apps'),
-  clustersFolderPath: path.join(__dirname, '../fixtures/.firestartr/clusters'),
+  platformsFolderPath: path.join(
+    __dirname,
+    '../fixtures/.firestartr/platforms'
+  ),
   registriesFolderPath: path.join(
     __dirname,
     '../fixtures/.firestartr/docker_registries'
@@ -573,8 +576,8 @@ describe('The dispatcher', () => {
       'releases.reg'
     )
     const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
 
     const result = dispatcher.createDispatchList(
@@ -668,8 +671,8 @@ describe('The dispatcher', () => {
       'releases.reg'
     )
     const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
     appConfig[singleDispatch.application].services[0].service_names = [
       'another_service2',
@@ -715,8 +718,8 @@ describe('The dispatcher', () => {
       'releases.reg'
     )
     const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
     dispatchesFileObj.deployments[0].image_keys = ['image_key']
 
@@ -745,8 +748,8 @@ describe('The dispatcher', () => {
       'snapshots.reg',
       'releases.reg'
     )
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
 
     expect(() => {
@@ -764,7 +767,7 @@ describe('The dispatcher', () => {
     )
   })
 
-  it("correctly processes deployments even when its configuration doesn't exactly match the cluster configuration", async () => {
+  it("correctly processes deployments even when its configuration doesn't exactly match the platform configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const registriesConfig = configHelper.getRegistriesConfig(
       'fixtures/.firestartr/docker_registries/',
@@ -772,8 +775,8 @@ describe('The dispatcher', () => {
       'releases.reg'
     )
     const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
     clusterConfig[singleDispatch.platform].envs = [
       'another_env2',
@@ -825,8 +828,8 @@ describe('The dispatcher', () => {
       'releases.reg'
     )
     const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
     dispatchesFileObj.deployments[0].base_path = 'custom/base/path'
 
@@ -843,7 +846,7 @@ describe('The dispatcher', () => {
     expect(result[0].base_folder).toEqual('custom/base/path')
   })
 
-  it("correctly throws an error when a deployment's enviroment or tenant doesn't follow the cluster configuration", async () => {
+  it("correctly throws an error when a deployment's enviroment or tenant doesn't follow the platform configuration", async () => {
     const { dispatchesFileObj, singleDispatch } = getSingleDispatch()
     const registriesConfig = configHelper.getRegistriesConfig(
       'fixtures/.firestartr/docker_registries/',
@@ -851,8 +854,8 @@ describe('The dispatcher', () => {
       'releases.reg'
     )
     const appConfig = configHelper.getAppsConfig('fixtures/.firestartr/apps/')
-    const clusterConfig = configHelper.getClustersConfig(
-      'fixtures/.firestartr/clusters/'
+    const clusterConfig = configHelper.getPlatformsConfig(
+      'fixtures/.firestartr/platforms/'
     )
 
     dispatchesFileObj.deployments[0]['platform'] = 'cluster99'
@@ -886,7 +889,7 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include env ${singleDispatch.env}`
+      `Error when creating dispatch list: ${singleDispatch.platform} platform configuration does not include env ${singleDispatch.env}`
     )
 
     clusterConfig[singleDispatch.platform].tenants = ['another_tenant1']
@@ -902,7 +905,7 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not include tenant ${singleDispatch.tenant}`
+      `Error when creating dispatch list: ${singleDispatch.platform} platform configuration does not include tenant ${singleDispatch.tenant}`
     )
   })
 
@@ -926,7 +929,7 @@ describe('The dispatcher', () => {
         registriesConfig
       )
     }).toThrow(
-      `Error when creating dispatch list: ${singleDispatch.platform} cluster configuration does not exist`
+      `Error when creating dispatch list: ${singleDispatch.platform} platform configuration does not exist`
     )
   })
 
@@ -950,9 +953,9 @@ describe('The dispatcher', () => {
     )
 
     expect(() => {
-      configHelper.getClustersConfig('wrong-path')
+      configHelper.getPlatformsConfig('wrong-path')
     }).toThrow(
-      'Error getting cluster configs from folder wrong-path: ' +
+      'Error getting platform configs from folder wrong-path: ' +
         "ENOENT: no such file or directory, scandir 'wrong-path'"
     )
   })

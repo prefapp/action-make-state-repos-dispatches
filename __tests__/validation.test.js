@@ -5,7 +5,7 @@ const os = require('os')
 const {
   configParse,
   getAppsConfig,
-  getClustersConfig,
+  getPlatformsConfig,
   getRegistriesConfig,
   validateBuildSummary
 } = require('../utils/config-helper')
@@ -266,8 +266,8 @@ describe('Yaml validation against Json schema', () => {
   })
 
   test('should validate .firestartr/platforms configs successfully against the Json Schema', () => {
-    const yamlData = getClustersConfig(
-      path.join(__dirname, '../fixtures/.firestartr/clusters')
+    const yamlData = getPlatformsConfig(
+      path.join(__dirname, '../fixtures/.firestartr/platforms')
     )
 
     expect(yamlData).toBeDefined()
@@ -307,7 +307,7 @@ describe('Yaml validation against Json schema', () => {
     const yamlContent = yaml.parse(
       getYamlContent(
         __dirname,
-        '../fixtures/.firestartr/clusters/cluster1.yaml'
+        '../fixtures/.firestartr/platforms/cluster1.yaml'
       )
     )
     yamlContent.extraField = 'invalid'
@@ -318,7 +318,7 @@ describe('Yaml validation against Json schema', () => {
     )
 
     expect(() =>
-      getClustersConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
+      getPlatformsConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
     ).toThrow()
   })
 
@@ -326,7 +326,7 @@ describe('Yaml validation against Json schema', () => {
     const yamlContent = yaml.parse(
       getYamlContent(
         __dirname,
-        '../fixtures/.firestartr/clusters/cluster1.yaml'
+        '../fixtures/.firestartr/platforms/cluster1.yaml'
       )
     )
     delete yamlContent.envs
@@ -337,7 +337,7 @@ describe('Yaml validation against Json schema', () => {
     )
 
     expect(() =>
-      getClustersConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
+      getPlatformsConfig(path.join(os.tmpdir(), 'invalid_firestartr_platforms'))
     ).toThrow()
   })
 })

@@ -67,7 +67,7 @@ function getAllInputs() {
       required: true
     })
     const appsFolderPath = core.getInput('apps_folder', { required: true })
-    const clustersFolderPath = core.getInput('platform_folder', {
+    const platformsFolderPath = core.getInput('platform_folder', {
       required: true
     })
     const registriesFolderPath = core.getInput('registries_folder', {
@@ -96,7 +96,7 @@ function getAllInputs() {
     return {
       dispatchesFilePath,
       appsFolderPath,
-      clustersFolderPath,
+      platformsFolderPath,
       registriesFolderPath,
       imageType,
       defaultReleasesRegistry,

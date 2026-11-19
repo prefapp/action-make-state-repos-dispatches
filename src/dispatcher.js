@@ -101,7 +101,7 @@ async function makeDispatches(gitController) {
   const {
     dispatchesFilePath,
     appsFolderPath,
-    clustersFolderPath,
+    platformsFolderPath,
     registriesFolderPath,
     imageType,
     defaultReleasesRegistry,
@@ -165,7 +165,7 @@ async function makeDispatches(gitController) {
     const repoContext = gitController.getRepoContext()
     const defaultImageRepository = `${repoContext.owner}/${repoContext.repo}`
     const appConfig = configHelper.getAppsConfig(appsFolderPath)
-    const clusterConfig = configHelper.getClustersConfig(clustersFolderPath)
+    const clusterConfig = configHelper.getPlatformsConfig(platformsFolderPath)
     const registriesConfig = configHelper.getRegistriesConfig(
       registriesFolderPath,
       defaultSnapshotsRegistry,
@@ -380,21 +380,21 @@ function createDispatchList(
       if (!clusterConfig[chosenCluster]) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration does not exist`
+            `platform configuration does not exist`
         )
       }
 
       if (!clusterConfig[chosenCluster].tenants.includes(deployment.tenant)) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration does not include tenant ${deployment.tenant}`
+            `platform configuration does not include tenant ${deployment.tenant}`
         )
       }
 
       if (!clusterConfig[chosenCluster].envs.includes(deployment.env)) {
         throw new Error(
           `Error when creating dispatch list: ${chosenCluster} ` +
-            `cluster configuration does not include env ${deployment.env}`
+            `platform configuration does not include env ${deployment.env}`
         )
       }
 

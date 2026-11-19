@@ -17,9 +17,9 @@ inputs:
     default: '.firestartr/apps'
   platform_folder:
     description:
-      'Local path to the cluster folder of the .firestartr configuration'
+      'Local path to the platforms folder of the .firestartr configuration'
     required: true
-    default: '.firestartr/clusters'
+    default: '.firestartr/platforms'
   registries_folder:
     description:
       'Local path to the registries folder of the .firestartr configuration'
@@ -63,7 +63,7 @@ inputs:
   filter_by_platform:
     description: |
       Dispatch only to dispatches whose platform is included in this filter, if
-      specified. Can be a comma separated list of clusters or * (all)
+      specified. Can be a comma separated list of platforms or * (all)
     required: true
     default: '*'
   overwrite_version:

@@ -69,6 +69,20 @@ The action takes the following inputs:
   calculated by the workflow. See its documentation for more information.
 - `check_run_name`: name of the workflow check run where `build_summary` was
   uploaded. See the `build_images` documentation for more information.
+- `apps_folder`, `platform_folder` and `registries_folder`: local paths to the
+  `.firestartr` directories holding app, platform and Docker registry
+  configuration. They default to `.firestartr/apps`, `.firestartr/platforms` and
+  `.firestartr/docker_registries`.
+- `filter_by_platform`: comma-separated platform names to dispatch to, or `*`
+  for all platforms (default).
+
+## Migrating from `.firestartr/clusters`
+
+`platforms/` is the canonical directory name. Repositories that still store
+platform configuration in the legacy `.firestartr/clusters` directory must set
+`platform_folder: .firestartr/clusters` explicitly. There is no automatic
+fallback; migrate the directory to `.firestartr/platforms` and remove the
+override when convenient.
 
 ## Special version keywords
 
